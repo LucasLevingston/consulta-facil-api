@@ -1,0 +1,147 @@
+package com.example.consulta.application.service;
+
+import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.domain.entity.MedicalRecord;
+import com.example.consulta.domain.entity.PatientProfile;
+import com.example.consulta.domain.entity.User;
+import com.example.consulta.domain.repository.MedicalRecordRepository;
+import com.example.consulta.domain.repository.PatientProfileRepository;
+import com.example.consulta.domain.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class PatientProfileService {
+
+    private final PatientProfileRepository patientProfileRepository;
+    private final UserRepository userRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getPatientProfile(String userId) {
+        log.debug("Fetching patient profile for user: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        PatientProfile patientProfile = patientProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
+
+        return toResponseMap(user, patientProfile);
+    }
+
+    @Transactional
+    public Map<String, Object> updatePatientProfile(String userId, Map<String, Object> updates) {
+        log.info("Updating patient profile for user: {}", userId);
+
+        PatientProfile patientProfile = patientProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
+
+        if (updates.containsKey("occupation")) {
+            patientProfile.setOccupation((String) updates.get("occupation"));
+        }
+
+        PatientProfile updated = patientProfileRepository.save(patientProfile);
+        User user = updated.getUser();
+
+        log.info("Patient profile updated: {}", userId);
+        return toResponseMap(user, updated);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getPatientMedicalRecords(String userId) {
+        log.debug("Fetching medical records for user: {}", userId);
+
+        PatientProfile patientProfile = patientProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
+
+        MedicalRecord medicalRecord = patientProfile.getMedicalRecord();
+
+        if (medicalRecord == null) {
+            throw new ResourceNotFoundException("Medical records not found for this patient");
+        }
+
+        return toMedicalRecordMap(medicalRecord);
+    }
+
+    @Transactional
+    public Map<String, Object> updatePatientMedicalRecords(String userId, Map<String, Object> updates) {
+        log.info("Updating medical records for user: {}", userId);
+
+        PatientProfile patientProfile = patientProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
+
+        MedicalRecord medicalRecord = patientProfile.getMedicalRecord();
+
+        if (medicalRecord == null) {
+            medicalRecord = MedicalRecord.builder()
+                    .patientProfile(patientProfile)
+                    .build();
+        }
+
+        if (updates.containsKey("allergies")) {
+            medicalRecord.setAllergies((String) updates.get("allergies"));
+        }
+        if (updates.containsKey("currentMedication")) {
+            medicalRecord.setCurrentMedication((String) updates.get("currentMedication"));
+        }
+        if (updates.containsKey("familyMedicalHistory")) {
+            medicalRecord.setFamilyMedicalHistory((String) updates.get("familyMedicalHistory"));
+        }
+        if (updates.containsKey("pastMedicalHistory")) {
+            medicalRecord.setPastMedicalHistory((String) updates.get("pastMedicalHistory"));
+        }
+        if (updates.containsKey("privacyConsent")) {
+            medicalRecord.setPrivacyConsent((Boolean) updates.get("privacyConsent"));
+        }
+        if (updates.containsKey("treatmentConsent")) {
+            medicalRecord.setTreatmentConsent((Boolean) updates.get("treatmentConsent"));
+        }
+        if (updates.containsKey("disclosureConsent")) {
+            medicalRecord.setDisclosureConsent((Boolean) updates.get("disclosureConsent"));
+        }
+
+        MedicalRecord updated = medicalRecordRepository.save(medicalRecord);
+        log.info("Medical records updated for user: {}", userId);
+
+        return toMedicalRecordMap(updated);
+    }
+
+    private Map<String, Object> toResponseMap(User user, PatientProfile patientProfile) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", patientProfile.getId());
+        response.put("userId", user.getId());
+        response.put("name", user.getName());
+        response.put("email", user.getEmail());
+        response.put("phone", user.getPhone());
+        response.put("cpf", user.getCpf());
+        response.put("occupation", patientProfile.getOccupation());
+        response.put("birthDate", user.getBirthDate());
+        response.put("gender", user.getGender());
+        response.put("createdAt", user.getCreatedAt());
+        response.put("updatedAt", user.getUpdatedAt());
+        return response;
+    }
+
+    private Map<String, Object> toMedicalRecordMap(MedicalRecord record) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", record.getId());
+        response.put("allergies", record.getAllergies());
+        response.put("currentMedication", record.getCurrentMedication());
+        response.put("familyMedicalHistory", record.getFamilyMedicalHistory());
+        response.put("pastMedicalHistory", record.getPastMedicalHistory());
+        response.put("privacyConsent", record.getPrivacyConsent());
+        response.put("treatmentConsent", record.getTreatmentConsent());
+        response.put("disclosureConsent", record.getDisclosureConsent());
+        response.put("createdAt", record.getCreatedAt());
+        response.put("updatedAt", record.getUpdatedAt());
+        return response;
+    }
+}
