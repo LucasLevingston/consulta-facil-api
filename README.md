@@ -67,7 +67,7 @@ docker-compose up -d
 ./gradlew bootRun
 ```
 
-A aplicação estará disponível em: `http://localhost:8080/api/v1`
+A aplicação estará disponível em: `http://localhost:8080/v1`
 
 ### Opção 2: Localmente (sem Docker)
 
@@ -94,12 +94,12 @@ docker-compose down
 Acesse a documentação interativa (Swagger UI):
 
 ```
-http://localhost:8080/api/v1/swagger-ui.html
+http://localhost:8080/v1/swagger-ui.html
 ```
 
 Ou a documentação JSON:
 ```
-http://localhost:8080/api/v1/docs
+http://localhost:8080/v1/docs
 ```
 
 ## 📁 Estrutura do Projeto
