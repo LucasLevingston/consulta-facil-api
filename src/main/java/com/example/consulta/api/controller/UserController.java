@@ -7,10 +7,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")
@@ -35,6 +37,17 @@ public class UserController {
     @Operation(summary = "Get user by ID")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String userId) {
         UserResponseDTO response = userService.getUserById(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Upload avatar do usuário autenticado")
+    public ResponseEntity<UserResponseDTO> uploadAvatar(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam MultipartFile file) {
+        UserResponseDTO response = userService.uploadAvatar(userDetails.getUserId(), file);
         return ResponseEntity.ok(response);
     }
 

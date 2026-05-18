@@ -39,6 +39,15 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.searchDoctorsBySpecialty(specialty, pageable));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Get my doctor profile")
+    public ResponseEntity<DoctorResponseDTO> getMyDoctorProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(doctorService.getDoctorByUserId(userDetails.getUserId()));
+    }
+
     @GetMapping("/{doctorId}")
     @Operation(summary = "Get doctor by ID")
     public ResponseEntity<DoctorResponseDTO> getDoctorById(@PathVariable String doctorId) {

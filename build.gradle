@@ -57,6 +57,15 @@ dependencies {
 	// Faker for data generation
 	implementation('com.github.javafaker:javafaker:1.0.2') { exclude group: 'org.yaml', module: 'snakeyaml' }
         implementation 'org.yaml:snakeyaml:2.2'
+
+	// AWS S3
+	implementation platform('software.amazon.awssdk:bom:2.21.0')
+	implementation 'software.amazon.awssdk:s3'
+
+	// MercadoPago
+	implementation('com.mercadopago:sdk-java:2.1.7') {
+		exclude group: 'org.sonatype.sisu', module: 'sisu-guice'
+	}
 	
 	// Tests
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

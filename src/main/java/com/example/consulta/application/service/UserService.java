@@ -2,6 +2,7 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.api.dto.user.UserResponseDTO;
+import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.DuplicateResourceException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.PatientProfile;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -23,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PatientProfileRepository patientProfileRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     @Transactional
     public UserResponseDTO createUser(CreateUserDTO dto) {
@@ -71,6 +74,33 @@ public class UserService {
         log.debug("Fetching user by email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found"));
+        return toResponseDTO(user);
+    }
+
+    @Transactional
+    public UserResponseDTO uploadAvatar(String userId, MultipartFile file) {
+        if (file.isEmpty()) throw new BadRequestException("Arquivo vazio");
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new BadRequestException("O arquivo deve ser uma imagem");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (user.getImageId() != null) {
+            s3Service.delete(user.getImageId());
+        }
+
+        String key = "avatars/" + userId;
+        String imageUrl = s3Service.upload(file, key);
+
+        user.setImageUrl(imageUrl);
+        user.setImageId(key);
+        userRepository.save(user);
+
+        log.info("Avatar atualizado para user {}", userId);
         return toResponseDTO(user);
     }
 

@@ -69,19 +69,19 @@ public class AppointmentService {
     @Transactional(readOnly = true)
     public Page<AppointmentResponseDTO> getPatientAppointments(String userId, Pageable pageable) {
         log.debug("Fetching appointments for user: {}", userId);
-        PatientProfile patient = patientProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
-        return appointmentRepository.findByPatientId(patient.getId(), pageable)
-                .map(this::toResponseDTO);
+        return patientProfileRepository.findByUserId(userId)
+                .map(patient -> appointmentRepository.findByPatientId(patient.getId(), pageable)
+                        .map(this::toResponseDTO))
+                .orElse(Page.empty(pageable));
     }
 
     @Transactional(readOnly = true)
     public Page<AppointmentResponseDTO> getDoctorAppointments(String doctorId, Pageable pageable) {
         log.debug("Fetching appointments for doctor: {}", doctorId);
-        doctorProfileRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorId));
-        return appointmentRepository.findByDoctorId(doctorId, pageable)
-                .map(this::toResponseDTO);
+        return doctorProfileRepository.findById(doctorId)
+                .map(doctor -> appointmentRepository.findByDoctorId(doctorId, pageable)
+                        .map(this::toResponseDTO))
+                .orElse(Page.empty(pageable));
     }
 
     @Transactional
