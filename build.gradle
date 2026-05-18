@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
 }
 
 group = 'com.consultafacil'
@@ -67,6 +68,9 @@ dependencies {
 		exclude group: 'org.sonatype.sisu', module: 'sisu-guice'
 	}
 	
+	// H2 para geração do OpenAPI spec sem PostgreSQL
+	implementation 'com.h2database:h2'
+
 	// Tests
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
@@ -79,5 +83,26 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Gera openapi.json sem precisar do PostgreSQL (usa H2 in-memory via perfil 'openapi')
+openApi {
+	apiDocsUrl = 'http://localhost:8080/v1/docs'
+	outputDir = file("${buildDir}/openapi")
+	outputFileName = 'openapi.json'
+	waitTimeInSeconds = 30
+	customBootRun {
+		args = ['--spring.profiles.active=openapi']
+	}
+}
+
+// Copia openapi.json gerado para o projeto web após a geração
+tasks.named('generateOpenApiDocs') {
+	doLast {
+		copy {
+			from file("${buildDir}/openapi/openapi.json")
+			into file("${projectDir}/../web")
+		}
+	}
 }
 

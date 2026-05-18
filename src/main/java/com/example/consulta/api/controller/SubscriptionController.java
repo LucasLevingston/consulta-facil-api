@@ -25,7 +25,7 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @PostMapping("/checkout")
-    @SecurityRequirement(name = "Bearer Authentication")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create MercadoPago checkout preference")
     public ResponseEntity<CheckoutResponseDTO> createCheckout(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -36,7 +36,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/me")
-    @SecurityRequirement(name = "Bearer Authentication")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get current user subscription")
     public ResponseEntity<SubscriptionResponseDTO> getMySubscription(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
