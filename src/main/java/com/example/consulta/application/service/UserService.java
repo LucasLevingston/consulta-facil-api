@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -23,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PatientProfileRepository patientProfileRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     @Transactional
     public UserResponseDTO createUser(CreateUserDTO dto) {
@@ -72,6 +74,27 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found"));
         return toResponseDTO(user);
+    }
+
+    @Transactional
+    public UserResponseDTO uploadAvatar(String userId, MultipartFile file) {
+        log.info("Uploading avatar for user: {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (user.getImageId() != null) {
+            s3Service.delete(user.getImageId());
+        }
+
+        String imageUrl = s3Service.upload(file, "avatars");
+        String imageId = imageUrl.substring(imageUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
+
+        user.setImageUrl(imageUrl);
+        user.setImageId(imageId);
+        User savedUser = userRepository.save(user);
+
+        log.info("Avatar uploaded for user: {}", userId);
+        return toResponseDTO(savedUser);
     }
 
     @Transactional

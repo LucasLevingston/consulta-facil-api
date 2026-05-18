@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/patients")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Patients", description = "Patient profile management endpoints")
 public class PatientProfileController {
 

@@ -39,6 +39,15 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.searchDoctorsBySpecialty(specialty, pageable));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Get my doctor profile")
+    public ResponseEntity<DoctorResponseDTO> getMyDoctorProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(doctorService.getDoctorByUserId(userDetails.getUserId()));
+    }
+
     @GetMapping("/{doctorId}")
     @Operation(summary = "Get doctor by ID")
     public ResponseEntity<DoctorResponseDTO> getDoctorById(@PathVariable String doctorId) {
@@ -47,7 +56,7 @@ public class DoctorController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create doctor profile", description = "Creates a doctor profile for the authenticated user")
     public ResponseEntity<DoctorResponseDTO> createDoctorProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -57,8 +66,8 @@ public class DoctorController {
     }
 
     @PutMapping("/{doctorId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update doctor profile")
     public ResponseEntity<DoctorResponseDTO> updateDoctor(
             @PathVariable String doctorId,
@@ -69,7 +78,7 @@ public class DoctorController {
 
     @DeleteMapping("/{doctorId}")
     @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete doctor profile")
     public ResponseEntity<Void> deleteDoctor(@PathVariable String doctorId) {
         doctorService.deleteDoctor(doctorId);

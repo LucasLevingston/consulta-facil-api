@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/appointments")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Appointments", description = "Appointment management endpoints")
 public class AppointmentController {
 
@@ -53,7 +53,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @Operation(summary = "List doctor appointments")
     public ResponseEntity<Page<AppointmentResponseDTO>> getDoctorAppointments(
             @PathVariable String doctorId,
@@ -62,7 +62,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/confirm")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @Operation(summary = "Confirm appointment")
     public ResponseEntity<AppointmentResponseDTO> confirmAppointment(@PathVariable String appointmentId) {
         AppointmentResponseDTO response = appointmentService.confirmAppointment(appointmentId);
@@ -79,7 +79,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/complete")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @Operation(summary = "Complete appointment")
     public ResponseEntity<AppointmentResponseDTO> completeAppointment(@PathVariable String appointmentId) {
         AppointmentResponseDTO response = appointmentService.completeAppointment(appointmentId);
