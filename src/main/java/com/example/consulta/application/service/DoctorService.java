@@ -122,6 +122,7 @@ public class DoctorService {
                 .specialty(doctor.getSpecialty())
                 .licenseNumber(doctor.getLicenseNumber())
                 .phone(doctor.getUser().getPhone())
+                .imageUrl(doctor.getUser().getImageUrl())
                 .build();
     }
 }

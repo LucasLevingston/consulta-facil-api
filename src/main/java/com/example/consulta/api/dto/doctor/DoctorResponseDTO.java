@@ -17,4 +17,5 @@ public class DoctorResponseDTO {
     private String specialty;
     private String licenseNumber;
     private String phone;
+    private String imageUrl;
 }
