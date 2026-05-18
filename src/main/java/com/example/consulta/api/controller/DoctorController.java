@@ -40,7 +40,7 @@ public class DoctorController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get my doctor profile")
     public ResponseEntity<DoctorResponseDTO> getMyDoctorProfile(
@@ -66,7 +66,7 @@ public class DoctorController {
     }
 
     @PutMapping("/{doctorId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update doctor profile")
     public ResponseEntity<DoctorResponseDTO> updateDoctor(

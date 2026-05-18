@@ -42,7 +42,7 @@ public class DoctorService {
                 .build();
 
         DoctorProfile saved = doctorProfileRepository.save(doctorProfile);
-        user.setRole(UserRole.ADMIN);
+        user.setRole(UserRole.DOCTOR);
         userRepository.save(user);
 
         log.info("Doctor profile created: {}", saved.getId());
@@ -106,7 +106,7 @@ public class DoctorService {
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorId));
 
         User user = doctor.getUser();
-        user.setRole(UserRole.USER);
+        user.setRole(UserRole.USER);  // back to patient when doctor profile is removed
         userRepository.save(user);
 
         doctorProfileRepository.delete(doctor);

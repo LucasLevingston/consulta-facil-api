@@ -2,7 +2,6 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.api.dto.user.UserResponseDTO;
-import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.DuplicateResourceException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.PatientProfile;
@@ -79,13 +78,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO uploadAvatar(String userId, MultipartFile file) {
-        if (file.isEmpty()) throw new BadRequestException("Arquivo vazio");
-
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new BadRequestException("O arquivo deve ser uma imagem");
-        }
-
+        log.info("Uploading avatar for user: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
@@ -93,15 +86,15 @@ public class UserService {
             s3Service.delete(user.getImageId());
         }
 
-        String key = "avatars/" + userId;
-        String imageUrl = s3Service.upload(file, key);
+        String imageUrl = s3Service.upload(file, "avatars");
+        String imageId = imageUrl.substring(imageUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
 
         user.setImageUrl(imageUrl);
-        user.setImageId(key);
-        userRepository.save(user);
+        user.setImageId(imageId);
+        User savedUser = userRepository.save(user);
 
-        log.info("Avatar atualizado para user {}", userId);
-        return toResponseDTO(user);
+        log.info("Avatar uploaded for user: {}", userId);
+        return toResponseDTO(savedUser);
     }
 
     @Transactional

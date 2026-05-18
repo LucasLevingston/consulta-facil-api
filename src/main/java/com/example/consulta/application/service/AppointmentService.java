@@ -107,7 +107,7 @@ public class AppointmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
         if (appointment.getStatus() == AppointmentStatus.COMPLETED ||
-            appointment.getStatus() == AppointmentStatus.CANCELED) {
+                appointment.getStatus() == AppointmentStatus.CANCELED) {
             throw new BadRequestException("Cannot cancel an appointment with status: " + appointment.getStatus());
         }
 
