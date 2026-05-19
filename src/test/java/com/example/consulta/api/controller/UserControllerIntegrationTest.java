@@ -3,7 +3,10 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.application.service.S3Service;
+import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.Gender;
+import com.example.consulta.domain.enums.UserRole;
+import com.example.consulta.domain.repository.UserRepository;
 import com.example.demo.DemoApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,11 +42,15 @@ class UserControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @MockBean
     private S3Service s3Service;
 
     private String userToken;
     private String userId;
+    private String adminToken;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -75,6 +82,38 @@ class UserControllerIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
 
         userToken = objectMapper.readTree(loginResponse).get("token").asText();
+
+        // Register and promote admin user
+        CreateUserDTO adminDTO = CreateUserDTO.builder()
+                .name("Admin User")
+                .email("admin@example.com")
+                .password("adminpass123")
+                .cpf("99988877766")
+                .phone("11911112222")
+                .birthDate(LocalDate.of(1985, 6, 10))
+                .gender(Gender.MALE)
+                .build();
+
+        String adminRegResponse = mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(adminDTO)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String adminUserId = objectMapper.readTree(adminRegResponse).get("id").asText();
+        User adminUser = userRepository.findById(adminUserId).orElseThrow();
+        adminUser.setRole(UserRole.ADMIN);
+        userRepository.saveAndFlush(adminUser);
+
+        String adminLoginResponse = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(LoginRequestDTO.builder()
+                        .email("admin@example.com")
+                        .password("adminpass123")
+                        .build())))
+                .andReturn().getResponse().getContentAsString();
+
+        adminToken = objectMapper.readTree(adminLoginResponse).get("token").asText();
     }
 
     @Test
@@ -132,5 +171,38 @@ class UserControllerIntegrationTest {
         mockMvc.perform(get("/users/" + userId)
                 .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testGetUserByIdAsAdmin() throws Exception {
+        mockMvc.perform(get("/users/" + userId)
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", equalTo(userId)))
+                .andExpect(jsonPath("$.email", equalTo("usercontroller@example.com")));
+    }
+
+    @Test
+    void testDeleteUserRequiresAdmin() throws Exception {
+        mockMvc.perform(delete("/users/" + userId)
+                .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testDeleteUserAsAdmin() throws Exception {
+        mockMvc.perform(delete("/users/" + userId)
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/users/" + userId)
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testDeleteUserUnauthorized() throws Exception {
+        mockMvc.perform(delete("/users/" + userId))
+                .andExpect(status().isUnauthorized());
     }
 }

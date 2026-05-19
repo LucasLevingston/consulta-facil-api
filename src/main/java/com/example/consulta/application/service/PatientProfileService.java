@@ -39,7 +39,6 @@ public class PatientProfileService {
 
     @Transactional
     public Map<String, Object> updatePatientProfile(String userId, Map<String, Object> updates) {
-        log.info("Updating patient profile for user: {}", userId);
 
         PatientProfile patientProfile = patientProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
@@ -51,7 +50,6 @@ public class PatientProfileService {
         PatientProfile updated = patientProfileRepository.save(patientProfile);
         User user = updated.getUser();
 
-        log.info("Patient profile updated: {}", userId);
         return toResponseMap(user, updated);
     }
 
@@ -73,7 +71,6 @@ public class PatientProfileService {
 
     @Transactional
     public Map<String, Object> updatePatientMedicalRecords(String userId, Map<String, Object> updates) {
-        log.info("Updating medical records for user: {}", userId);
 
         PatientProfile patientProfile = patientProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
@@ -109,7 +106,6 @@ public class PatientProfileService {
         }
 
         MedicalRecord updated = medicalRecordRepository.save(medicalRecord);
-        log.info("Medical records updated for user: {}", userId);
 
         return toMedicalRecordMap(updated);
     }
@@ -122,6 +118,7 @@ public class PatientProfileService {
         response.put("email", user.getEmail());
         response.put("phone", user.getPhone());
         response.put("cpf", user.getCpf());
+        response.put("imageUrl", user.getImageUrl());
         response.put("occupation", patientProfile.getOccupation());
         response.put("birthDate", user.getBirthDate());
         response.put("gender", user.getGender());

@@ -34,5 +34,7 @@ public class CreateUserDTO {
 
     private LocalDate birthDate;
 
+    private String imageUrl;
+
     private Gender gender;
 }

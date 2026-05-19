@@ -26,7 +26,6 @@ public class DoctorService {
 
     @Transactional
     public DoctorResponseDTO createDoctorProfile(String userId, CreateDoctorDTO dto) {
-        log.info("Creating doctor profile for user: {}", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
@@ -45,7 +44,6 @@ public class DoctorService {
         user.setRole(UserRole.DOCTOR);
         userRepository.save(user);
 
-        log.info("Doctor profile created: {}", saved.getId());
         return toResponseDTO(saved);
     }
 
@@ -81,7 +79,6 @@ public class DoctorService {
 
     @Transactional
     public DoctorResponseDTO updateDoctor(String doctorId, CreateDoctorDTO dto) {
-        log.info("Updating doctor: {}", doctorId);
 
         DoctorProfile doctor = doctorProfileRepository.findById(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorId));
@@ -95,22 +92,19 @@ public class DoctorService {
         doctor.setLicenseNumber(dto.getLicenseNumber());
 
         DoctorProfile updated = doctorProfileRepository.save(doctor);
-        log.info("Doctor updated: {}", doctorId);
         return toResponseDTO(updated);
     }
 
     @Transactional
     public void deleteDoctor(String doctorId) {
-        log.info("Deleting doctor: {}", doctorId);
         DoctorProfile doctor = doctorProfileRepository.findById(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorId));
 
         User user = doctor.getUser();
-        user.setRole(UserRole.USER);  // back to patient when doctor profile is removed
+        user.setRole(UserRole.USER); // back to patient when doctor profile is removed
         userRepository.save(user);
 
         doctorProfileRepository.delete(doctor);
-        log.info("Doctor deleted: {}", doctorId);
     }
 
     private DoctorResponseDTO toResponseDTO(DoctorProfile doctor) {

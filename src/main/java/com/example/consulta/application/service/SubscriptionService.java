@@ -37,16 +37,17 @@ public class SubscriptionService {
     private final MercadoPagoConfig mpConfig;
 
     private static final Map<String, PlanInfo> PLANS = Map.of(
-        "monthly", new PlanInfo("Plano Mensal", new BigDecimal("49.90"), 30),
-        "yearly",  new PlanInfo("Plano Anual",  new BigDecimal("499.90"), 365)
-    );
+            "monthly", new PlanInfo("Plano Mensal", new BigDecimal("49.90"), 30),
+            "yearly", new PlanInfo("Plano Anual", new BigDecimal("499.90"), 365));
 
-    record PlanInfo(String title, BigDecimal price, int durationDays) {}
+    record PlanInfo(String title, BigDecimal price, int durationDays) {
+    }
 
     @Transactional
     public CheckoutResponseDTO createCheckout(String userId, String planId) {
         PlanInfo plan = PLANS.get(planId);
-        if (plan == null) throw new IllegalArgumentException("Plano inválido: " + planId);
+        if (plan == null)
+            throw new IllegalArgumentException("Plano inválido: " + planId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
@@ -83,8 +84,6 @@ public class SubscriptionService {
             subscription.setMpPreferenceId(preference.getId());
             subscriptionRepository.save(subscription);
 
-            log.info("Checkout criado para user {} plano {}: {}", userId, planId, preference.getId());
-
             return CheckoutResponseDTO.builder()
                     .checkoutUrl(preference.getInitPoint())
                     .preferenceId(preference.getId())
@@ -102,14 +101,16 @@ public class SubscriptionService {
         if (ref == null) {
             try {
                 Payment payment = new PaymentClient().get(Long.parseLong(paymentId));
-                if (!"approved".equals(payment.getStatus())) return;
+                if (!"approved".equals(payment.getStatus()))
+                    return;
                 ref = payment.getExternalReference();
             } catch (Exception e) {
                 log.error("Erro ao buscar pagamento MP {}: {}", paymentId, e.getMessage());
                 return;
             }
         }
-        if (ref == null || !ref.contains("|")) return;
+        if (ref == null || !ref.contains("|"))
+            return;
         String externalRef = ref;
 
         String[] parts = externalRef.split("\\|");
@@ -117,15 +118,14 @@ public class SubscriptionService {
         String planId = parts[1];
 
         PlanInfo plan = PLANS.get(planId);
-        if (plan == null) return;
+        if (plan == null)
+            return;
 
         Optional<Subscription> opt = subscriptionRepository.findByUserId(userId);
-        Subscription subscription = opt.orElseGet(() ->
-            userRepository.findById(userId).map(u ->
-                Subscription.builder().user(u).planId(planId).build()
-            ).orElse(null)
-        );
-        if (subscription == null) return;
+        Subscription subscription = opt.orElseGet(() -> userRepository.findById(userId)
+                .map(u -> Subscription.builder().user(u).planId(planId).build()).orElse(null));
+        if (subscription == null)
+            return;
 
         subscription.setPlanId(planId);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
@@ -133,7 +133,6 @@ public class SubscriptionService {
         subscription.setExpiresAt(LocalDateTime.now().plusDays(plan.durationDays()));
         subscriptionRepository.save(subscription);
 
-        log.info("Assinatura ativada para user {}: plano={} expira={}", userId, planId, subscription.getExpiresAt());
     }
 
     @Transactional(readOnly = true)

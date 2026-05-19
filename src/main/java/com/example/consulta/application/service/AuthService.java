@@ -23,7 +23,6 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public LoginResponseDTO login(LoginRequestDTO request) {
-        log.info("Login attempt: {}", request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
@@ -39,7 +38,6 @@ public class AuthService {
         String token = jwtTokenProvider.generateToken(user);
         Long expiresIn = jwtTokenProvider.getExpiresIn();
 
-        log.info("Login successful: {}", request.getEmail());
         return LoginResponseDTO.of(token, expiresIn, user.getId(), user.getEmail(), user.getRole());
     }
 }

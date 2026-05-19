@@ -28,7 +28,6 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO createUser(CreateUserDTO dto) {
-        log.info("Creating new user: {}", dto.getEmail());
 
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateResourceException("User", "email", dto.getEmail());
@@ -46,6 +45,7 @@ public class UserService {
                 .phone(dto.getPhone())
                 .birthDate(dto.getBirthDate())
                 .gender(dto.getGender())
+                .imageUrl(dto.getImageUrl())
                 .role(UserRole.USER)
                 .build();
 
@@ -56,7 +56,6 @@ public class UserService {
                 .build();
         patientProfileRepository.save(patientProfile);
 
-        log.info("User created successfully: {}", savedUser.getId());
         return toResponseDTO(savedUser);
     }
 
@@ -78,7 +77,6 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO uploadAvatar(String userId, MultipartFile file) {
-        log.info("Uploading avatar for user: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
@@ -93,17 +91,14 @@ public class UserService {
         user.setImageId(imageId);
         User savedUser = userRepository.save(user);
 
-        log.info("Avatar uploaded for user: {}", userId);
         return toResponseDTO(savedUser);
     }
 
     @Transactional
     public void deleteUser(String id) {
-        log.info("Deleting user: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
         userRepository.delete(user);
-        log.info("User deleted successfully: {}", id);
     }
 
     private UserResponseDTO toResponseDTO(User user) {

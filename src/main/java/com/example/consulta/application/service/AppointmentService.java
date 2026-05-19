@@ -3,6 +3,7 @@ package com.example.consulta.application.service;
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.PatientSummaryDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
@@ -15,11 +16,14 @@ import com.example.consulta.domain.repository.PatientProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -32,7 +36,6 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentResponseDTO scheduleAppointment(String userId, CreateAppointmentDTO dto) {
-        log.info("Scheduling appointment for user: {} with doctor: {}", userId, dto.getDoctorId());
 
         PatientProfile patient = patientProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
@@ -54,7 +57,6 @@ public class AppointmentService {
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
-        log.info("Appointment scheduled successfully: {}", saved.getId());
         return toResponseDTO(saved);
     }
 
@@ -86,7 +88,6 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentResponseDTO confirmAppointment(String appointmentId) {
-        log.info("Confirming appointment: {}", appointmentId);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
@@ -96,13 +97,11 @@ public class AppointmentService {
 
         appointment.setStatus(AppointmentStatus.CONFIRMED);
         Appointment updated = appointmentRepository.save(appointment);
-        log.info("Appointment confirmed: {}", appointmentId);
         return toResponseDTO(updated);
     }
 
     @Transactional
     public AppointmentResponseDTO cancelAppointment(String appointmentId, CancelAppointmentDTO dto) {
-        log.info("Cancelling appointment: {}", appointmentId);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
@@ -114,13 +113,11 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.CANCELED);
         appointment.setCancellationReason(dto.getCancellationReason());
         Appointment updated = appointmentRepository.save(appointment);
-        log.info("Appointment cancelled: {}", appointmentId);
         return toResponseDTO(updated);
     }
 
     @Transactional
     public AppointmentResponseDTO completeAppointment(String appointmentId) {
-        log.info("Completing appointment: {}", appointmentId);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
@@ -134,17 +131,28 @@ public class AppointmentService {
 
         appointment.setStatus(AppointmentStatus.COMPLETED);
         Appointment updated = appointmentRepository.save(appointment);
-        log.info("Appointment completed: {}", appointmentId);
         return toResponseDTO(updated);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PatientSummaryDTO> getDoctorPatients(String doctorId, String search, String sort, int page, int size) {
+        log.debug("Fetching patients for doctor: {}, search: {}, sort: {}", doctorId, search, sort);
+        String term = search == null ? "" : search.trim();
+        List<PatientSummaryDTO> all = "name".equals(sort)
+                ? appointmentRepository.findDoctorPatientsByName(doctorId, term)
+                : appointmentRepository.findDoctorPatientsByRecent(doctorId, term);
+        Pageable pageable = PageRequest.of(page, size);
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + size, all.size());
+        List<PatientSummaryDTO> slice = start >= all.size() ? List.of() : all.subList(start, end);
+        return new PageImpl<>(slice, pageable, all.size());
     }
 
     @Transactional
     public void deleteAppointment(String appointmentId) {
-        log.info("Deleting appointment: {}", appointmentId);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
         appointmentRepository.delete(appointment);
-        log.info("Appointment deleted: {}", appointmentId);
     }
 
     private AppointmentResponseDTO toResponseDTO(Appointment appointment) {
