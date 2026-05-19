@@ -5,6 +5,7 @@ import com.example.consulta.api.dto.doctor.CreateDoctorDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.DoctorProfile;
 import com.example.consulta.domain.entity.User;
+import com.example.consulta.domain.enums.DoctorProfileStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
 import com.example.consulta.domain.repository.DoctorProfileRepository;
@@ -113,6 +114,7 @@ class DoctorControllerIntegrationTest {
                 .user(doctorUser)
                 .specialty("Cardiologia")
                 .licenseNumber("CRM-SP-12345")
+                .status(DoctorProfileStatus.ACTIVE)
                 .build();
         doctorProfileId = doctorProfileRepository.saveAndFlush(profile).getId();
 
@@ -230,7 +232,7 @@ class DoctorControllerIntegrationTest {
     }
 
     @Test
-    void testPatientCanBecomeDoctorViaApi() throws Exception {
+    void testPatientCanSubmitDoctorApplicationAndAdminCanApprove() throws Exception {
         CreateUserDTO patientDTO = CreateUserDTO.builder()
                 .name("Future Doctor")
                 .email("futuredoctor@example.com")
@@ -263,19 +265,30 @@ class DoctorControllerIntegrationTest {
                 .licenseNumber("CRM-SP-55555")
                 .build();
 
-        mockMvc.perform(post("/doctors")
+        String createResponse = mockMvc.perform(post("/doctors")
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.specialty", equalTo("Pediatria")))
-                .andExpect(jsonPath("$.licenseNumber", equalTo("CRM-SP-55555")));
+                .andExpect(jsonPath("$.status", equalTo("PENDING_REVIEW")))
+                .andReturn().getResponse().getContentAsString();
 
-        // After becoming a doctor the user role should be DOCTOR
+        // User role must still be PATIENT while pending review
         String patientId = objectMapper.readTree(regResponse).get("id").asText();
-        com.example.consulta.domain.entity.User user = userRepository.findById(patientId).orElseThrow();
-        org.junit.jupiter.api.Assertions.assertEquals(
-                com.example.consulta.domain.enums.UserRole.DOCTOR, user.getRole());
+        User user = userRepository.findById(patientId).orElseThrow();
+        org.junit.jupiter.api.Assertions.assertEquals(UserRole.PATIENT, user.getRole());
+
+        // Admin approves the application
+        String newDoctorProfileId = objectMapper.readTree(createResponse).get("id").asText();
+        mockMvc.perform(put("/doctors/" + newDoctorProfileId + "/approve")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", equalTo("ACTIVE")));
+
+        // After approval user role should be DOCTOR
+        userRepository.findById(patientId).ifPresent(u ->
+                org.junit.jupiter.api.Assertions.assertEquals(UserRole.DOCTOR, u.getRole()));
     }
 
     @Test

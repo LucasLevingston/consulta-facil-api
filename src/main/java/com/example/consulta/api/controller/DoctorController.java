@@ -84,4 +84,36 @@ public class DoctorController {
         doctorService.deleteDoctor(doctorId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/applications")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "List pending doctor applications (admin only)")
+    public ResponseEntity<Page<DoctorResponseDTO>> getPendingApplications(Pageable pageable) {
+        return ResponseEntity.ok(doctorService.getPendingApplications(pageable));
+    }
+
+    @GetMapping("/application-status")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Get own doctor application status")
+    public ResponseEntity<DoctorResponseDTO> getApplicationStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(doctorService.getApplicationStatus(userDetails.getUserId()));
+    }
+
+    @PutMapping("/{doctorId}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Approve a doctor application (admin only)")
+    public ResponseEntity<DoctorResponseDTO> approveDoctorApplication(@PathVariable String doctorId) {
+        return ResponseEntity.ok(doctorService.approveDoctorApplication(doctorId));
+    }
+
+    @PutMapping("/{doctorId}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Reject a doctor application (admin only)")
+    public ResponseEntity<DoctorResponseDTO> rejectDoctorApplication(@PathVariable String doctorId) {
+        return ResponseEntity.ok(doctorService.rejectDoctorApplication(doctorId));
+    }
 }

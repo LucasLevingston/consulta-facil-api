@@ -2,11 +2,13 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.doctor.CreateDoctorDTO;
 import com.example.consulta.api.dto.doctor.DoctorResponseDTO;
+import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.DuplicateResourceException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.DoctorProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentStatus;
+import com.example.consulta.domain.enums.DoctorProfileStatus;
 import com.example.consulta.domain.enums.UserRole;
 import java.util.OptionalDouble;
 import com.example.consulta.domain.repository.DoctorProfileRepository;
@@ -40,12 +42,10 @@ public class DoctorService {
                 .user(user)
                 .specialty(dto.getSpecialty())
                 .licenseNumber(dto.getLicenseNumber())
+                .status(DoctorProfileStatus.PENDING_REVIEW)
                 .build();
 
         DoctorProfile saved = doctorProfileRepository.save(doctorProfile);
-        user.setRole(UserRole.DOCTOR);
-        userRepository.save(user);
-
         return toResponseDTO(saved);
     }
 
@@ -68,15 +68,60 @@ public class DoctorService {
     @Transactional(readOnly = true)
     public Page<DoctorResponseDTO> searchDoctorsBySpecialty(String specialty, Pageable pageable) {
         log.debug("Searching doctors by specialty: {}", specialty);
-        return doctorProfileRepository.findBySpecialtyContainingIgnoreCase(specialty, pageable)
+        return doctorProfileRepository
+                .findBySpecialtyContainingIgnoreCaseAndStatus(specialty, DoctorProfileStatus.ACTIVE, pageable)
                 .map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<DoctorResponseDTO> getAllDoctors(Pageable pageable) {
         log.debug("Fetching all doctors");
-        return doctorProfileRepository.findAll(pageable)
+        return doctorProfileRepository.findByStatus(DoctorProfileStatus.ACTIVE, pageable)
                 .map(this::toResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DoctorResponseDTO> getPendingApplications(Pageable pageable) {
+        log.debug("Fetching pending doctor applications");
+        return doctorProfileRepository.findByStatus(DoctorProfileStatus.PENDING_REVIEW, pageable)
+                .map(this::toResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public DoctorResponseDTO getApplicationStatus(String userId) {
+        log.debug("Fetching doctor application status for user: {}", userId);
+        DoctorProfile profile = doctorProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor application not found for user: " + userId));
+        return toResponseDTO(profile);
+    }
+
+    @Transactional
+    public DoctorResponseDTO approveDoctorApplication(String doctorId) {
+        DoctorProfile profile = doctorProfileRepository.findById(doctorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorId));
+
+        if (profile.getStatus() != DoctorProfileStatus.PENDING_REVIEW) {
+            throw new BadRequestException("Application is not pending review");
+        }
+
+        profile.setStatus(DoctorProfileStatus.ACTIVE);
+        User user = profile.getUser();
+        user.setRole(UserRole.DOCTOR);
+        userRepository.save(user);
+        return toResponseDTO(doctorProfileRepository.save(profile));
+    }
+
+    @Transactional
+    public DoctorResponseDTO rejectDoctorApplication(String doctorId) {
+        DoctorProfile profile = doctorProfileRepository.findById(doctorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorId));
+
+        if (profile.getStatus() != DoctorProfileStatus.PENDING_REVIEW) {
+            throw new BadRequestException("Application is not pending review");
+        }
+
+        profile.setStatus(DoctorProfileStatus.REJECTED);
+        return toResponseDTO(doctorProfileRepository.save(profile));
     }
 
     @Transactional
@@ -131,6 +176,7 @@ public class DoctorService {
                 .imageUrl(doctor.getUser().getImageUrl())
                 .rating(rating)
                 .consultationCount(consultationCount)
+                .status(doctor.getStatus())
                 .build();
     }
 }

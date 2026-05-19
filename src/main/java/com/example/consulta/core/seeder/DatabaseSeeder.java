@@ -75,18 +75,27 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "00000000002",
                     "Cardiologia",
                     "CRM-TESTE-001");
+            doctorService.approveDoctorApplication(doctorProfileId);
 
-            createDoctor(
+            String adminDoctorProfileId = createDoctor(
                     "admin@example.com",
                     "12345678",
                     "Admin Teste",
                     "00000000003",
                     "Clinica Geral",
                     "CRM-ADMIN-001");
+            doctorService.approveDoctorApplication(adminDoctorProfileId);
 
             List<String> patientUserIds = createPatients(20);
 
             List<String> doctorProfileIds = createDoctors(20);
+            doctorProfileIds.forEach(id -> {
+                try {
+                    doctorService.approveDoctorApplication(id);
+                } catch (Exception e) {
+                    log.debug("Erro ao aprovar médico {}: {}", id, e.getMessage());
+                }
+            });
 
             createAppointments(patientUserIds, doctorProfileIds);
 

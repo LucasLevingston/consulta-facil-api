@@ -1,5 +1,6 @@
 package com.example.consulta.api.dto.doctor;
 
+import com.example.consulta.domain.enums.DoctorProfileStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +21,5 @@ public class DoctorResponseDTO {
     private String imageUrl;
     private Double rating;
     private Integer consultationCount;
+    private DoctorProfileStatus status;
 }

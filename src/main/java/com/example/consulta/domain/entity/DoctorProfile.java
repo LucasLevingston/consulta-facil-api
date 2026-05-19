@@ -1,5 +1,6 @@
 package com.example.consulta.domain.entity;
 
+import com.example.consulta.domain.enums.DoctorProfileStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,6 +29,11 @@ public class DoctorProfile {
 
     @Column(nullable = false, unique = true)
     private String licenseNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private DoctorProfileStatus status = DoctorProfileStatus.PENDING_REVIEW;
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
