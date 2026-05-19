@@ -8,6 +8,7 @@ import com.example.consulta.domain.entity.DoctorProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.UserRole;
+import java.util.OptionalDouble;
 import com.example.consulta.domain.repository.DoctorProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -112,6 +113,13 @@ public class DoctorService {
         int consultationCount = (int) doctor.getAppointments().stream()
                 .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
                 .count();
+        OptionalDouble avg = doctor.getAppointments().stream()
+                .filter(a -> a.getRating() != null)
+                .mapToInt(a -> a.getRating())
+                .average();
+        Double rating = avg.isPresent()
+                ? Math.round(avg.getAsDouble() * 10.0) / 10.0
+                : null;
         return DoctorResponseDTO.builder()
                 .id(doctor.getId())
                 .userId(doctor.getUser().getId())
@@ -121,7 +129,7 @@ public class DoctorService {
                 .licenseNumber(doctor.getLicenseNumber())
                 .phone(doctor.getUser().getPhone())
                 .imageUrl(doctor.getUser().getImageUrl())
-                .rating(doctor.getRating())
+                .rating(rating)
                 .consultationCount(consultationCount)
                 .build();
     }

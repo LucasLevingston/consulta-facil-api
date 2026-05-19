@@ -24,6 +24,8 @@ public class AppointmentResponseDTO {
     private String notes;
     private AppointmentStatus status;
     private String cancellationReason;
+    private Integer rating;
+    private String ratingComment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

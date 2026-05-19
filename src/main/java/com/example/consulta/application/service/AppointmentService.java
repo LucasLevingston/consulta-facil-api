@@ -4,6 +4,7 @@ import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.PatientSummaryDTO;
+import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
@@ -144,6 +145,32 @@ public class AppointmentService {
     }
 
     @Transactional
+    public AppointmentResponseDTO rateAppointment(String appointmentId, String userId, RateAppointmentDTO dto) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+
+        if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
+            throw new BadRequestException("Only completed appointments can be rated");
+        }
+
+        PatientProfile patient = patientProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
+
+        if (!appointment.getPatient().getId().equals(patient.getId())) {
+            throw new BadRequestException("You can only rate your own appointments");
+        }
+
+        if (appointment.getRating() != null) {
+            throw new BadRequestException("This appointment has already been rated");
+        }
+
+        appointment.setRating(dto.getStars());
+        appointment.setRatingComment(dto.getComment());
+        Appointment updated = appointmentRepository.save(appointment);
+        return toResponseDTO(updated);
+    }
+
+    @Transactional
     public void deleteAppointment(String appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
@@ -163,6 +190,8 @@ public class AppointmentService {
                 .notes(appointment.getNotes())
                 .status(appointment.getStatus())
                 .cancellationReason(appointment.getCancellationReason())
+                .rating(appointment.getRating())
+                .ratingComment(appointment.getRatingComment())
                 .createdAt(appointment.getCreatedAt())
                 .updatedAt(appointment.getUpdatedAt())
                 .build();

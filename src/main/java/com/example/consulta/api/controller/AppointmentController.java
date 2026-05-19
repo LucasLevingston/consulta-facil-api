@@ -3,6 +3,7 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.application.service.AppointmentService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,6 +84,18 @@ public class AppointmentController {
     @Operation(summary = "Complete appointment")
     public ResponseEntity<AppointmentResponseDTO> completeAppointment(@PathVariable String appointmentId) {
         AppointmentResponseDTO response = appointmentService.completeAppointment(appointmentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{appointmentId}/rate")
+    @PreAuthorize("hasRole('PATIENT')")
+    @Operation(summary = "Rate a completed appointment")
+    public ResponseEntity<AppointmentResponseDTO> rateAppointment(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody RateAppointmentDTO dto) {
+        AppointmentResponseDTO response = appointmentService.rateAppointment(
+                appointmentId, userDetails.getUserId(), dto);
         return ResponseEntity.ok(response);
     }
 
