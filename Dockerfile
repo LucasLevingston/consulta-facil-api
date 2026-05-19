@@ -26,5 +26,4 @@ EXPOSE 8080
 ENTRYPOINT ["java", \
   "-XX:MaxRAMPercentage=75.0", \
   "-XX:InitialRAMPercentage=50.0", \
-  "-Dspring.profiles.active=prod", \
   "-jar", "app.jar"]
