@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
+	id 'jacoco'
 }
 
 group = 'com.consultafacil'
@@ -81,9 +82,72 @@ dependencies {
 	testImplementation 'org.testcontainers:postgresql:1.19.7'
 }
 
+// ─── JaCoCo: cobertura de testes ─────────────────────────────────────────────
+jacoco {
+	toolVersion = '0.8.11'
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
 }
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		html.required = true
+		xml.required = true
+		csv.required = false
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+				'com/example/demo/**',
+				'**/dto/**',
+				'**/config/**',
+				'**/seeder/**',
+			])
+		}))
+	}
+}
+
+jacocoTestCoverageVerification {
+	dependsOn jacocoTestReport
+	violationRules {
+		rule {
+			limit {
+				counter = 'LINE'
+				value   = 'COVEREDRATIO'
+				minimum = 0.30
+			}
+		}
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+				'com/example/demo/**',
+				'**/dto/**',
+				'**/config/**',
+				'**/seeder/**',
+			])
+		}))
+	}
+}
+
+// ─── Git hook: instala pre-commit automaticamente ────────────────────────────
+tasks.register('installGitHooks', Copy) {
+	description = 'Copia scripts/pre-commit para .git/hooks/'
+	group       = 'setup'
+	from(new File(rootDir, 'scripts/pre-commit'))
+	into('.git/hooks')
+	fileMode 0755
+	doLast {
+		logger.lifecycle('✓ Git hooks instalados em .git/hooks/')
+	}
+}
+
+// Roda o instalador de hooks a cada build
+build.dependsOn installGitHooks
 
 // Gera openapi.json sem precisar do PostgreSQL (usa H2 in-memory via perfil 'openapi')
 openApi {

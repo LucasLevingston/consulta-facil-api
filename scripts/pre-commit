@@ -1,0 +1,38 @@
+#!/bin/sh
+# Git pre-commit hook — instalado automaticamente por ./gradlew build
+# Para pular temporariamente: git commit --no-verify
+
+set -e
+
+echo ""
+echo "╔══════════════════════════════════════╗"
+echo "║        Verificações pré-commit       ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
+
+# 1. Compilação
+echo "▶ [1/4] Compilando Java..."
+./gradlew compileJava compileTestJava --quiet
+echo "✓ Compilação sem erros"
+echo ""
+
+# 2. Testes
+echo "▶ [2/4] Executando testes..."
+./gradlew test --quiet
+echo "✓ Todos os testes passaram"
+echo ""
+
+# 3. Cobertura
+echo "▶ [3/4] Verificando cobertura (mínimo 30%)..."
+./gradlew jacocoTestCoverageVerification --quiet
+echo "✓ Cobertura dentro do limite"
+echo ""
+
+# 4. Build
+echo "▶ [4/4] Build final..."
+./gradlew build -x test --quiet
+echo "✓ Build concluído"
+echo ""
+
+echo "✅ Todas as verificações passaram. Commit liberado."
+echo ""
