@@ -101,7 +101,7 @@ public class DoctorService {
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorId));
 
         User user = doctor.getUser();
-        user.setRole(UserRole.USER); // back to patient when doctor profile is removed
+        user.setRole(UserRole.PATIENT);
         userRepository.save(user);
 
         doctorProfileRepository.delete(doctor);

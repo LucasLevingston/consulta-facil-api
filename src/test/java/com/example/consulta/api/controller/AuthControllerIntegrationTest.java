@@ -64,7 +64,7 @@ class AuthControllerIntegrationTest {
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.email", equalTo("test@example.com")))
                 .andExpect(jsonPath("$.name", equalTo("Test User")))
-                .andExpect(jsonPath("$.role", equalTo("USER")));
+                .andExpect(jsonPath("$.role", equalTo("PATIENT")));
     }
 
     @Test

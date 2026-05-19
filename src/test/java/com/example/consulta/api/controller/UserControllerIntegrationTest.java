@@ -124,7 +124,7 @@ class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.id", equalTo(userId)))
                 .andExpect(jsonPath("$.email", equalTo("usercontroller@example.com")))
                 .andExpect(jsonPath("$.name", equalTo("Test User")))
-                .andExpect(jsonPath("$.role", equalTo("USER")));
+                .andExpect(jsonPath("$.role", equalTo("PATIENT")));
     }
 
     @Test

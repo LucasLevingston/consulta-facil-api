@@ -28,7 +28,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('PATIENT')")
     @Operation(summary = "Schedule appointment", description = "Creates a new appointment for the authenticated patient")
     public ResponseEntity<AppointmentResponseDTO> scheduleAppointment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -44,7 +44,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{userId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('PATIENT')")
     @Operation(summary = "List patient appointments")
     public ResponseEntity<Page<AppointmentResponseDTO>> getPatientAppointments(
             @PathVariable String userId,
