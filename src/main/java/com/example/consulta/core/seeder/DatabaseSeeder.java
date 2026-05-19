@@ -29,7 +29,7 @@ import java.util.Locale;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("!test")
+@Profile("!prod & !test")
 public class DatabaseSeeder implements CommandLineRunner {
 
     private final Flyway flyway;
