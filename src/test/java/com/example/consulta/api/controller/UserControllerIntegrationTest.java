@@ -205,4 +205,11 @@ class UserControllerIntegrationTest {
         mockMvc.perform(delete("/users/" + userId))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void testGetUserByIdNotFoundAsAdmin() throws Exception {
+        mockMvc.perform(get("/users/non-existent-uuid")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
+    }
 }

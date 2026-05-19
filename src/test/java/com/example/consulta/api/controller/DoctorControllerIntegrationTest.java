@@ -216,7 +216,7 @@ class DoctorControllerIntegrationTest {
     }
 
     @Test
-    void testCreateDoctorProfileRequiresAdmin() throws Exception {
+    void testCreateDoctorProfileForbiddenForDoctor() throws Exception {
         CreateDoctorDTO dto = CreateDoctorDTO.builder()
                 .specialty("Dermatologia")
                 .licenseNumber("CRM-MG-77777")
@@ -227,6 +227,55 @@ class DoctorControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testPatientCanBecomeDoctorViaApi() throws Exception {
+        CreateUserDTO patientDTO = CreateUserDTO.builder()
+                .name("Future Doctor")
+                .email("futuredoctor@example.com")
+                .password("password123")
+                .cpf("55566677788")
+                .phone("11955554444")
+                .birthDate(java.time.LocalDate.of(1985, 3, 15))
+                .gender(com.example.consulta.domain.enums.Gender.FEMALE)
+                .build();
+
+        String regResponse = mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patientDTO)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String patientLoginResponse = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(LoginRequestDTO.builder()
+                        .email("futuredoctor@example.com")
+                        .password("password123")
+                        .build())))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String patientToken = objectMapper.readTree(patientLoginResponse).get("token").asText();
+
+        CreateDoctorDTO dto = CreateDoctorDTO.builder()
+                .specialty("Pediatria")
+                .licenseNumber("CRM-SP-55555")
+                .build();
+
+        mockMvc.perform(post("/doctors")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.specialty", equalTo("Pediatria")))
+                .andExpect(jsonPath("$.licenseNumber", equalTo("CRM-SP-55555")));
+
+        // After becoming a doctor the user role should be DOCTOR
+        String patientId = objectMapper.readTree(regResponse).get("id").asText();
+        com.example.consulta.domain.entity.User user = userRepository.findById(patientId).orElseThrow();
+        org.junit.jupiter.api.Assertions.assertEquals(
+                com.example.consulta.domain.enums.UserRole.DOCTOR, user.getRole());
     }
 
     @Test
@@ -258,6 +307,21 @@ class DoctorControllerIntegrationTest {
     void testDeleteDoctorRequiresAdmin() throws Exception {
         mockMvc.perform(delete("/doctors/" + doctorProfileId)
                 .header("Authorization", "Bearer " + doctorToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testSearchDoctorsBySpecialtyNoResults() throws Exception {
+        mockMvc.perform(get("/doctors/search").param("specialty", "EspecialidadeInexistente"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", instanceOf(java.util.ArrayList.class)))
+                .andExpect(jsonPath("$.totalElements", equalTo(0)));
+    }
+
+    @Test
+    void testGetMyDoctorProfileWithoutAuthIsForbidden() throws Exception {
+        // /doctors/me is @PreAuthorize-gated — returns 403 for both unauthenticated and wrong role
+        mockMvc.perform(get("/doctors/me"))
                 .andExpect(status().isForbidden());
     }
 }
