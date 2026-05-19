@@ -26,14 +26,14 @@ public interface DoctorProfileRepository extends JpaRepository<DoctorProfile, St
               AND d.longitude IS NOT NULL
               AND (:specialty IS NULL OR LOWER(d.specialty) LIKE LOWER(CONCAT('%', :specialty, '%')))
               AND (6371 * acos(
-                    cos(radians(:lat)) * cos(radians(d.latitude)) *
+                    LEAST(1.0, cos(radians(:lat)) * cos(radians(d.latitude)) *
                     cos(radians(d.longitude) - radians(:lng)) +
-                    sin(radians(:lat)) * sin(radians(d.latitude))
+                    sin(radians(:lat)) * sin(radians(d.latitude)))
                   )) <= :radiusKm
             ORDER BY (6371 * acos(
-                    cos(radians(:lat)) * cos(radians(d.latitude)) *
+                    LEAST(1.0, cos(radians(:lat)) * cos(radians(d.latitude)) *
                     cos(radians(d.longitude) - radians(:lng)) +
-                    sin(radians(:lat)) * sin(radians(d.latitude))
+                    sin(radians(:lat)) * sin(radians(d.latitude)))
                   )) ASC
             """, nativeQuery = true)
     List<DoctorProfile> findNearby(
