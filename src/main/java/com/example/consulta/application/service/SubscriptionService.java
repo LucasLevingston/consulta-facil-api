@@ -37,8 +37,10 @@ public class SubscriptionService {
     private final MercadoPagoConfig mpConfig;
 
     private static final Map<String, PlanInfo> PLANS = Map.of(
-            "monthly", new PlanInfo("Plano Mensal", new BigDecimal("49.90"), 30),
-            "yearly", new PlanInfo("Plano Anual", new BigDecimal("499.90"), 365));
+            "monthly", new PlanInfo("Plano Pro Mensal", new BigDecimal("49.90"), 30),
+            "yearly", new PlanInfo("Plano Pro Anual", new BigDecimal("499.90"), 365),
+            "clinic-monthly", new PlanInfo("Plano Clínica Mensal", new BigDecimal("149.90"), 30),
+            "clinic-yearly", new PlanInfo("Plano Clínica Anual", new BigDecimal("1499.90"), 365));
 
     record PlanInfo(String title, BigDecimal price, int durationDays) {
     }

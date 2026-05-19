@@ -5,11 +5,13 @@ import com.example.consulta.api.dto.doctor.DoctorResponseDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.DuplicateResourceException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.entity.DoctorProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.DoctorProfileStatus;
 import com.example.consulta.domain.enums.UserRole;
+import java.util.List;
 import java.util.OptionalDouble;
 import com.example.consulta.domain.repository.DoctorProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
@@ -78,6 +80,13 @@ public class DoctorService {
         log.debug("Fetching all doctors");
         return doctorProfileRepository.findByStatus(DoctorProfileStatus.ACTIVE, pageable)
                 .map(this::toResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DoctorResponseDTO> getDoctorsNearby(double lat, double lng, double radiusKm, String specialty) {
+        log.debug("Fetching doctors near ({}, {}) within {}km", lat, lng, radiusKm);
+        return doctorProfileRepository.findNearby(lat, lng, radiusKm, specialty)
+                .stream().map(this::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
@@ -165,6 +174,12 @@ public class DoctorService {
         Double rating = avg.isPresent()
                 ? Math.round(avg.getAsDouble() * 10.0) / 10.0
                 : null;
+
+        Clinic clinic = doctor.getClinicMemberships().stream()
+                .findFirst()
+                .map(m -> m.getClinic())
+                .orElse(null);
+
         return DoctorResponseDTO.builder()
                 .id(doctor.getId())
                 .userId(doctor.getUser().getId())
@@ -177,6 +192,13 @@ public class DoctorService {
                 .rating(rating)
                 .consultationCount(consultationCount)
                 .status(doctor.getStatus())
+                .city(doctor.getCity())
+                .state(doctor.getState())
+                .address(doctor.getAddress())
+                .latitude(doctor.getLatitude())
+                .longitude(doctor.getLongitude())
+                .clinicId(clinic != null ? clinic.getId() : null)
+                .clinicName(clinic != null ? clinic.getName() : null)
                 .build();
     }
 }

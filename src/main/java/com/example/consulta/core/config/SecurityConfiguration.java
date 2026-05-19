@@ -73,6 +73,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/doctors/**").permitAll()
+                .requestMatchers("/clinics", "/clinics/nearby", "/clinics/{id}").permitAll()
                 .requestMatchers("/subscriptions/webhook").permitAll()
                 .anyRequest().authenticated()
             )

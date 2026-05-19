@@ -22,4 +22,11 @@ public class DoctorResponseDTO {
     private Double rating;
     private Integer consultationCount;
     private DoctorProfileStatus status;
+    private String city;
+    private String state;
+    private String address;
+    private Double latitude;
+    private Double longitude;
+    private String clinicId;
+    private String clinicName;
 }

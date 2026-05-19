@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/doctors")
 @RequiredArgsConstructor
@@ -37,6 +39,16 @@ public class DoctorController {
             @RequestParam String specialty,
             Pageable pageable) {
         return ResponseEntity.ok(doctorService.searchDoctorsBySpecialty(specialty, pageable));
+    }
+
+    @GetMapping("/nearby")
+    @Operation(summary = "Find doctors near a location (Haversine)")
+    public ResponseEntity<List<DoctorResponseDTO>> getNearby(
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam(defaultValue = "50") double radiusKm,
+            @RequestParam(required = false) String specialty) {
+        return ResponseEntity.ok(doctorService.getDoctorsNearby(lat, lng, radiusKm, specialty));
     }
 
     @GetMapping("/me")
