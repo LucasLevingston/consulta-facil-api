@@ -55,7 +55,7 @@ public class DoctorController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create doctor profile", description = "Creates a doctor profile for the authenticated user")
     public ResponseEntity<DoctorResponseDTO> createDoctorProfile(

@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -123,10 +122,6 @@ public class AppointmentService {
 
         if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
             throw new BadRequestException("Only confirmed appointments can be marked as completed");
-        }
-
-        if (appointment.getScheduledAt().isAfter(LocalDateTime.now())) {
-            throw new BadRequestException("Appointment has not occurred yet");
         }
 
         appointment.setStatus(AppointmentStatus.COMPLETED);
