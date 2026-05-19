@@ -14,6 +14,8 @@ import com.example.consulta.domain.repository.ClinicMemberRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
 import com.example.consulta.domain.repository.DoctorProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class ClinicService {
 
     private final ClinicRepository clinicRepository;
     private final ClinicMemberRepository clinicMemberRepository;
+
+    @PersistenceContext
+    private EntityManager em;
     private final DoctorProfileRepository doctorProfileRepository;
     private final UserRepository userRepository;
 
@@ -59,9 +64,10 @@ public class ClinicService {
                     .doctorProfile(doctorProfile)
                     .role("OWNER")
                     .build();
-            clinicMemberRepository.save(member);
+            saved.getMembers().add(member);
         });
 
+        clinicRepository.saveAndFlush(saved);
         return toDTO(saved);
     }
 
@@ -72,7 +78,7 @@ public class ClinicService {
 
     @Transactional(readOnly = true)
     public ClinicResponseDTO getClinicById(String clinicId) {
-        return toDTO(clinicRepository.findById(clinicId)
+        return toDTO(clinicRepository.findByIdWithMembers(clinicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId)));
     }
 
@@ -127,6 +133,8 @@ public class ClinicService {
                 .role("MEMBER")
                 .build();
         clinicMemberRepository.save(member);
+        em.flush();
+        em.clear();
     }
 
     @Transactional
@@ -140,6 +148,8 @@ public class ClinicService {
 
         ClinicMemberId id = new ClinicMemberId(clinicId, doctorProfileId);
         clinicMemberRepository.deleteById(id);
+        em.flush();
+        em.clear();
     }
 
     @Transactional(readOnly = true)

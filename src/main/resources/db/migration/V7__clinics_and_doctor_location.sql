@@ -1,11 +1,10 @@
 -- V7: Add location to doctor_profiles, create clinics and clinic_members
 
-ALTER TABLE doctor_profiles
-    ADD COLUMN IF NOT EXISTS city VARCHAR(100),
-    ADD COLUMN IF NOT EXISTS state VARCHAR(50),
-    ADD COLUMN IF NOT EXISTS address VARCHAR(255),
-    ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 8),
-    ADD COLUMN IF NOT EXISTS longitude DECIMAL(11, 8);
+ALTER TABLE doctor_profiles ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+ALTER TABLE doctor_profiles ADD COLUMN IF NOT EXISTS state VARCHAR(50);
+ALTER TABLE doctor_profiles ADD COLUMN IF NOT EXISTS address VARCHAR(255);
+ALTER TABLE doctor_profiles ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+ALTER TABLE doctor_profiles ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
 
 CREATE INDEX IF NOT EXISTS idx_doctor_city ON doctor_profiles(city);
 
@@ -18,8 +17,8 @@ CREATE TABLE clinics (
     city VARCHAR(100),
     state VARCHAR(50),
     zip_code VARCHAR(20),
-    latitude DECIMAL(10, 8),
-    longitude DECIMAL(11, 8),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
     image_url TEXT,
     owner_id VARCHAR(36) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
