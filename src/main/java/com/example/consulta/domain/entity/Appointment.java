@@ -49,6 +49,12 @@ public class Appointment {
     @Column(columnDefinition = "TEXT")
     private String cancellationReason;
 
+    @Column
+    private Integer rating;
+
+    @Column(columnDefinition = "TEXT")
+    private String ratingComment;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

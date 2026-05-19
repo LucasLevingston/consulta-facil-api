@@ -29,7 +29,7 @@ import java.util.Locale;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("!test")
+@Profile("!prod & !test")
 public class DatabaseSeeder implements CommandLineRunner {
 
     private final Flyway flyway;
@@ -75,18 +75,27 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "00000000002",
                     "Cardiologia",
                     "CRM-TESTE-001");
+            doctorService.approveDoctorApplication(doctorProfileId);
 
-            createDoctor(
+            String adminDoctorProfileId = createDoctor(
                     "admin@example.com",
                     "12345678",
                     "Admin Teste",
                     "00000000003",
                     "Clinica Geral",
                     "CRM-ADMIN-001");
+            doctorService.approveDoctorApplication(adminDoctorProfileId);
 
             List<String> patientUserIds = createPatients(20);
 
             List<String> doctorProfileIds = createDoctors(20);
+            doctorProfileIds.forEach(id -> {
+                try {
+                    doctorService.approveDoctorApplication(id);
+                } catch (Exception e) {
+                    log.debug("Erro ao aprovar médico {}: {}", id, e.getMessage());
+                }
+            });
 
             createAppointments(patientUserIds, doctorProfileIds);
 
@@ -149,6 +158,10 @@ public class DatabaseSeeder implements CommandLineRunner {
                         appointment.setScheduledAt(finalScheduledAt);
                         if (finalStatus == AppointmentStatus.COMPLETED) {
                             appointment.setNotes(faker.lorem().paragraph());
+                            if (faker.bool().bool()) {
+                                appointment.setRating(3 + faker.random().nextInt(3));
+                                appointment.setRatingComment(faker.lorem().sentence());
+                            }
                         }
                         appointmentRepository.save(appointment);
                     });
@@ -399,6 +412,10 @@ public class DatabaseSeeder implements CommandLineRunner {
 
                     if (finalStatus == AppointmentStatus.COMPLETED) {
                         appointment.setNotes(faker.lorem().paragraph());
+                        if (faker.bool().bool()) {
+                            appointment.setRating(3 + faker.random().nextInt(3));
+                            appointment.setRatingComment(faker.lorem().sentence());
+                        }
                     }
 
                     appointmentRepository.save(appointment);

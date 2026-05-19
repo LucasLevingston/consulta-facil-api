@@ -44,7 +44,7 @@ public class PatientProfileController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('PATIENT')")
     @Operation(summary = "Get my patient profile", description = "Returns the authenticated patient's profile")
     public ResponseEntity<?> getMyProfile() {
         String userId = SecurityUtils.getCurrentUserId();
@@ -60,7 +60,7 @@ public class PatientProfileController {
     }
 
     @PutMapping("/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('PATIENT')")
     @Operation(summary = "Update my patient profile", description = "Updates the authenticated patient's profile")
     public ResponseEntity<?> updateMyProfile(@RequestBody Map<String, Object> updates) {
         String userId = SecurityUtils.getCurrentUserId();
@@ -76,7 +76,7 @@ public class PatientProfileController {
     }
 
     @PutMapping("/{userId}/medical-records")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('PATIENT')")
     @Operation(summary = "Update patient medical records", description = "Updates a patient's medical records")
     public ResponseEntity<?> updatePatientMedicalRecords(@PathVariable String userId, @RequestBody Map<String, Object> updates) {
         var records = patientProfileService.updatePatientMedicalRecords(userId, updates);

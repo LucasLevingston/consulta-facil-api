@@ -1,0 +1,11 @@
+.gradle/
+build/
+.git/
+.github/
+.vscode/
+.idea/
+*.md
+terraform/
+src/test/
+bootrun_output*.log
+debug_log.txt

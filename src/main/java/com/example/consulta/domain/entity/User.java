@@ -36,7 +36,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private UserRole role = UserRole.USER;
+    private UserRole role = UserRole.PATIENT;
 
     private String phone;
 

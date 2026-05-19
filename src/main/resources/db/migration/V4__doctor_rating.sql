@@ -1,0 +1,1 @@
+ALTER TABLE doctor_profiles ADD COLUMN rating DOUBLE PRECISION;

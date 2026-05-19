@@ -46,7 +46,7 @@ public class UserService {
                 .birthDate(dto.getBirthDate())
                 .gender(dto.getGender())
                 .imageUrl(dto.getImageUrl())
-                .role(UserRole.USER)
+                .role(UserRole.PATIENT)
                 .build();
 
         User savedUser = userRepository.save(user);

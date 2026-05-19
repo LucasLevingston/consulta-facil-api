@@ -4,6 +4,7 @@ import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.PatientSummaryDTO;
+import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
@@ -22,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -125,10 +125,6 @@ public class AppointmentService {
             throw new BadRequestException("Only confirmed appointments can be marked as completed");
         }
 
-        if (appointment.getScheduledAt().isAfter(LocalDateTime.now())) {
-            throw new BadRequestException("Appointment has not occurred yet");
-        }
-
         appointment.setStatus(AppointmentStatus.COMPLETED);
         Appointment updated = appointmentRepository.save(appointment);
         return toResponseDTO(updated);
@@ -146,6 +142,32 @@ public class AppointmentService {
         int end = Math.min(start + size, all.size());
         List<PatientSummaryDTO> slice = start >= all.size() ? List.of() : all.subList(start, end);
         return new PageImpl<>(slice, pageable, all.size());
+    }
+
+    @Transactional
+    public AppointmentResponseDTO rateAppointment(String appointmentId, String userId, RateAppointmentDTO dto) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+
+        if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
+            throw new BadRequestException("Only completed appointments can be rated");
+        }
+
+        PatientProfile patient = patientProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
+
+        if (!appointment.getPatient().getId().equals(patient.getId())) {
+            throw new BadRequestException("You can only rate your own appointments");
+        }
+
+        if (appointment.getRating() != null) {
+            throw new BadRequestException("This appointment has already been rated");
+        }
+
+        appointment.setRating(dto.getStars());
+        appointment.setRatingComment(dto.getComment());
+        Appointment updated = appointmentRepository.save(appointment);
+        return toResponseDTO(updated);
     }
 
     @Transactional
@@ -168,6 +190,8 @@ public class AppointmentService {
                 .notes(appointment.getNotes())
                 .status(appointment.getStatus())
                 .cancellationReason(appointment.getCancellationReason())
+                .rating(appointment.getRating())
+                .ratingComment(appointment.getRatingComment())
                 .createdAt(appointment.getCreatedAt())
                 .updatedAt(appointment.getUpdatedAt())
                 .build();

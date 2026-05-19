@@ -344,6 +344,220 @@ class AppointmentControllerIntegrationTest {
     }
 
     @Test
+    void testConfirmAlreadyConfirmedFails() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(6))
+                .reason("Check-up")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/confirm")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/confirm")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCompleteNonConfirmedFails() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(9))
+                .reason("Consulta")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        // PENDING → complete should fail
+        mockMvc.perform(put("/appointments/" + appointmentId + "/complete")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCancelCompletedAppointmentFails() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(11))
+                .reason("Consulta")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepository.saveAndFlush(appointment);
+
+        CancelAppointmentDTO cancelDTO = CancelAppointmentDTO.builder()
+                .cancellationReason("Tentativa inválida")
+                .build();
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/cancel")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(cancelDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testScheduleRequiresPatientRole() throws Exception {
+        // adminToken here is a DOCTOR — doctors cannot schedule appointments
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(12))
+                .reason("Consulta")
+                .build();
+
+        mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testConfirmRequiresDoctorOrAdminRole() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(13))
+                .reason("Consulta")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        // Patient cannot confirm
+        mockMvc.perform(put("/appointments/" + appointmentId + "/confirm")
+                .header("Authorization", "Bearer " + patientToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testCompleteRequiresDoctorOrAdminRole() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(15))
+                .reason("Consulta")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        appointmentRepository.saveAndFlush(appointment);
+
+        // Patient cannot complete
+        mockMvc.perform(put("/appointments/" + appointmentId + "/complete")
+                .header("Authorization", "Bearer " + patientToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testCompleteConfirmedAppointment() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(16))
+                .reason("Consulta")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        appointmentRepository.saveAndFlush(appointment);
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/complete")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", equalTo("COMPLETED")));
+    }
+
+    @Test
+    void testGetPatientAppointmentsRequiresAuth() throws Exception {
+        mockMvc.perform(get("/appointments/patient/" + patientUserId))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testCancelAlreadyCancelledFails() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .doctorId(doctorProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(17))
+                .reason("Consulta")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        CancelAppointmentDTO cancelDTO = CancelAppointmentDTO.builder()
+                .cancellationReason("Primeiro cancelamento")
+                .build();
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/cancel")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(cancelDTO)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/cancel")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(cancelDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void testScheduleDuplicateAppointmentFails() throws Exception {
         // withNano(0) avoids H2 nanosecond truncation causing equality check to miss
         LocalDateTime scheduledAt = LocalDateTime.now().withNano(0).plusDays(14);

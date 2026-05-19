@@ -124,7 +124,7 @@ class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.id", equalTo(userId)))
                 .andExpect(jsonPath("$.email", equalTo("usercontroller@example.com")))
                 .andExpect(jsonPath("$.name", equalTo("Test User")))
-                .andExpect(jsonPath("$.role", equalTo("USER")));
+                .andExpect(jsonPath("$.role", equalTo("PATIENT")));
     }
 
     @Test
@@ -204,5 +204,12 @@ class UserControllerIntegrationTest {
     void testDeleteUserUnauthorized() throws Exception {
         mockMvc.perform(delete("/users/" + userId))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testGetUserByIdNotFoundAsAdmin() throws Exception {
+        mockMvc.perform(get("/users/non-existent-uuid")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
     }
 }
