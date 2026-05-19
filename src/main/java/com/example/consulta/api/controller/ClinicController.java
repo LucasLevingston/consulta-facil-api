@@ -3,6 +3,7 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.clinic.ClinicResponseDTO;
 import com.example.consulta.api.dto.clinic.CreateClinicDTO;
 import com.example.consulta.application.service.ClinicService;
+import com.example.consulta.application.service.NotificationService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,6 +25,7 @@ import java.util.List;
 public class ClinicController {
 
     private final ClinicService clinicService;
+    private final NotificationService notificationService;
 
     @GetMapping
     @Operation(summary = "List all active clinics")
@@ -98,6 +100,18 @@ public class ClinicController {
             @PathVariable String doctorProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         clinicService.removeMember(clinicId, doctorProfileId, userDetails.getUserId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{clinicId}/invites/{doctorProfileId}")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Send a clinic invite to a doctor")
+    public ResponseEntity<Void> inviteDoctor(
+            @PathVariable String clinicId,
+            @PathVariable String doctorProfileId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        notificationService.sendClinicInvite(clinicId, doctorProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 }
