@@ -29,6 +29,9 @@ public class DoctorProfile {
     @Column(nullable = false, unique = true)
     private String licenseNumber;
 
+    @Column
+    private Double rating;
+
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Appointment> appointments = new ArrayList<>();

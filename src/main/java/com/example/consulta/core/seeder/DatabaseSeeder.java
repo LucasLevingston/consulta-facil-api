@@ -6,10 +6,12 @@ import com.example.consulta.application.service.UserService;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.doctor.CreateDoctorDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
+import com.example.consulta.domain.entity.DoctorProfile;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.repository.DoctorProfileRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final Flyway flyway;
     private final PatientProfileRepository patientProfileRepository;
     private final AppointmentRepository appointmentRepository;
+    private final DoctorProfileRepository doctorProfileRepository;
     private final UserService userService;
     private final DoctorService doctorService;
     private final AppointmentService appointmentService;
@@ -75,14 +78,16 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "00000000002",
                     "Cardiologia",
                     "CRM-TESTE-001");
+            setDoctorRating(doctorProfileId, 4.8);
 
-            createDoctor(
+            String adminDoctorId = createDoctor(
                     "admin@example.com",
                     "12345678",
                     "Admin Teste",
                     "00000000003",
                     "Clinica Geral",
                     "CRM-ADMIN-001");
+            setDoctorRating(adminDoctorId, 4.5);
 
             List<String> patientUserIds = createPatients(20);
 
@@ -175,6 +180,11 @@ public class DatabaseSeeder implements CommandLineRunner {
                 CreateDoctorDTO doctorDTO = CreateDoctorDTO.builder().specialty(specialties.get(i % specialties.size()))
                         .licenseNumber("CRM" + System.currentTimeMillis() + i).build();
                 var doctorResponse = doctorService.createDoctorProfile(userResponse.getId(), doctorDTO);
+                double rating = 3.0 + Math.round(faker.random().nextDouble() * 20.0) / 10.0;
+                doctorProfileRepository.findById(doctorResponse.getId()).ifPresent(p -> {
+                    p.setRating(rating);
+                    doctorProfileRepository.save(p);
+                });
                 doctorProfileIds.add(doctorResponse.getId());
             } catch (Exception e) {
                 log.debug("Erro ao criar médico fake: {}", e.getMessage());
@@ -461,6 +471,13 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         return userIds;
+    }
+
+    private void setDoctorRating(String doctorProfileId, double rating) {
+        doctorProfileRepository.findById(doctorProfileId).ifPresent(p -> {
+            p.setRating(rating);
+            doctorProfileRepository.save(p);
+        });
     }
 
     private String generateFakeCPF() {

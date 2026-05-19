@@ -18,4 +18,6 @@ public class DoctorResponseDTO {
     private String licenseNumber;
     private String phone;
     private String imageUrl;
+    private Double rating;
+    private Integer consultationCount;
 }

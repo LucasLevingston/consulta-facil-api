@@ -6,6 +6,7 @@ import com.example.consulta.core.exception.DuplicateResourceException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.DoctorProfile;
 import com.example.consulta.domain.entity.User;
+import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.UserRole;
 import com.example.consulta.domain.repository.DoctorProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
@@ -108,6 +109,9 @@ public class DoctorService {
     }
 
     private DoctorResponseDTO toResponseDTO(DoctorProfile doctor) {
+        int consultationCount = (int) doctor.getAppointments().stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                .count();
         return DoctorResponseDTO.builder()
                 .id(doctor.getId())
                 .userId(doctor.getUser().getId())
@@ -117,6 +121,8 @@ public class DoctorService {
                 .licenseNumber(doctor.getLicenseNumber())
                 .phone(doctor.getUser().getPhone())
                 .imageUrl(doctor.getUser().getImageUrl())
+                .rating(doctor.getRating())
+                .consultationCount(consultationCount)
                 .build();
     }
 }
