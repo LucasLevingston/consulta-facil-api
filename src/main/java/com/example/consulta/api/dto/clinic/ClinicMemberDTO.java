@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class ClinicMemberDTO {
-    private String doctorProfileId;
-    private String doctorName;
+    private String professionalProfileId;
+    private String professionalName;
     private String specialty;
     private String imageUrl;
     private String role;

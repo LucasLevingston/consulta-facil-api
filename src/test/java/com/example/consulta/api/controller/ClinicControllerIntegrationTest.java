@@ -2,12 +2,12 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
-import com.example.consulta.domain.entity.DoctorProfile;
+import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.User;
-import com.example.consulta.domain.enums.DoctorProfileStatus;
+import com.example.consulta.domain.enums.ProfessionalProfileStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
-import com.example.consulta.domain.repository.DoctorProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
 import com.example.demo.DemoApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,14 +37,14 @@ class ClinicControllerIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private UserRepository userRepository;
-    @Autowired private DoctorProfileRepository doctorProfileRepository;
+    @Autowired private ProfessionalProfileRepository professionalProfileRepository;
 
     private String doctorToken;
     private String doctorUserId;
-    private String doctorProfileId;
+    private String professionalProfileId;
     private String adminToken;
     private String secondDoctorToken;
-    private String secondDoctorProfileId;
+    private String secondProfessionalProfileId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -62,13 +62,13 @@ class ClinicControllerIntegrationTest {
 
         doctorUserId = objectMapper.readTree(regResp).get("id").asText();
         User doctorUser = userRepository.findById(doctorUserId).orElseThrow();
-        doctorUser.setRole(UserRole.DOCTOR);
+        doctorUser.setRole(UserRole.PROFESSIONAL);
         userRepository.saveAndFlush(doctorUser);
 
-        DoctorProfile dp = DoctorProfile.builder()
+        ProfessionalProfile dp = ProfessionalProfile.builder()
                 .user(doctorUser).specialty("Cardiologia")
-                .licenseNumber("CRM-SP-11111").status(DoctorProfileStatus.ACTIVE).build();
-        doctorProfileId = doctorProfileRepository.saveAndFlush(dp).getId();
+                .licenseNumber("CRM-SP-11111").status(ProfessionalProfileStatus.ACTIVE).build();
+        professionalProfileId = professionalProfileRepository.saveAndFlush(dp).getId();
 
         doctorToken = loginAndGetToken("joao@example.com", "senha123");
 
@@ -104,13 +104,13 @@ class ClinicControllerIntegrationTest {
 
         String secondId = objectMapper.readTree(secondResp).get("id").asText();
         User secondUser = userRepository.findById(secondId).orElseThrow();
-        secondUser.setRole(UserRole.DOCTOR);
+        secondUser.setRole(UserRole.PROFESSIONAL);
         userRepository.saveAndFlush(secondUser);
 
-        DoctorProfile dp2 = DoctorProfile.builder()
+        ProfessionalProfile dp2 = ProfessionalProfile.builder()
                 .user(secondUser).specialty("Neurologia")
-                .licenseNumber("CRM-SP-22222").status(DoctorProfileStatus.ACTIVE).build();
-        secondDoctorProfileId = doctorProfileRepository.saveAndFlush(dp2).getId();
+                .licenseNumber("CRM-SP-22222").status(ProfessionalProfileStatus.ACTIVE).build();
+        secondProfessionalProfileId = professionalProfileRepository.saveAndFlush(dp2).getId();
         secondDoctorToken = loginAndGetToken("maria@example.com", "senha456");
     }
 
@@ -340,7 +340,7 @@ class ClinicControllerIntegrationTest {
     void testAddMember_ownerAddsDoctor() throws Exception {
         String clinicId = createClinicAndGetId(doctorToken, "Multi Clinic");
 
-        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondDoctorProfileId)
+        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondProfessionalProfileId)
                 .header("Authorization", "Bearer " + doctorToken))
                 .andExpect(status().isNoContent());
 
@@ -353,7 +353,7 @@ class ClinicControllerIntegrationTest {
     void testAddMember_nonOwnerCannotAdd() throws Exception {
         String clinicId = createClinicAndGetId(doctorToken, "Protected Clinic");
 
-        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondDoctorProfileId)
+        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondProfessionalProfileId)
                 .header("Authorization", "Bearer " + secondDoctorToken))
                 .andExpect(status().isBadRequest());
     }
@@ -363,7 +363,7 @@ class ClinicControllerIntegrationTest {
         String clinicId = createClinicAndGetId(doctorToken, "Dupe Test Clinic");
 
         // Owner already added as OWNER member on creation — adding again should fail
-        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + doctorProfileId)
+        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + professionalProfileId)
                 .header("Authorization", "Bearer " + doctorToken))
                 .andExpect(status().isBadRequest());
     }
@@ -373,12 +373,12 @@ class ClinicControllerIntegrationTest {
         String clinicId = createClinicAndGetId(doctorToken, "Remove Test Clinic");
 
         // Add second doctor first
-        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondDoctorProfileId)
+        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondProfessionalProfileId)
                 .header("Authorization", "Bearer " + doctorToken))
                 .andExpect(status().isNoContent());
 
         // Now remove
-        mockMvc.perform(delete("/clinics/" + clinicId + "/members/" + secondDoctorProfileId)
+        mockMvc.perform(delete("/clinics/" + clinicId + "/members/" + secondProfessionalProfileId)
                 .header("Authorization", "Bearer " + doctorToken))
                 .andExpect(status().isNoContent());
 
@@ -391,11 +391,11 @@ class ClinicControllerIntegrationTest {
     void testRemoveMember_nonOwnerCannotRemove() throws Exception {
         String clinicId = createClinicAndGetId(doctorToken, "Non-Owner Remove Test");
 
-        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondDoctorProfileId)
+        mockMvc.perform(post("/clinics/" + clinicId + "/members/" + secondProfessionalProfileId)
                 .header("Authorization", "Bearer " + doctorToken))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(delete("/clinics/" + clinicId + "/members/" + secondDoctorProfileId)
+        mockMvc.perform(delete("/clinics/" + clinicId + "/members/" + secondProfessionalProfileId)
                 .header("Authorization", "Bearer " + secondDoctorToken))
                 .andExpect(status().isBadRequest());
     }
@@ -468,33 +468,33 @@ class ClinicControllerIntegrationTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
-    // ─── GET /doctors/nearby ──────────────────────────────────────────────────
+    // ─── GET /professionals/nearby ────────────────────────────────────────────
 
     @Test
     void testGetDoctorsNearby_returnsDoctorWithinRadius() throws Exception {
-        DoctorProfile dp = doctorProfileRepository.findById(doctorProfileId).orElseThrow();
+        ProfessionalProfile dp = professionalProfileRepository.findById(professionalProfileId).orElseThrow();
         dp.setLatitude(-23.5505);
         dp.setLongitude(-46.6333);
-        doctorProfileRepository.saveAndFlush(dp);
+        professionalProfileRepository.saveAndFlush(dp);
 
-        mockMvc.perform(get("/doctors/nearby")
+        mockMvc.perform(get("/professionals/nearby")
                 .param("lat", "-23.5505")
                 .param("lng", "-46.6333")
                 .param("radiusKm", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
-                .andExpect(jsonPath("$[0].id", equalTo(doctorProfileId)));
+                .andExpect(jsonPath("$[0].id", equalTo(professionalProfileId)));
     }
 
     @Test
     void testGetDoctorsNearby_excludesFarDoctors() throws Exception {
-        DoctorProfile dp = doctorProfileRepository.findById(doctorProfileId).orElseThrow();
+        ProfessionalProfile dp = professionalProfileRepository.findById(professionalProfileId).orElseThrow();
         dp.setLatitude(-23.5505);
         dp.setLongitude(-46.6333);
-        doctorProfileRepository.saveAndFlush(dp);
+        professionalProfileRepository.saveAndFlush(dp);
 
         // Query from Manaus
-        mockMvc.perform(get("/doctors/nearby")
+        mockMvc.perform(get("/professionals/nearby")
                 .param("lat", "-3.1316")
                 .param("lng", "-60.0213")
                 .param("radiusKm", "50"))
@@ -504,18 +504,18 @@ class ClinicControllerIntegrationTest {
 
     @Test
     void testGetDoctorsNearby_filtersBySpecialty() throws Exception {
-        DoctorProfile dp1 = doctorProfileRepository.findById(doctorProfileId).orElseThrow();
+        ProfessionalProfile dp1 = professionalProfileRepository.findById(professionalProfileId).orElseThrow();
         dp1.setLatitude(-23.5505);
         dp1.setLongitude(-46.6333);
-        doctorProfileRepository.saveAndFlush(dp1);
+        professionalProfileRepository.saveAndFlush(dp1);
 
-        DoctorProfile dp2 = doctorProfileRepository.findById(secondDoctorProfileId).orElseThrow();
+        ProfessionalProfile dp2 = professionalProfileRepository.findById(secondProfessionalProfileId).orElseThrow();
         dp2.setLatitude(-23.5510);
         dp2.setLongitude(-46.6340);
-        doctorProfileRepository.saveAndFlush(dp2);
+        professionalProfileRepository.saveAndFlush(dp2);
 
         // Both are nearby, but filter by Cardiologia only gets dp1
-        mockMvc.perform(get("/doctors/nearby")
+        mockMvc.perform(get("/professionals/nearby")
                 .param("lat", "-23.5505")
                 .param("lng", "-46.6333")
                 .param("radiusKm", "10")
@@ -527,8 +527,8 @@ class ClinicControllerIntegrationTest {
 
     @Test
     void testGetDoctorsNearby_excludesDoctorsWithoutCoordinates() throws Exception {
-        // doctorProfileId has no coordinates set — should not appear
-        mockMvc.perform(get("/doctors/nearby")
+        // professionalProfileId has no coordinates set — should not appear
+        mockMvc.perform(get("/professionals/nearby")
                 .param("lat", "-23.5505")
                 .param("lng", "-46.6333")
                 .param("radiusKm", "100"))
@@ -538,7 +538,7 @@ class ClinicControllerIntegrationTest {
 
     @Test
     void testGetDoctorsNearby_isPublic() throws Exception {
-        mockMvc.perform(get("/doctors/nearby")
+        mockMvc.perform(get("/professionals/nearby")
                 .param("lat", "-23.5505")
                 .param("lng", "-46.6333"))
                 .andExpect(status().isOk());

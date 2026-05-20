@@ -13,14 +13,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Subscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
     private String id;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @ToString.Exclude
     private User user;
 
     @Column(name = "plan_id", nullable = false)

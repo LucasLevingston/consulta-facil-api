@@ -42,9 +42,9 @@ public class Notification {
     private Clinic clinic;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_profile_id")
+    @JoinColumn(name = "professional_profile_id")
     @ToString.Exclude
-    private DoctorProfile doctorProfile;
+    private ProfessionalProfile professionalProfile;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

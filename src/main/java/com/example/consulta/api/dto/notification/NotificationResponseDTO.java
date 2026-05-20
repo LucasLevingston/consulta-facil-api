@@ -17,6 +17,6 @@ public class NotificationResponseDTO {
     private NotificationStatus status;
     private String clinicId;
     private String clinicName;
-    private String doctorProfileId;
+    private String professionalProfileId;
     private LocalDateTime createdAt;
 }

@@ -19,18 +19,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
     private String id;
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
+    @ToString.Exclude
     private PatientProfile patient;
 
     @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private DoctorProfile doctor;
+    @JoinColumn(name = "professional_id", nullable = false)
+    @ToString.Exclude
+    private ProfessionalProfile professional;
 
     @Column(nullable = false)
     private LocalDateTime scheduledAt;

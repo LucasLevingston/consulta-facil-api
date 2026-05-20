@@ -13,9 +13,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class MedicalRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
     private String id;
 
     @Column(columnDefinition = "TEXT")
@@ -41,6 +43,7 @@ public class MedicalRecord {
 
     @OneToOne
     @JoinColumn(name = "patient_profile_id", nullable = false, unique = true)
+    @ToString.Exclude
     private PatientProfile patientProfile;
 
     @CreationTimestamp

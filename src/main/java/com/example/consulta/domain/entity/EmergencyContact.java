@@ -9,9 +9,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class EmergencyContact {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
     private String id;
 
     @Column(nullable = false)
@@ -22,5 +24,6 @@ public class EmergencyContact {
 
     @OneToOne
     @JoinColumn(name = "patient_profile_id", nullable = false, unique = true)
+    @ToString.Exclude
     private PatientProfile patientProfile;
 }

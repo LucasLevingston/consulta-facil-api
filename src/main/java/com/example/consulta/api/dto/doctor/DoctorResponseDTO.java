@@ -1,32 +1,7 @@
 package com.example.consulta.api.dto.doctor;
 
-import com.example.consulta.domain.enums.DoctorProfileStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class DoctorResponseDTO {
-    private String id;
-    private String userId;
-    private String name;
-    private String email;
-    private String specialty;
-    private String licenseNumber;
-    private String phone;
-    private String imageUrl;
-    private Double rating;
-    private Integer consultationCount;
-    private DoctorProfileStatus status;
-    private String city;
-    private String state;
-    private String address;
-    private Double latitude;
-    private Double longitude;
-    private String clinicId;
-    private String clinicName;
+/** @deprecated Use {@link com.example.consulta.api.dto.professional.ProfessionalResponseDTO} instead */
+@Deprecated
+public final class DoctorResponseDTO {
+    private DoctorResponseDTO() {}
 }

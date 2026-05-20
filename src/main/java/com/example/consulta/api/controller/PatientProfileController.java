@@ -5,7 +5,7 @@ import com.example.consulta.application.service.AppointmentService;
 import com.example.consulta.application.service.PatientProfileService;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.core.security.SecurityUtils;
-import com.example.consulta.domain.repository.DoctorProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,21 +26,21 @@ public class PatientProfileController {
 
     private final PatientProfileService patientProfileService;
     private final AppointmentService appointmentService;
-    private final DoctorProfileRepository doctorProfileRepository;
+    private final ProfessionalProfileRepository professionalProfileRepository;
 
-    @GetMapping("/doctor/{userId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
-    @Operation(summary = "List doctor's patients", description = "Returns a paginated list of unique patients for a doctor, with search and sort")
-    public ResponseEntity<Page<PatientSummaryDTO>> getDoctorPatients(
+    @GetMapping("/professional/{userId}")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "List professional's patients", description = "Returns a paginated list of unique patients for a professional, with search and sort")
+    public ResponseEntity<Page<PatientSummaryDTO>> getProfessionalPatients(
             @PathVariable String userId,
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "recent") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        String doctorProfileId = doctorProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor profile not found for user: " + userId))
+        String professionalProfileId = professionalProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Professional profile not found for user: " + userId))
                 .getId();
-        return ResponseEntity.ok(appointmentService.getDoctorPatients(doctorProfileId, search, sort, page, size));
+        return ResponseEntity.ok(appointmentService.getProfessionalPatients(professionalProfileId, search, sort, page, size));
     }
 
     @GetMapping("/me")

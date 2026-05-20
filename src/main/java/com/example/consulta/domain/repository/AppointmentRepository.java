@@ -19,10 +19,10 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, String> {
 
     Page<Appointment> findByPatientId(String patientId, Pageable pageable);
-    Page<Appointment> findByDoctorId(String doctorId, Pageable pageable);
+    Page<Appointment> findByProfessionalId(String professionalId, Pageable pageable);
     List<Appointment> findByPatientIdAndStatus(String patientId, AppointmentStatus status);
-    List<Appointment> findByDoctorIdAndStatusAndScheduledAtBetween(String doctorId, AppointmentStatus status, LocalDateTime start, LocalDateTime end);
-    boolean existsByDoctorIdAndScheduledAt(String doctorId, LocalDateTime scheduledAt);
+    List<Appointment> findByProfessionalIdAndStatusAndScheduledAtBetween(String professionalId, AppointmentStatus status, LocalDateTime start, LocalDateTime end);
+    boolean existsByProfessionalIdAndScheduledAt(String professionalId, LocalDateTime scheduledAt);
 
     @Query("""
             SELECT new com.example.consulta.api.dto.appointment.PatientSummaryDTO(
@@ -30,7 +30,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             FROM Appointment a
             JOIN a.patient p
             JOIN p.user u
-            WHERE a.doctor.id = :doctorId
+            WHERE a.professional.id = :doctorId
             AND (:search = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')))
             GROUP BY u.id, u.name
             ORDER BY u.name ASC
@@ -45,7 +45,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             FROM Appointment a
             JOIN a.patient p
             JOIN p.user u
-            WHERE a.doctor.id = :doctorId
+            WHERE a.professional.id = :doctorId
             AND (:search = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')))
             GROUP BY u.id, u.name
             ORDER BY MAX(a.scheduledAt) DESC

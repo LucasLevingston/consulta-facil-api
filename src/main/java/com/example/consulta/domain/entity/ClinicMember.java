@@ -11,20 +11,24 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ClinicMember {
 
     @EmbeddedId
+    @EqualsAndHashCode.Include
     private ClinicMemberId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("clinicId")
     @JoinColumn(name = "clinic_id")
+    @ToString.Exclude
     private Clinic clinic;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("doctorProfileId")
-    @JoinColumn(name = "doctor_profile_id")
-    private DoctorProfile doctorProfile;
+    @MapsId("professionalProfileId")
+    @JoinColumn(name = "professional_profile_id")
+    @ToString.Exclude
+    private ProfessionalProfile professionalProfile;
 
     @Column(nullable = false)
     @Builder.Default
