@@ -46,17 +46,35 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
-    private final List<String> specialties = List.of(
-            "Cardiologia",
-            "Dermatologia",
-            "Oftalmologia",
-            "Pediatria",
-            "Clinica Geral",
-            "Neurologia",
-            "Ortopedia",
-            "Gastroenterologia",
-            "Pneumologia",
-            "Psiquiatria");
+    private record ProfessionData(String profession, String specialty, String licensePrefix) {}
+
+    private final List<ProfessionData> professionData = List.of(
+            new ProfessionData("Médico", "Cardiologia",           "CRM/SP"),
+            new ProfessionData("Médico", "Clínica Geral",         "CRM/SP"),
+            new ProfessionData("Médico", "Dermatologia",          "CRM/SP"),
+            new ProfessionData("Médico", "Endocrinologia",        "CRM/SP"),
+            new ProfessionData("Médico", "Gastroenterologia",     "CRM/SP"),
+            new ProfessionData("Médico", "Neurologia",            "CRM/SP"),
+            new ProfessionData("Médico", "Oftalmologia",          "CRM/SP"),
+            new ProfessionData("Médico", "Ortopedia",             "CRM/SP"),
+            new ProfessionData("Médico", "Pediatria",             "CRM/SP"),
+            new ProfessionData("Médico", "Pneumologia",           "CRM/SP"),
+            new ProfessionData("Médico", "Psiquiatria",           "CRM/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Clínica",          "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Esportiva",        "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Oncológica",       "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Materno-Infantil", "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Funcional",        "CRN/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica",   "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica",  "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Respiratória", "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Desportiva",   "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Pilates Clínico",           "CREFITO/SP"),
+            new ProfessionData("Psicólogo", "TCC",                       "CRP/SP"),
+            new ProfessionData("Psicólogo", "Psicanálise",               "CRP/SP"),
+            new ProfessionData("Psicólogo", "Psicologia Infantil",       "CRP/SP"),
+            new ProfessionData("Psicólogo", "Psicologia Organizacional", "CRP/SP"),
+            new ProfessionData("Psicólogo", "Psicologia do Esporte",     "CRP/SP"));
 
     @Override
     public void run(String... args) {
@@ -78,6 +96,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "12345678",
                     "Dr. Profissional Teste",
                     "00000000002",
+                    "Médico",
                     "Cardiologia",
                     "CRM-TESTE-001");
             professionalService.approveApplication(professionalProfileId);
@@ -87,13 +106,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "12345678",
                     "Admin Teste",
                     "00000000003",
-                    "Clinica Geral",
+                    "Médico",
+                    "Clínica Geral",
                     "CRM-ADMIN-001");
             professionalService.approveApplication(adminProfessionalProfileId);
 
             List<String> patientUserIds = createPatients(20);
 
-            List<String> professionalProfileIds = createProfessionals(20);
+            List<String> professionalProfileIds = createProfessionals(52);
             professionalProfileIds.forEach(id -> {
                 try {
                     professionalService.approveApplication(id);
@@ -310,22 +330,32 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private List<String> createProfessionals(int count) {
         List<String> ids = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
+        int created = 0;
+        for (int i = 0; created < count; i++) {
+            ProfessionData pd = professionData.get(i % professionData.size());
             try {
-                CreateUserDTO userDTO = CreateUserDTO.builder().name(faker.name().fullName())
-                        .email(faker.internet().emailAddress()).password("prof123").cpf(generateFakeCPF())
+                CreateUserDTO userDTO = CreateUserDTO.builder()
+                        .name(faker.name().fullName())
+                        .email(faker.internet().emailAddress())
+                        .password("prof1234")
+                        .cpf(generateFakeCPF())
                         .phone(faker.phoneNumber().cellPhone())
                         .birthDate(faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
                         .gender(faker.bool().bool() ? Gender.MALE : Gender.FEMALE)
-                        .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70)).build();
+                        .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70))
+                        .build();
                 var userResponse = userService.createUser(userDTO);
                 CreateProfessionalDTO profDTO = CreateProfessionalDTO.builder()
-                        .specialty(specialties.get(i % specialties.size()))
-                        .licenseNumber("REG" + System.currentTimeMillis() + i).build();
+                        .profession(pd.profession())
+                        .specialty(pd.specialty())
+                        .licenseNumber(pd.licensePrefix() + " " + (100000 + created))
+                        .build();
                 var profResponse = professionalService.createProfessionalProfile(userResponse.getId(), profDTO);
                 ids.add(profResponse.getId());
+                created++;
             } catch (Exception e) {
                 log.debug("Erro ao criar profissional fake: {}", e.getMessage());
+                created++;
             }
         }
         return ids;
@@ -359,6 +389,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             String password,
             String name,
             String cpf,
+            String profession,
             String specialty,
             String licenseNumber) {
 
@@ -378,6 +409,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         var profResponse = professionalService.createProfessionalProfile(
                 userResponse.getId(),
                 CreateProfessionalDTO.builder()
+                        .profession(profession)
                         .specialty(specialty)
                         .licenseNumber(licenseNumber)
                         .build());

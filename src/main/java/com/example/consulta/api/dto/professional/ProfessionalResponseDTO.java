@@ -15,6 +15,7 @@ public class ProfessionalResponseDTO {
     private String userId;
     private String name;
     private String email;
+    private String profession;
     private String specialty;
     private String licenseNumber;
     private String phone;

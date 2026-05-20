@@ -28,9 +28,13 @@ public class ProfessionalController {
     private final ProfessionalService professionalService;
 
     @GetMapping
-    @Operation(summary = "List professionals", description = "Returns all active professionals with pagination")
-    public ResponseEntity<Page<ProfessionalResponseDTO>> getAllProfessionals(Pageable pageable) {
-        return ResponseEntity.ok(professionalService.getAllProfessionals(pageable));
+    @Operation(summary = "List professionals", description = "Returns active professionals with optional filters")
+    public ResponseEntity<Page<ProfessionalResponseDTO>> getAllProfessionals(
+            @RequestParam(required = false) String profession,
+            @RequestParam(required = false) String specialty,
+            @RequestParam(required = false) String name,
+            Pageable pageable) {
+        return ResponseEntity.ok(professionalService.getAllProfessionals(profession, specialty, name, pageable));
     }
 
     @GetMapping("/search")
@@ -47,8 +51,9 @@ public class ProfessionalController {
             @RequestParam double lat,
             @RequestParam double lng,
             @RequestParam(defaultValue = "50") double radiusKm,
-            @RequestParam(required = false) String specialty) {
-        return ResponseEntity.ok(professionalService.getProfessionalsNearby(lat, lng, radiusKm, specialty));
+            @RequestParam(required = false) String specialty,
+            @RequestParam(required = false) String profession) {
+        return ResponseEntity.ok(professionalService.getProfessionalsNearby(lat, lng, radiusKm, specialty, profession));
     }
 
     @GetMapping("/me")

@@ -27,6 +27,8 @@ public class ProfessionalProfile {
     @ToString.Exclude
     private User user;
 
+    private String profession;
+
     @Column(nullable = false)
     private String specialty;
 

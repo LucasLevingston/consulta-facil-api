@@ -42,6 +42,7 @@ public class ProfessionalService {
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
                 .user(user)
+                .profession(dto.getProfession())
                 .specialty(dto.getSpecialty())
                 .licenseNumber(dto.getLicenseNumber())
                 .status(ProfessionalProfileStatus.PENDING_REVIEW)
@@ -76,16 +77,21 @@ public class ProfessionalService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProfessionalResponseDTO> getAllProfessionals(Pageable pageable) {
-        log.debug("Fetching all professionals");
-        return professionalProfileRepository.findByStatus(ProfessionalProfileStatus.ACTIVE, pageable)
+    public Page<ProfessionalResponseDTO> getAllProfessionals(String profession, String specialty, String name, Pageable pageable) {
+        log.debug("Fetching professionals with filters profession={}, specialty={}, name={}", profession, specialty, name);
+        String profParam = (profession != null && !profession.isBlank()) ? profession : null;
+        String specParam = (specialty != null && !specialty.isBlank()) ? specialty : null;
+        String nameParam = (name != null && !name.isBlank()) ? name : null;
+        return professionalProfileRepository.findActiveWithFilters(profParam, specParam, nameParam, pageable)
                 .map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<ProfessionalResponseDTO> getProfessionalsNearby(double lat, double lng, double radiusKm, String specialty) {
+    public List<ProfessionalResponseDTO> getProfessionalsNearby(double lat, double lng, double radiusKm, String specialty, String profession) {
         log.debug("Fetching professionals near ({}, {}) within {}km", lat, lng, radiusKm);
-        return professionalProfileRepository.findNearby(lat, lng, radiusKm, specialty)
+        String specParam = (specialty != null && !specialty.isBlank()) ? specialty : null;
+        String profParam = (profession != null && !profession.isBlank()) ? profession : null;
+        return professionalProfileRepository.findNearby(lat, lng, radiusKm, specParam, profParam)
                 .stream().map(this::toResponseDTO).toList();
     }
 
@@ -144,6 +150,7 @@ public class ProfessionalService {
             throw new DuplicateResourceException("Professional", "license number", dto.getLicenseNumber());
         }
 
+        profile.setProfession(dto.getProfession());
         profile.setSpecialty(dto.getSpecialty());
         profile.setLicenseNumber(dto.getLicenseNumber());
 
@@ -185,6 +192,7 @@ public class ProfessionalService {
                 .userId(profile.getUser().getId())
                 .name(profile.getUser().getName())
                 .email(profile.getUser().getEmail())
+                .profession(profile.getProfession())
                 .specialty(profile.getSpecialty())
                 .licenseNumber(profile.getLicenseNumber())
                 .phone(profile.getUser().getPhone())

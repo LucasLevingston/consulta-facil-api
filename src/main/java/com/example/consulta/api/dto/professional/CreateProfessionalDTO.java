@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreateProfessionalDTO {
+    @NotBlank(message = "Profissão é obrigatória")
+    @Size(min = 2, max = 100, message = "Profissão deve ter entre 2 e 100 caracteres")
+    private String profession;
+
     @NotBlank(message = "Especialidade é obrigatória")
     @Size(min = 3, max = 100, message = "Especialidade deve ter entre 3 e 100 caracteres")
     private String specialty;

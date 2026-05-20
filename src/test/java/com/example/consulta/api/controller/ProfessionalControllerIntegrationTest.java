@@ -200,6 +200,7 @@ class ProfessionalControllerIntegrationTest {
     @Test
     void testCreateProfessionalProfile() throws Exception {
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
+                .profession("Médico")
                 .specialty("Neurologia")
                 .licenseNumber("CRM-RJ-99999")
                 .build();
@@ -216,6 +217,7 @@ class ProfessionalControllerIntegrationTest {
     @Test
     void testCreateProfileForbiddenForProfessional() throws Exception {
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
+                .profession("Médico")
                 .specialty("Dermatologia")
                 .licenseNumber("CRM-MG-77777")
                 .build();
@@ -257,6 +259,7 @@ class ProfessionalControllerIntegrationTest {
         String patientToken = objectMapper.readTree(patientLoginResponse).get("token").asText();
 
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
+                .profession("Médico")
                 .specialty("Pediatria")
                 .licenseNumber("CRM-SP-55555")
                 .build();
@@ -287,6 +290,7 @@ class ProfessionalControllerIntegrationTest {
     @Test
     void testUpdateProfessionalProfile() throws Exception {
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
+                .profession("Médico")
                 .specialty("Ortopedia")
                 .licenseNumber("CRM-SP-12345")
                 .build();
