@@ -6,14 +6,14 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.entity.ClinicMember;
 import com.example.consulta.domain.entity.ClinicMemberId;
-import com.example.consulta.domain.entity.DoctorProfile;
+import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.Notification;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.NotificationStatus;
 import com.example.consulta.domain.enums.NotificationType;
 import com.example.consulta.domain.repository.ClinicMemberRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
-import com.example.consulta.domain.repository.DoctorProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final ClinicRepository clinicRepository;
-    private final DoctorProfileRepository doctorProfileRepository;
+    private final ProfessionalProfileRepository professionalProfileRepository;
     private final ClinicMemberRepository clinicMemberRepository;
 
     @Transactional
@@ -36,22 +36,22 @@ public class NotificationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
         if (!clinic.getOwner().getId().equals(requesterId)) {
-            throw new BadRequestException("Apenas o proprietário pode convidar médicos");
+            throw new BadRequestException("Apenas o proprietário pode convidar profissionais");
         }
 
-        DoctorProfile doctor = doctorProfileRepository.findById(doctorProfileId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorProfileId));
+        ProfessionalProfile professional = professionalProfileRepository.findById(doctorProfileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", doctorProfileId));
 
-        if (clinicMemberRepository.existsByClinicIdAndDoctorProfileId(clinicId, doctorProfileId)) {
-            throw new BadRequestException("Médico já é membro desta clínica");
+        if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinicId, doctorProfileId)) {
+            throw new BadRequestException("Profissional já é membro desta clínica");
         }
 
-        if (notificationRepository.existsByClinicIdAndDoctorProfileIdAndStatus(
+        if (notificationRepository.existsByClinicIdAndProfessionalProfileIdAndStatus(
                 clinicId, doctorProfileId, NotificationStatus.PENDING)) {
-            throw new BadRequestException("Já existe um convite pendente para este médico");
+            throw new BadRequestException("Já existe um convite pendente para este profissional");
         }
 
-        User targetUser = doctor.getUser();
+        User targetUser = professional.getUser();
 
         Notification notification = Notification.builder()
                 .type(NotificationType.CLINIC_INVITE)
@@ -59,7 +59,7 @@ public class NotificationService {
                 .message("Você foi convidado para fazer parte da clínica " + clinic.getName() + ".")
                 .targetUser(targetUser)
                 .clinic(clinic)
-                .doctorProfile(doctor)
+                .professionalProfile(professional)
                 .status(NotificationStatus.PENDING)
                 .build();
 
@@ -107,16 +107,16 @@ public class NotificationService {
         }
 
         Clinic clinic = notification.getClinic();
-        DoctorProfile doctor = notification.getDoctorProfile();
+        ProfessionalProfile professional = notification.getProfessionalProfile();
 
-        if (clinicMemberRepository.existsByClinicIdAndDoctorProfileId(clinic.getId(), doctor.getId())) {
-            throw new BadRequestException("Médico já é membro desta clínica");
+        if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinic.getId(), professional.getId())) {
+            throw new BadRequestException("Profissional já é membro desta clínica");
         }
 
         ClinicMember member = ClinicMember.builder()
-                .id(new ClinicMemberId(clinic.getId(), doctor.getId()))
+                .id(new ClinicMemberId(clinic.getId(), professional.getId()))
                 .clinic(clinic)
-                .doctorProfile(doctor)
+                .professionalProfile(professional)
                 .role("MEMBER")
                 .build();
         clinicMemberRepository.save(member);
@@ -162,7 +162,7 @@ public class NotificationService {
                 .status(n.getStatus())
                 .clinicId(n.getClinic() != null ? n.getClinic().getId() : null)
                 .clinicName(n.getClinic() != null ? n.getClinic().getName() : null)
-                .doctorProfileId(n.getDoctorProfile() != null ? n.getDoctorProfile().getId() : null)
+                .professionalProfileId(n.getProfessionalProfile() != null ? n.getProfessionalProfile().getId() : null)
                 .createdAt(n.getCreatedAt())
                 .build();
     }

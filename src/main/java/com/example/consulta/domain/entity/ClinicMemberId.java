@@ -15,6 +15,6 @@ public class ClinicMemberId implements Serializable {
     @Column(name = "clinic_id")
     private String clinicId;
 
-    @Column(name = "doctor_profile_id")
-    private String doctorProfileId;
+    @Column(name = "professional_profile_id")
+    private String professionalProfileId;
 }

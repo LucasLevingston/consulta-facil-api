@@ -13,7 +13,7 @@ public interface ClinicRepository extends JpaRepository<Clinic, String> {
     @Query("""
             SELECT DISTINCT c FROM Clinic c
             LEFT JOIN FETCH c.members m
-            LEFT JOIN FETCH m.doctorProfile dp
+            LEFT JOIN FETCH m.professionalProfile dp
             LEFT JOIN FETCH dp.user
             LEFT JOIN FETCH c.owner
             WHERE c.owner.id = :ownerId
@@ -23,7 +23,7 @@ public interface ClinicRepository extends JpaRepository<Clinic, String> {
     @Query("""
             SELECT DISTINCT c FROM Clinic c
             LEFT JOIN FETCH c.members m
-            LEFT JOIN FETCH m.doctorProfile dp
+            LEFT JOIN FETCH m.professionalProfile dp
             LEFT JOIN FETCH dp.user
             LEFT JOIN FETCH c.owner
             WHERE c.status = :status
@@ -33,7 +33,7 @@ public interface ClinicRepository extends JpaRepository<Clinic, String> {
     @Query("""
             SELECT DISTINCT c FROM Clinic c
             LEFT JOIN FETCH c.members m
-            LEFT JOIN FETCH m.doctorProfile dp
+            LEFT JOIN FETCH m.professionalProfile dp
             LEFT JOIN FETCH dp.user
             LEFT JOIN FETCH c.owner
             WHERE c.id = :id

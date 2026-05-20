@@ -10,7 +10,7 @@ public interface ClinicMemberRepository extends JpaRepository<ClinicMember, Clin
 
     List<ClinicMember> findByClinicId(String clinicId);
 
-    List<ClinicMember> findByDoctorProfileId(String doctorProfileId);
+    List<ClinicMember> findByProfessionalProfileId(String professionalProfileId);
 
-    boolean existsByClinicIdAndDoctorProfileId(String clinicId, String doctorProfileId);
+    boolean existsByClinicIdAndProfessionalProfileId(String clinicId, String professionalProfileId);
 }

@@ -5,13 +5,13 @@ import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.Appointment;
-import com.example.consulta.domain.entity.DoctorProfile;
+import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
 import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.DoctorProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
 import com.example.demo.DemoApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +48,7 @@ class AppointmentControllerIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    private DoctorProfileRepository doctorProfileRepository;
+    private ProfessionalProfileRepository professionalProfileRepository;
 
     @Autowired
     private AppointmentRepository appointmentRepository;
@@ -56,7 +56,7 @@ class AppointmentControllerIntegrationTest {
     private String patientToken;
     private String patientUserId;
     private String adminToken;
-    private String doctorProfileId;
+    private String professionalProfileId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -115,16 +115,16 @@ class AppointmentControllerIntegrationTest {
         String doctorUserId = objectMapper.readTree(doctorRegResponse).get("id").asText();
 
         User doctorUser = userRepository.findById(doctorUserId).orElseThrow();
-        doctorUser.setRole(UserRole.DOCTOR);
+        doctorUser.setRole(UserRole.PROFESSIONAL);
         userRepository.saveAndFlush(doctorUser);
 
-        DoctorProfile profile = DoctorProfile.builder()
+        ProfessionalProfile profile = ProfessionalProfile.builder()
                 .user(doctorUser)
                 .specialty("Cardiologia")
                 .licenseNumber("CRM-SP-12345")
                 .build();
-        DoctorProfile savedProfile = doctorProfileRepository.saveAndFlush(profile);
-        doctorProfileId = savedProfile.getId();
+        ProfessionalProfile savedProfile = professionalProfileRepository.saveAndFlush(profile);
+        professionalProfileId = savedProfile.getId();
 
         String adminLoginResponse = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +158,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testScheduleAppointment() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(7))
                 .reason("Consulta de rotina")
                 .build();
@@ -171,13 +171,13 @@ class AppointmentControllerIntegrationTest {
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.status", equalTo("PENDING")))
                 .andExpect(jsonPath("$.reason", equalTo("Consulta de rotina")))
-                .andExpect(jsonPath("$.doctorId", equalTo(doctorProfileId)));
+                .andExpect(jsonPath("$.doctorId", equalTo(professionalProfileId)));
     }
 
     @Test
     void testScheduleAndConfirmAppointment() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(10))
                 .reason("Check-up anual")
                 .build();
@@ -200,7 +200,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testScheduleAndCancelAppointment() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(5))
                 .reason("Consulta de retorno")
                 .build();
@@ -230,7 +230,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testGetAppointmentById() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(3))
                 .reason("Consulta de rotina")
                 .build();
@@ -254,7 +254,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testGetDoctorAppointments() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(4))
                 .reason("Checkup")
                 .build();
@@ -265,7 +265,7 @@ class AppointmentControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/appointments/doctor/" + doctorProfileId)
+        mockMvc.perform(get("/appointments/professional/" + professionalProfileId)
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", instanceOf(java.util.ArrayList.class)))
@@ -276,7 +276,7 @@ class AppointmentControllerIntegrationTest {
     void testCompleteAppointment() throws Exception {
         // @Future validation on CreateAppointmentDTO requires a future date at creation
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(1))
                 .reason("Consulta")
                 .build();
@@ -306,7 +306,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testDeleteAppointment() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(8))
                 .reason("Consulta para deletar")
                 .build();
@@ -346,7 +346,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testConfirmAlreadyConfirmedFails() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(6))
                 .reason("Check-up")
                 .build();
@@ -372,7 +372,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testCompleteNonConfirmedFails() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(9))
                 .reason("Consulta")
                 .build();
@@ -395,7 +395,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testCancelCompletedAppointmentFails() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(11))
                 .reason("Consulta")
                 .build();
@@ -428,7 +428,7 @@ class AppointmentControllerIntegrationTest {
     void testScheduleRequiresPatientRole() throws Exception {
         // adminToken here is a DOCTOR — doctors cannot schedule appointments
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(12))
                 .reason("Consulta")
                 .build();
@@ -443,7 +443,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testConfirmRequiresDoctorOrAdminRole() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(13))
                 .reason("Consulta")
                 .build();
@@ -466,7 +466,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testCompleteRequiresDoctorOrAdminRole() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(15))
                 .reason("Consulta")
                 .build();
@@ -493,7 +493,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testCompleteConfirmedAppointment() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(16))
                 .reason("Consulta")
                 .build();
@@ -526,7 +526,7 @@ class AppointmentControllerIntegrationTest {
     @Test
     void testCancelAlreadyCancelledFails() throws Exception {
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(17))
                 .reason("Consulta")
                 .build();
@@ -563,7 +563,7 @@ class AppointmentControllerIntegrationTest {
         LocalDateTime scheduledAt = LocalDateTime.now().withNano(0).plusDays(14);
 
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(scheduledAt)
                 .reason("Primeira consulta")
                 .build();

@@ -1,15 +1,18 @@
 package com.example.consulta.core.seeder;
 
 import com.example.consulta.application.service.AppointmentService;
-import com.example.consulta.application.service.DoctorService;
+import com.example.consulta.application.service.ClinicService;
+import com.example.consulta.application.service.ProfessionalService;
 import com.example.consulta.application.service.UserService;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
-import com.example.consulta.api.dto.doctor.CreateDoctorDTO;
+import com.example.consulta.api.dto.clinic.CreateClinicDTO;
+import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +38,11 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final Flyway flyway;
     private final PatientProfileRepository patientProfileRepository;
     private final AppointmentRepository appointmentRepository;
+    private final ProfessionalProfileRepository professionalProfileRepository;
     private final UserService userService;
-    private final DoctorService doctorService;
+    private final ProfessionalService professionalService;
     private final AppointmentService appointmentService;
+    private final ClinicService clinicService;
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -68,45 +73,174 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "00000000001",
                     "https://i.pravatar.cc/150?img=1");
 
-            String doctorProfileId = createDoctor(
-                    "doctor@example.com",
+            String professionalProfileId = createProfessional(
+                    "professional@example.com",
                     "12345678",
-                    "Dr. Doutor Teste",
+                    "Dr. Profissional Teste",
                     "00000000002",
                     "Cardiologia",
                     "CRM-TESTE-001");
-            doctorService.approveDoctorApplication(doctorProfileId);
+            professionalService.approveApplication(professionalProfileId);
 
-            String adminDoctorProfileId = createDoctor(
+            String adminProfessionalProfileId = createProfessional(
                     "admin@example.com",
                     "12345678",
                     "Admin Teste",
                     "00000000003",
                     "Clinica Geral",
                     "CRM-ADMIN-001");
-            doctorService.approveDoctorApplication(adminDoctorProfileId);
+            professionalService.approveApplication(adminProfessionalProfileId);
 
             List<String> patientUserIds = createPatients(20);
 
-            List<String> doctorProfileIds = createDoctors(20);
-            doctorProfileIds.forEach(id -> {
+            List<String> professionalProfileIds = createProfessionals(20);
+            professionalProfileIds.forEach(id -> {
                 try {
-                    doctorService.approveDoctorApplication(id);
+                    professionalService.approveApplication(id);
                 } catch (Exception e) {
-                    log.debug("Erro ao aprovar médico {}: {}", id, e.getMessage());
+                    log.debug("Erro ao aprovar profissional {}: {}", id, e.getMessage());
                 }
             });
 
-            createAppointments(patientUserIds, doctorProfileIds);
+            createClinics(professionalProfileId, adminProfessionalProfileId, professionalProfileIds);
 
-            createTestAppointments(patientUserId, doctorProfileId);
+            createAppointments(patientUserIds, professionalProfileIds);
 
-            createBulkAppointmentsForTestDoctor(
-                    doctorProfileId,
+            createTestAppointments(patientUserId, professionalProfileId);
+
+            createBulkAppointmentsForTestProfessional(
+                    professionalProfileId,
                     patientUserIds);
 
         } catch (Exception e) {
             log.error("Erro durante o seed:", e);
+        }
+    }
+
+    private record CityLocation(String city, String state, double lat, double lng) {}
+
+    private void createClinics(String testDoctorProfileId, String adminDoctorProfileId, List<String> extraDoctorProfileIds) {
+
+        record ClinicDef(String name, String description, String phone, String address,
+                         CityLocation location, String imageUrl, String ownerProfileId) {}
+
+        List<CityLocation> cities = List.of(
+                new CityLocation("São Paulo",      "SP", -23.5505, -46.6333),
+                new CityLocation("Rio de Janeiro", "RJ", -22.9068, -43.1729),
+                new CityLocation("Belo Horizonte", "MG", -19.9191, -43.9386),
+                new CityLocation("Curitiba",       "PR", -25.4290, -49.2671),
+                new CityLocation("Porto Alegre",   "RS", -30.0346, -51.2177),
+                new CityLocation("Brasília",       "DF", -15.7942, -47.8822)
+        );
+
+        List<ClinicDef> defs = List.of(
+                new ClinicDef(
+                        "Clínica Cardio Saúde",
+                        "Especializada em cardiologia e prevenção cardiovascular",
+                        "(11) 3344-5566",
+                        "Av. Paulista, 1578",
+                        cities.get(0),
+                        "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600",
+                        testDoctorProfileId),
+                new ClinicDef(
+                        "Instituto Carioca de Saúde",
+                        "Atendimento multidisciplinar com foco em qualidade de vida",
+                        "(21) 2233-4455",
+                        "Rua Visconde de Pirajá, 330",
+                        cities.get(1),
+                        "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600",
+                        adminDoctorProfileId),
+                new ClinicDef(
+                        "Centro Médico BH",
+                        "Clínica geral e especialidades para toda a família",
+                        "(31) 3344-7788",
+                        "Av. Afonso Pena, 1000",
+                        cities.get(2),
+                        "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=600",
+                        extraDoctorProfileIds.size() > 0 ? extraDoctorProfileIds.get(0) : testDoctorProfileId),
+                new ClinicDef(
+                        "Clínica Curitibana",
+                        "Medicina preventiva e diagnóstico avançado",
+                        "(41) 3344-9900",
+                        "Rua XV de Novembro, 700",
+                        cities.get(3),
+                        "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600",
+                        extraDoctorProfileIds.size() > 2 ? extraDoctorProfileIds.get(2) : testDoctorProfileId),
+                new ClinicDef(
+                        "Saúde Sul Clínica",
+                        "Atendimento humanizado em Porto Alegre",
+                        "(51) 3344-1122",
+                        "Av. Independência, 500",
+                        cities.get(4),
+                        "https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=600",
+                        extraDoctorProfileIds.size() > 4 ? extraDoctorProfileIds.get(4) : testDoctorProfileId),
+                new ClinicDef(
+                        "Clínica Capital Federal",
+                        "Excelência em saúde no coração do Brasil",
+                        "(61) 3344-3344",
+                        "SCS Quadra 2, Bloco C",
+                        cities.get(5),
+                        "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=600",
+                        extraDoctorProfileIds.size() > 6 ? extraDoctorProfileIds.get(6) : testDoctorProfileId)
+        );
+
+        for (ClinicDef def : defs) {
+            try {
+                // Set location on the owner professional profile
+                professionalProfileRepository.findById(def.ownerProfileId()).ifPresent(p -> {
+                    p.setCity(def.location().city());
+                    p.setState(def.location().state());
+                    p.setLatitude(def.location().lat() + (faker.random().nextDouble() * 0.02 - 0.01));
+                    p.setLongitude(def.location().lng() + (faker.random().nextDouble() * 0.02 - 0.01));
+                    professionalProfileRepository.save(p);
+                });
+
+                // Get the owning user id
+                String ownerUserId = professionalProfileRepository.findById(def.ownerProfileId())
+                        .map(p -> p.getUser().getId())
+                        .orElse(null);
+
+                if (ownerUserId == null) continue;
+
+                CreateClinicDTO dto = new CreateClinicDTO();
+                dto.setName(def.name());
+                dto.setDescription(def.description());
+                dto.setPhone(def.phone());
+                dto.setAddress(def.address());
+                dto.setCity(def.location().city());
+                dto.setState(def.location().state());
+                dto.setLatitude(def.location().lat());
+                dto.setLongitude(def.location().lng());
+                dto.setImageUrl(def.imageUrl());
+
+                var clinic = clinicService.createClinic(ownerUserId, dto);
+
+                // Add 1-2 extra doctors from the pool as members
+                int added = 0;
+                for (String extraId : extraDoctorProfileIds) {
+                    if (added >= 2) break;
+                    if (extraId.equals(def.ownerProfileId())) continue;
+                    try {
+                        clinicService.addMember(clinic.getId(), extraId, ownerUserId);
+
+                        // Also give that doctor location data near the clinic
+                        professionalProfileRepository.findById(extraId).ifPresent(p -> {
+                            if (p.getLatitude() == null) {
+                                p.setCity(def.location().city());
+                                p.setState(def.location().state());
+                                p.setLatitude(def.location().lat() + (faker.random().nextDouble() * 0.04 - 0.02));
+                                p.setLongitude(def.location().lng() + (faker.random().nextDouble() * 0.04 - 0.02));
+                                professionalProfileRepository.save(p);
+                            }
+                        });
+                        added++;
+                    } catch (Exception ignored) {}
+                }
+
+                log.info("Clínica criada: {} ({}, {})", clinic.getName(), def.location().city(), def.location().state());
+            } catch (Exception e) {
+                log.warn("Erro ao criar clínica {}: {}", def.name(), e.getMessage());
+            }
         }
     }
 
@@ -174,26 +308,27 @@ public class DatabaseSeeder implements CommandLineRunner {
         log.info("Total de consultas criadas: {}", totalAppointments);
     }
 
-    private List<String> createDoctors(int count) {
-        List<String> doctorProfileIds = new ArrayList<>();
+    private List<String> createProfessionals(int count) {
+        List<String> ids = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             try {
-                CreateUserDTO doctorUserDTO = CreateUserDTO.builder().name(faker.name().fullName())
-                        .email(faker.internet().emailAddress()).password("doctor123").cpf(generateFakeCPF())
+                CreateUserDTO userDTO = CreateUserDTO.builder().name(faker.name().fullName())
+                        .email(faker.internet().emailAddress()).password("prof123").cpf(generateFakeCPF())
                         .phone(faker.phoneNumber().cellPhone())
                         .birthDate(faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
                         .gender(faker.bool().bool() ? Gender.MALE : Gender.FEMALE)
                         .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70)).build();
-                var userResponse = userService.createUser(doctorUserDTO);
-                CreateDoctorDTO doctorDTO = CreateDoctorDTO.builder().specialty(specialties.get(i % specialties.size()))
-                        .licenseNumber("CRM" + System.currentTimeMillis() + i).build();
-                var doctorResponse = doctorService.createDoctorProfile(userResponse.getId(), doctorDTO);
-                doctorProfileIds.add(doctorResponse.getId());
+                var userResponse = userService.createUser(userDTO);
+                CreateProfessionalDTO profDTO = CreateProfessionalDTO.builder()
+                        .specialty(specialties.get(i % specialties.size()))
+                        .licenseNumber("REG" + System.currentTimeMillis() + i).build();
+                var profResponse = professionalService.createProfessionalProfile(userResponse.getId(), profDTO);
+                ids.add(profResponse.getId());
             } catch (Exception e) {
-                log.debug("Erro ao criar médico fake: {}", e.getMessage());
+                log.debug("Erro ao criar profissional fake: {}", e.getMessage());
             }
         }
-        return doctorProfileIds;
+        return ids;
     }
 
     private String createPatient(
@@ -219,7 +354,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         return created.getId();
     }
 
-    private String createDoctor(
+    private String createProfessional(
             String email,
             String password,
             String name,
@@ -240,14 +375,14 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         var userResponse = userService.createUser(dto);
 
-        var doctorResponse = doctorService.createDoctorProfile(
+        var profResponse = professionalService.createProfessionalProfile(
                 userResponse.getId(),
-                CreateDoctorDTO.builder()
+                CreateProfessionalDTO.builder()
                         .specialty(specialty)
                         .licenseNumber(licenseNumber)
                         .build());
 
-        return doctorResponse.getId();
+        return profResponse.getId();
     }
 
     private void forceStatus(
@@ -262,7 +397,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private void createTestAppointments(
             String patientUserId,
-            String testDoctorProfileId) {
+            String testProfessionalProfileId) {
 
         PatientProfile profile = patientProfileRepository
                 .findByUserId(patientUserId)
@@ -299,7 +434,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 var response = appointmentService.scheduleAppointment(
                         patientUserId,
                         CreateAppointmentDTO.builder()
-                                .doctorId(testDoctorProfileId)
+                                .doctorId(testProfessionalProfileId)
                                 .scheduledAt(
                                         LocalDateTime.now()
                                                 .plusDays(daysAhead[i])
@@ -319,8 +454,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
     }
 
-    private void createBulkAppointmentsForTestDoctor(
-            String testDoctorProfileId,
+    private void createBulkAppointmentsForTestProfessional(
+            String testProfessionalProfileId,
             List<String> patientUserIds) {
 
         List<AppointmentStatus> statuses = List.of(
@@ -394,7 +529,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 var response = appointmentService.scheduleAppointment(
                         patientId,
                         CreateAppointmentDTO.builder()
-                                .doctorId(testDoctorProfileId)
+                                .doctorId(testProfessionalProfileId)
                                 .scheduledAt(safeDate)
                                 .reason(reasons.get(
                                         faker.random().nextInt(reasons.size())))
@@ -431,7 +566,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         log.info(
-                "Criadas {} consultas para o médico de teste",
+                "Criadas {} consultas para o profissional de teste",
                 created);
     }
 

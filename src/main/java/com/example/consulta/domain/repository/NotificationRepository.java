@@ -20,5 +20,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Stri
     @Query("UPDATE Notification n SET n.status = 'READ' WHERE n.targetUser.id = :userId AND n.status = 'PENDING'")
     void markAllAsReadByUserId(@Param("userId") String userId);
 
-    boolean existsByClinicIdAndDoctorProfileIdAndStatus(String clinicId, String doctorProfileId, NotificationStatus status);
+    boolean existsByClinicIdAndProfessionalProfileIdAndStatus(String clinicId, String professionalProfileId, NotificationStatus status);
 }

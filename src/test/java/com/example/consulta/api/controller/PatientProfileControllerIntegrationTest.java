@@ -3,11 +3,11 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
-import com.example.consulta.domain.entity.DoctorProfile;
+import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
-import com.example.consulta.domain.repository.DoctorProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
 import com.example.demo.DemoApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,13 +46,13 @@ class PatientProfileControllerIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    private DoctorProfileRepository doctorProfileRepository;
+    private ProfessionalProfileRepository professionalProfileRepository;
 
     private String patientToken;
     private String patientUserId;
     private String doctorToken;
     private String doctorUserId;
-    private String doctorProfileId;
+    private String professionalProfileId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -111,15 +111,15 @@ class PatientProfileControllerIntegrationTest {
         doctorUserId = objectMapper.readTree(doctorRegResponse).get("id").asText();
 
         User doctorUser = userRepository.findById(doctorUserId).orElseThrow();
-        doctorUser.setRole(UserRole.DOCTOR);
+        doctorUser.setRole(UserRole.PROFESSIONAL);
         userRepository.saveAndFlush(doctorUser);
 
-        DoctorProfile profile = DoctorProfile.builder()
+        ProfessionalProfile profile = ProfessionalProfile.builder()
                 .user(doctorUser)
                 .specialty("Cardiologia")
                 .licenseNumber("CRM-SP-99999")
                 .build();
-        doctorProfileId = doctorProfileRepository.saveAndFlush(profile).getId();
+        professionalProfileId = professionalProfileRepository.saveAndFlush(profile).getId();
 
         String doctorLoginResponse = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -193,7 +193,7 @@ class PatientProfileControllerIntegrationTest {
 
     @Test
     void testGetDoctorPatientsEmptyInitially() throws Exception {
-        mockMvc.perform(get("/patients/doctor/" + doctorUserId)
+        mockMvc.perform(get("/patients/professional/" + doctorUserId)
                 .header("Authorization", "Bearer " + doctorToken)
                 .param("page", "0")
                 .param("size", "20")
@@ -208,7 +208,7 @@ class PatientProfileControllerIntegrationTest {
     void testGetDoctorPatientsAfterAppointment() throws Exception {
         // Patient schedules an appointment with the doctor
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(doctorProfileId)
+                .doctorId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(5))
                 .reason("Consulta de rotina")
                 .build();
@@ -219,7 +219,7 @@ class PatientProfileControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/patients/doctor/" + doctorUserId)
+        mockMvc.perform(get("/patients/professional/" + doctorUserId)
                 .header("Authorization", "Bearer " + doctorToken)
                 .param("page", "0")
                 .param("size", "20")
@@ -233,7 +233,7 @@ class PatientProfileControllerIntegrationTest {
 
     @Test
     void testGetDoctorPatientsRequiresAuth() throws Exception {
-        mockMvc.perform(get("/patients/doctor/" + doctorUserId)
+        mockMvc.perform(get("/patients/professional/" + doctorUserId)
                 .param("page", "0")
                 .param("size", "20"))
                 .andExpect(status().isUnauthorized());

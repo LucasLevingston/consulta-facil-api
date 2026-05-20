@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum UserRole {
     PATIENT("ROLE_PATIENT", "Paciente"),
-    DOCTOR("ROLE_DOCTOR", "Médico"),
+    PROFESSIONAL("ROLE_PROFESSIONAL", "Profissional de Saúde"),
     ADMIN("ROLE_ADMIN", "Administrador");
 
     private final String authority;

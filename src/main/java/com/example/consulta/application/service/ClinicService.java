@@ -8,11 +8,11 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.entity.ClinicMember;
 import com.example.consulta.domain.entity.ClinicMemberId;
-import com.example.consulta.domain.entity.DoctorProfile;
+import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.repository.ClinicMemberRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
-import com.example.consulta.domain.repository.DoctorProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -33,7 +33,7 @@ public class ClinicService {
 
     @PersistenceContext
     private EntityManager em;
-    private final DoctorProfileRepository doctorProfileRepository;
+    private final ProfessionalProfileRepository professionalProfileRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -57,11 +57,11 @@ public class ClinicService {
 
         Clinic saved = clinicRepository.save(clinic);
 
-        doctorProfileRepository.findByUserId(userId).ifPresent(doctorProfile -> {
+        professionalProfileRepository.findByUserId(userId).ifPresent(professionalProfile -> {
             ClinicMember member = ClinicMember.builder()
-                    .id(new ClinicMemberId(saved.getId(), doctorProfile.getId()))
+                    .id(new ClinicMemberId(saved.getId(), professionalProfile.getId()))
                     .clinic(saved)
-                    .doctorProfile(doctorProfile)
+                    .professionalProfile(professionalProfile)
                     .role("OWNER")
                     .build();
             saved.getMembers().add(member);
@@ -111,7 +111,7 @@ public class ClinicService {
     }
 
     @Transactional
-    public void addMember(String clinicId, String doctorProfileId, String requesterId) {
+    public void addMember(String clinicId, String professionalProfileId, String requesterId) {
         Clinic clinic = clinicRepository.findById(clinicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
@@ -119,17 +119,17 @@ public class ClinicService {
             throw new BadRequestException("Apenas o proprietário pode adicionar membros");
         }
 
-        DoctorProfile doctor = doctorProfileRepository.findById(doctorProfileId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor", doctorProfileId));
+        ProfessionalProfile professional = professionalProfileRepository.findById(professionalProfileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalProfileId));
 
-        if (clinicMemberRepository.existsByClinicIdAndDoctorProfileId(clinicId, doctorProfileId)) {
-            throw new BadRequestException("Médico já é membro desta clínica");
+        if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinicId, professionalProfileId)) {
+            throw new BadRequestException("Profissional já é membro desta clínica");
         }
 
         ClinicMember member = ClinicMember.builder()
-                .id(new ClinicMemberId(clinicId, doctorProfileId))
+                .id(new ClinicMemberId(clinicId, professionalProfileId))
                 .clinic(clinic)
-                .doctorProfile(doctor)
+                .professionalProfile(professional)
                 .role("MEMBER")
                 .build();
         clinicMemberRepository.save(member);
@@ -138,7 +138,7 @@ public class ClinicService {
     }
 
     @Transactional
-    public void removeMember(String clinicId, String doctorProfileId, String requesterId) {
+    public void removeMember(String clinicId, String professionalProfileId, String requesterId) {
         Clinic clinic = clinicRepository.findById(clinicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
@@ -146,7 +146,7 @@ public class ClinicService {
             throw new BadRequestException("Apenas o proprietário pode remover membros");
         }
 
-        ClinicMemberId id = new ClinicMemberId(clinicId, doctorProfileId);
+        ClinicMemberId id = new ClinicMemberId(clinicId, professionalProfileId);
         clinicMemberRepository.deleteById(id);
         em.flush();
         em.clear();
@@ -160,10 +160,10 @@ public class ClinicService {
     private ClinicResponseDTO toDTO(Clinic clinic) {
         List<ClinicMemberDTO> members = clinic.getMembers().stream()
                 .map(m -> ClinicMemberDTO.builder()
-                        .doctorProfileId(m.getDoctorProfile().getId())
-                        .doctorName(m.getDoctorProfile().getUser().getName())
-                        .specialty(m.getDoctorProfile().getSpecialty())
-                        .imageUrl(m.getDoctorProfile().getUser().getImageUrl())
+                        .professionalProfileId(m.getProfessionalProfile().getId())
+                        .professionalName(m.getProfessionalProfile().getUser().getName())
+                        .specialty(m.getProfessionalProfile().getSpecialty())
+                        .imageUrl(m.getProfessionalProfile().getUser().getImageUrl())
                         .role(m.getRole())
                         .build())
                 .toList();

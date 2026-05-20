@@ -53,17 +53,17 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getPatientAppointments(userId, pageable));
     }
 
-    @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
-    @Operation(summary = "List doctor appointments")
-    public ResponseEntity<Page<AppointmentResponseDTO>> getDoctorAppointments(
-            @PathVariable String doctorId,
+    @GetMapping("/professional/{professionalId}")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "List professional appointments")
+    public ResponseEntity<Page<AppointmentResponseDTO>> getProfessionalAppointments(
+            @PathVariable String professionalId,
             Pageable pageable) {
-        return ResponseEntity.ok(appointmentService.getDoctorAppointments(doctorId, pageable));
+        return ResponseEntity.ok(appointmentService.getProfessionalAppointments(professionalId, pageable));
     }
 
     @PutMapping("/{appointmentId}/confirm")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "Confirm appointment")
     public ResponseEntity<AppointmentResponseDTO> confirmAppointment(@PathVariable String appointmentId) {
         AppointmentResponseDTO response = appointmentService.confirmAppointment(appointmentId);
@@ -80,7 +80,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/complete")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "Complete appointment")
     public ResponseEntity<AppointmentResponseDTO> completeAppointment(@PathVariable String appointmentId) {
         AppointmentResponseDTO response = appointmentService.completeAppointment(appointmentId);

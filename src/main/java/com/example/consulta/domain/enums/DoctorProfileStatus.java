@@ -1,7 +1,7 @@
 package com.example.consulta.domain.enums;
 
-public enum DoctorProfileStatus {
-    PENDING_REVIEW,
-    ACTIVE,
-    REJECTED
+/** @deprecated Use {@link ProfessionalProfileStatus} instead */
+@Deprecated
+public final class DoctorProfileStatus {
+    private DoctorProfileStatus() {}
 }

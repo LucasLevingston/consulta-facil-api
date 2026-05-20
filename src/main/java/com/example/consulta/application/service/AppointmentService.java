@@ -8,11 +8,11 @@ import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
-import com.example.consulta.domain.entity.DoctorProfile;
+import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.DoctorProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final PatientProfileRepository patientProfileRepository;
-    private final DoctorProfileRepository doctorProfileRepository;
+    private final ProfessionalProfileRepository professionalProfileRepository;
 
     @Transactional
     public AppointmentResponseDTO scheduleAppointment(String userId, CreateAppointmentDTO dto) {
@@ -40,16 +40,16 @@ public class AppointmentService {
         PatientProfile patient = patientProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
 
-        DoctorProfile doctor = doctorProfileRepository.findById(dto.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor", dto.getDoctorId()));
+        ProfessionalProfile professional = professionalProfileRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", dto.getDoctorId()));
 
-        if (appointmentRepository.existsByDoctorIdAndScheduledAt(dto.getDoctorId(), dto.getScheduledAt())) {
-            throw new BadRequestException("Doctor already has an appointment scheduled at this time");
+        if (appointmentRepository.existsByProfessionalIdAndScheduledAt(dto.getDoctorId(), dto.getScheduledAt())) {
+            throw new BadRequestException("Professional already has an appointment scheduled at this time");
         }
 
         Appointment appointment = Appointment.builder()
                 .patient(patient)
-                .doctor(doctor)
+                .professional(professional)
                 .scheduledAt(dto.getScheduledAt())
                 .reason(dto.getReason())
                 .notes(dto.getNotes())
@@ -78,12 +78,12 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AppointmentResponseDTO> getDoctorAppointments(String doctorId, Pageable pageable) {
-        log.debug("Fetching appointments for doctor: {}", doctorId);
-        return doctorProfileRepository.findById(doctorId)
-                .map(doctor -> appointmentRepository.findByDoctorId(doctorId, pageable)
+    public Page<AppointmentResponseDTO> getProfessionalAppointments(String professionalId, Pageable pageable) {
+        log.debug("Fetching appointments for professional: {}", professionalId);
+        return professionalProfileRepository.findById(professionalId)
+                .map(p -> appointmentRepository.findByProfessionalId(professionalId, pageable)
                         .map(this::toResponseDTO))
-                .orElse(Page.empty(pageable));
+                .orElse(Page.empty());
     }
 
     @Transactional
@@ -131,12 +131,12 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PatientSummaryDTO> getDoctorPatients(String doctorId, String search, String sort, int page, int size) {
-        log.debug("Fetching patients for doctor: {}, search: {}, sort: {}", doctorId, search, sort);
+    public Page<PatientSummaryDTO> getProfessionalPatients(String professionalId, String search, String sort, int page, int size) {
+        log.debug("Fetching patients for professional: {}, search: {}, sort: {}", professionalId, search, sort);
         String term = search == null ? "" : search.trim();
         List<PatientSummaryDTO> all = "name".equals(sort)
-                ? appointmentRepository.findDoctorPatientsByName(doctorId, term)
-                : appointmentRepository.findDoctorPatientsByRecent(doctorId, term);
+                ? appointmentRepository.findDoctorPatientsByName(professionalId, term)
+                : appointmentRepository.findDoctorPatientsByRecent(professionalId, term);
         Pageable pageable = PageRequest.of(page, size);
         int start = (int) pageable.getOffset();
         int end = Math.min(start + size, all.size());
@@ -182,9 +182,9 @@ public class AppointmentService {
                 .id(appointment.getId())
                 .patientName(appointment.getPatient().getUser().getName())
                 .patientId(appointment.getPatient().getId())
-                .doctorName(appointment.getDoctor().getUser().getName())
-                .doctorId(appointment.getDoctor().getId())
-                .specialty(appointment.getDoctor().getSpecialty())
+                .doctorName(appointment.getProfessional().getUser().getName())
+                .doctorId(appointment.getProfessional().getId())
+                .specialty(appointment.getProfessional().getSpecialty())
                 .scheduledAt(appointment.getScheduledAt())
                 .reason(appointment.getReason())
                 .notes(appointment.getNotes())

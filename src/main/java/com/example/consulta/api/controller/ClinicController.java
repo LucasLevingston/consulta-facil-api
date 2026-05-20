@@ -43,7 +43,7 @@ public class ClinicController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get my clinic")
     public ResponseEntity<List<ClinicResponseDTO>> getMyClinic(
@@ -58,7 +58,7 @@ public class ClinicController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create a clinic")
     public ResponseEntity<ClinicResponseDTO> createClinic(
@@ -69,7 +69,7 @@ public class ClinicController {
     }
 
     @PutMapping("/{clinicId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update a clinic")
     public ResponseEntity<ClinicResponseDTO> updateClinic(
@@ -79,39 +79,39 @@ public class ClinicController {
         return ResponseEntity.ok(clinicService.updateClinic(clinicId, userDetails.getUserId(), dto));
     }
 
-    @PostMapping("/{clinicId}/members/{doctorProfileId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PostMapping("/{clinicId}/members/{professionalProfileId}")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Add a doctor to clinic")
+    @Operation(summary = "Add a professional to clinic")
     public ResponseEntity<Void> addMember(
             @PathVariable String clinicId,
-            @PathVariable String doctorProfileId,
+            @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clinicService.addMember(clinicId, doctorProfileId, userDetails.getUserId());
+        clinicService.addMember(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{clinicId}/members/{doctorProfileId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @DeleteMapping("/{clinicId}/members/{professionalProfileId}")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Remove a doctor from clinic")
+    @Operation(summary = "Remove a professional from clinic")
     public ResponseEntity<Void> removeMember(
             @PathVariable String clinicId,
-            @PathVariable String doctorProfileId,
+            @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clinicService.removeMember(clinicId, doctorProfileId, userDetails.getUserId());
+        clinicService.removeMember(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{clinicId}/invites/{doctorProfileId}")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PostMapping("/{clinicId}/invites/{professionalProfileId}")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Send a clinic invite to a doctor")
-    public ResponseEntity<Void> inviteDoctor(
+    @Operation(summary = "Send a clinic invite to a professional")
+    public ResponseEntity<Void> inviteProfessional(
             @PathVariable String clinicId,
-            @PathVariable String doctorProfileId,
+            @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        notificationService.sendClinicInvite(clinicId, doctorProfileId, userDetails.getUserId());
+        notificationService.sendClinicInvite(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 }
