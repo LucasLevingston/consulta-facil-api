@@ -19,10 +19,10 @@ public interface ProfessionalProfileRepository extends JpaRepository<Professiona
     Page<ProfessionalProfile> findBySpecialtyContainingIgnoreCaseAndStatus(String specialty, ProfessionalProfileStatus status, Pageable pageable);
     boolean existsByLicenseNumber(String licenseNumber);
 
-    @Query("SELECT p FROM ProfessionalProfile p WHERE p.status = 'ACTIVE' " +
-           "AND (:profession IS NULL OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%'))) " +
-           "AND (:specialty IS NULL OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%'))) " +
-           "AND (:name IS NULL OR LOWER(p.user.name) LIKE LOWER(CONCAT('%', :name, '%')))")
+    @Query("SELECT p FROM ProfessionalProfile p JOIN p.user u WHERE p.status = 'ACTIVE' " +
+           "AND ('' = :profession OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%'))) " +
+           "AND ('' = :specialty OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%'))) " +
+           "AND ('' = :name OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))")
     Page<ProfessionalProfile> findActiveWithFilters(
             @Param("profession") String profession,
             @Param("specialty") String specialty,
@@ -34,8 +34,8 @@ public interface ProfessionalProfileRepository extends JpaRepository<Professiona
             WHERE p.status = 'ACTIVE'
               AND p.latitude IS NOT NULL
               AND p.longitude IS NOT NULL
-              AND (:specialty IS NULL OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%')))
-              AND (:profession IS NULL OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%')))
+              AND (:specialty = '' OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%')))
+              AND (:profession = '' OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%')))
               AND (6371 * acos(
                     LEAST(1.0, cos(radians(:lat)) * cos(radians(p.latitude)) *
                     cos(radians(p.longitude) - radians(:lng)) +
