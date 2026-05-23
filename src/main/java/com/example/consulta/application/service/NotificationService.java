@@ -31,7 +31,7 @@ public class NotificationService {
     private final ClinicMemberRepository clinicMemberRepository;
 
     @Transactional
-    public void sendClinicInvite(String clinicId, String doctorProfileId, String requesterId) {
+    public void sendClinicInvite(String clinicId, String professionalProfileId, String requesterId) {
         Clinic clinic = clinicRepository.findById(clinicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
@@ -39,15 +39,15 @@ public class NotificationService {
             throw new BadRequestException("Apenas o proprietário pode convidar profissionais");
         }
 
-        ProfessionalProfile professional = professionalProfileRepository.findById(doctorProfileId)
-                .orElseThrow(() -> new ResourceNotFoundException("Professional", doctorProfileId));
+        ProfessionalProfile professional = professionalProfileRepository.findById(professionalProfileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalProfileId));
 
-        if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinicId, doctorProfileId)) {
+        if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinicId, professionalProfileId)) {
             throw new BadRequestException("Profissional já é membro desta clínica");
         }
 
         if (notificationRepository.existsByClinicIdAndProfessionalProfileIdAndStatus(
-                clinicId, doctorProfileId, NotificationStatus.PENDING)) {
+                clinicId, professionalProfileId, NotificationStatus.PENDING)) {
             throw new BadRequestException("Já existe um convite pendente para este profissional");
         }
 

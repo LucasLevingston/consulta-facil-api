@@ -139,7 +139,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private record CityLocation(String city, String state, double lat, double lng) {}
 
-    private void createClinics(String testDoctorProfileId, String adminDoctorProfileId, List<String> extraDoctorProfileIds) {
+    private void createClinics(String testProfessionalProfileId, String adminProfessionalProfileId, List<String> extraProfessionalProfileIds) {
 
         record ClinicDef(String name, String description, String phone, String address,
                          CityLocation location, String imageUrl, String ownerProfileId) {}
@@ -161,7 +161,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Paulista, 1578",
                         cities.get(0),
                         "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600",
-                        testDoctorProfileId),
+                        testProfessionalProfileId),
                 new ClinicDef(
                         "Instituto Carioca de Saúde",
                         "Atendimento multidisciplinar com foco em qualidade de vida",
@@ -169,7 +169,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Visconde de Pirajá, 330",
                         cities.get(1),
                         "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600",
-                        adminDoctorProfileId),
+                        adminProfessionalProfileId),
                 new ClinicDef(
                         "Centro Médico BH",
                         "Clínica geral e especialidades para toda a família",
@@ -177,7 +177,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Afonso Pena, 1000",
                         cities.get(2),
                         "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=600",
-                        extraDoctorProfileIds.size() > 0 ? extraDoctorProfileIds.get(0) : testDoctorProfileId),
+                        extraProfessionalProfileIds.size() > 0 ? extraProfessionalProfileIds.get(0) : testProfessionalProfileId),
                 new ClinicDef(
                         "Clínica Curitibana",
                         "Medicina preventiva e diagnóstico avançado",
@@ -185,7 +185,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua XV de Novembro, 700",
                         cities.get(3),
                         "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600",
-                        extraDoctorProfileIds.size() > 2 ? extraDoctorProfileIds.get(2) : testDoctorProfileId),
+                        extraProfessionalProfileIds.size() > 2 ? extraProfessionalProfileIds.get(2) : testProfessionalProfileId),
                 new ClinicDef(
                         "Saúde Sul Clínica",
                         "Atendimento humanizado em Porto Alegre",
@@ -193,7 +193,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Independência, 500",
                         cities.get(4),
                         "https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=600",
-                        extraDoctorProfileIds.size() > 4 ? extraDoctorProfileIds.get(4) : testDoctorProfileId),
+                        extraProfessionalProfileIds.size() > 4 ? extraProfessionalProfileIds.get(4) : testProfessionalProfileId),
                 new ClinicDef(
                         "Clínica Capital Federal",
                         "Excelência em saúde no coração do Brasil",
@@ -201,7 +201,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "SCS Quadra 2, Bloco C",
                         cities.get(5),
                         "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=600",
-                        extraDoctorProfileIds.size() > 6 ? extraDoctorProfileIds.get(6) : testDoctorProfileId)
+                        extraProfessionalProfileIds.size() > 6 ? extraProfessionalProfileIds.get(6) : testProfessionalProfileId)
         );
 
         for (ClinicDef def : defs) {
@@ -237,7 +237,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
                 // Add 1-2 extra doctors from the pool as members
                 int added = 0;
-                for (String extraId : extraDoctorProfileIds) {
+                for (String extraId : extraProfessionalProfileIds) {
                     if (added >= 2) break;
                     if (extraId.equals(def.ownerProfileId())) continue;
                     try {
@@ -264,7 +264,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
     }
 
-    private void createAppointments(List<String> patientUserIds, List<String> doctorProfileIds) {
+    private void createAppointments(List<String> patientUserIds, List<String> professionalProfileIds) {
         List<AppointmentStatus> statusPool = List.of(AppointmentStatus.COMPLETED, AppointmentStatus.COMPLETED,
                 AppointmentStatus.COMPLETED, AppointmentStatus.CONFIRMED, AppointmentStatus.CONFIRMED,
                 AppointmentStatus.CONFIRMED, AppointmentStatus.PENDING, AppointmentStatus.PENDING,
@@ -277,7 +277,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         for (String userId : patientUserIds) {
             int appointmentsPerPatient = faker.random().nextInt(5, 13);
             for (int i = 0; i < appointmentsPerPatient; i++) {
-                String doctorId = doctorProfileIds.get(faker.random().nextInt(doctorProfileIds.size()));
+                String professionalId = professionalProfileIds.get(faker.random().nextInt(professionalProfileIds.size()));
                 AppointmentStatus status = statusPool.get(faker.random().nextInt(statusPool.size()));
                 LocalDateTime scheduledAt;
                 switch (status) {
@@ -302,7 +302,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     LocalDateTime safeDate = LocalDateTime.now().plusDays(faker.random().nextInt(1, 20)).withHour(10)
                             .withMinute(0).withSecond(0).withNano(0);
                     var response = appointmentService.scheduleAppointment(userId,
-                            CreateAppointmentDTO.builder().doctorId(doctorId).scheduledAt(safeDate)
+                            CreateAppointmentDTO.builder().professionalId(professionalId).scheduledAt(safeDate)
                                     .reason(reasons.get(faker.random().nextInt(reasons.size())))
                                     .notes(faker.lorem().sentence(12)).build());
                     final AppointmentStatus finalStatus = status;
@@ -466,7 +466,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 var response = appointmentService.scheduleAppointment(
                         patientUserId,
                         CreateAppointmentDTO.builder()
-                                .doctorId(testProfessionalProfileId)
+                                .professionalId(testProfessionalProfileId)
                                 .scheduledAt(
                                         LocalDateTime.now()
                                                 .plusDays(daysAhead[i])
@@ -561,7 +561,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 var response = appointmentService.scheduleAppointment(
                         patientId,
                         CreateAppointmentDTO.builder()
-                                .doctorId(testProfessionalProfileId)
+                                .professionalId(testProfessionalProfileId)
                                 .scheduledAt(safeDate)
                                 .reason(reasons.get(
                                         faker.random().nextInt(reasons.size())))

@@ -1,10 +1,16 @@
 package com.example.consulta.api.controller;
 
+import com.example.consulta.api.dto.appointment.AnamneseResponseDTO;
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.ProntuarioResponseDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.SaveAnamneseDTO;
+import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
+import com.example.consulta.application.service.AnamneseService;
 import com.example.consulta.application.service.AppointmentService;
+import com.example.consulta.application.service.ProntuarioService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
+    private final AnamneseService anamneseService;
+    private final ProntuarioService prontuarioService;
 
     @PostMapping
     @PreAuthorize("hasRole('PATIENT')")
@@ -105,5 +113,42 @@ public class AppointmentController {
     public ResponseEntity<Void> deleteAppointment(@PathVariable String appointmentId) {
         appointmentService.deleteAppointment(appointmentId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{appointmentId}/anamnesis")
+    @Operation(summary = "Get anamnesis for an appointment")
+    public ResponseEntity<AnamneseResponseDTO> getAnamnesis(@PathVariable String appointmentId) {
+        return anamneseService.getByAppointmentId(appointmentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
+    @PutMapping("/{appointmentId}/anamnesis")
+    @PreAuthorize("hasAnyRole('PATIENT', 'PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "Save anamnesis for an appointment")
+    public ResponseEntity<AnamneseResponseDTO> saveAnamnesis(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody SaveAnamneseDTO dto) {
+        return ResponseEntity.ok(anamneseService.save(appointmentId, userDetails.getUserId(), dto));
+    }
+
+    @GetMapping("/{appointmentId}/prontuario")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get prontuario for an appointment")
+    public ResponseEntity<ProntuarioResponseDTO> getProntuario(@PathVariable String appointmentId) {
+        return prontuarioService.getByAppointmentId(appointmentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
+    @PutMapping("/{appointmentId}/prontuario")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "Save prontuario for an appointment")
+    public ResponseEntity<ProntuarioResponseDTO> saveProntuario(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody SaveProntuarioDTO dto) {
+        return ResponseEntity.ok(prontuarioService.save(appointmentId, userDetails.getUserId(), dto));
     }
 }

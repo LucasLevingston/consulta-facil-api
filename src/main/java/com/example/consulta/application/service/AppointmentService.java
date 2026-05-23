@@ -40,10 +40,10 @@ public class AppointmentService {
         PatientProfile patient = patientProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user: " + userId));
 
-        ProfessionalProfile professional = professionalProfileRepository.findById(dto.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Professional", dto.getDoctorId()));
+        ProfessionalProfile professional = professionalProfileRepository.findById(dto.getProfessionalId())
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", dto.getProfessionalId()));
 
-        if (appointmentRepository.existsByProfessionalIdAndScheduledAt(dto.getDoctorId(), dto.getScheduledAt())) {
+        if (appointmentRepository.existsByProfessionalIdAndScheduledAt(dto.getProfessionalId(), dto.getScheduledAt())) {
             throw new BadRequestException("Professional already has an appointment scheduled at this time");
         }
 
@@ -135,8 +135,8 @@ public class AppointmentService {
         log.debug("Fetching patients for professional: {}, search: {}, sort: {}", professionalId, search, sort);
         String term = search == null ? "" : search.trim();
         List<PatientSummaryDTO> all = "name".equals(sort)
-                ? appointmentRepository.findDoctorPatientsByName(professionalId, term)
-                : appointmentRepository.findDoctorPatientsByRecent(professionalId, term);
+                ? appointmentRepository.findProfessionalPatientsByName(professionalId, term)
+                : appointmentRepository.findProfessionalPatientsByRecent(professionalId, term);
         Pageable pageable = PageRequest.of(page, size);
         int start = (int) pageable.getOffset();
         int end = Math.min(start + size, all.size());
@@ -182,8 +182,8 @@ public class AppointmentService {
                 .id(appointment.getId())
                 .patientName(appointment.getPatient().getUser().getName())
                 .patientId(appointment.getPatient().getId())
-                .doctorName(appointment.getProfessional().getUser().getName())
-                .doctorId(appointment.getProfessional().getId())
+                .professionalName(appointment.getProfessional().getUser().getName())
+                .professionalId(appointment.getProfessional().getId())
                 .specialty(appointment.getProfessional().getSpecialty())
                 .scheduledAt(appointment.getScheduledAt())
                 .reason(appointment.getReason())

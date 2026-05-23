@@ -16,8 +16,8 @@ public class AppointmentResponseDTO {
     private String id;
     private String patientName;
     private String patientId;
-    private String doctorName;
-    private String doctorId;
+    private String professionalName;
+    private String professionalId;
     private String specialty;
     private LocalDateTime scheduledAt;
     private String reason;

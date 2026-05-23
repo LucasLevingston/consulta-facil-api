@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class CreateAppointmentDTO {
-    @NotBlank(message = "ID do médico é obrigatório")
-    private String doctorId;
+    @NotBlank(message = "ID do profissional é obrigatório")
+    private String professionalId;
 
     @NotNull(message = "Data e hora são obrigatórias")
     @Future(message = "A data deve ser no futuro")

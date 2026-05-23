@@ -192,7 +192,7 @@ class PatientProfileControllerIntegrationTest {
     }
 
     @Test
-    void testGetDoctorPatientsEmptyInitially() throws Exception {
+    void testGetProfessionalPatientsEmptyInitially() throws Exception {
         mockMvc.perform(get("/patients/professional/" + doctorUserId)
                 .header("Authorization", "Bearer " + doctorToken)
                 .param("page", "0")
@@ -205,10 +205,10 @@ class PatientProfileControllerIntegrationTest {
     }
 
     @Test
-    void testGetDoctorPatientsAfterAppointment() throws Exception {
+    void testGetProfessionalPatientsAfterAppointment() throws Exception {
         // Patient schedules an appointment with the doctor
         CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
-                .doctorId(professionalProfileId)
+                .professionalId(professionalProfileId)
                 .scheduledAt(LocalDateTime.now().plusDays(5))
                 .reason("Consulta de rotina")
                 .build();
@@ -232,7 +232,7 @@ class PatientProfileControllerIntegrationTest {
     }
 
     @Test
-    void testGetDoctorPatientsRequiresAuth() throws Exception {
+    void testGetProfessionalPatientsRequiresAuth() throws Exception {
         mockMvc.perform(get("/patients/professional/" + doctorUserId)
                 .param("page", "0")
                 .param("size", "20"))

@@ -30,13 +30,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             FROM Appointment a
             JOIN a.patient p
             JOIN p.user u
-            WHERE a.professional.id = :doctorId
+            WHERE a.professional.id = :professionalId
             AND (:search = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')))
             GROUP BY u.id, u.name
             ORDER BY u.name ASC
             """)
-    List<PatientSummaryDTO> findDoctorPatientsByName(
-            @Param("doctorId") String doctorId,
+    List<PatientSummaryDTO> findProfessionalPatientsByName(
+            @Param("professionalId") String professionalId,
             @Param("search") String search);
 
     @Query("""
@@ -45,12 +45,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             FROM Appointment a
             JOIN a.patient p
             JOIN p.user u
-            WHERE a.professional.id = :doctorId
+            WHERE a.professional.id = :professionalId
             AND (:search = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')))
             GROUP BY u.id, u.name
             ORDER BY MAX(a.scheduledAt) DESC
             """)
-    List<PatientSummaryDTO> findDoctorPatientsByRecent(
-            @Param("doctorId") String doctorId,
+    List<PatientSummaryDTO> findProfessionalPatientsByRecent(
+            @Param("professionalId") String professionalId,
             @Param("search") String search);
 }
