@@ -2,6 +2,9 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
 import com.example.consulta.api.dto.professional.ProfessionalResponseDTO;
+import com.example.consulta.api.dto.schedule.CreateProfessionalScheduleDTO;
+import com.example.consulta.api.dto.schedule.ProfessionalScheduleResponseDTO;
+import com.example.consulta.application.service.ProfessionalScheduleService;
 import com.example.consulta.application.service.ProfessionalService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +29,7 @@ import java.util.List;
 public class ProfessionalController {
 
     private final ProfessionalService professionalService;
+    private final ProfessionalScheduleService professionalScheduleService;
 
     @GetMapping
     @Operation(summary = "List professionals", description = "Returns active professionals with optional filters")
@@ -132,5 +136,30 @@ public class ProfessionalController {
     @Operation(summary = "Reject a professional application (admin only)")
     public ResponseEntity<ProfessionalResponseDTO> rejectApplication(@PathVariable String professionalId) {
         return ResponseEntity.ok(professionalService.rejectApplication(professionalId));
+    }
+
+    @GetMapping("/{professionalId}/schedule")
+    @Operation(summary = "Get schedule for a professional")
+    public ResponseEntity<List<ProfessionalScheduleResponseDTO>> getSchedule(@PathVariable String professionalId) {
+        return ResponseEntity.ok(professionalScheduleService.getScheduleByProfessionalId(professionalId));
+    }
+
+    @GetMapping("/me/schedule")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Get my schedule")
+    public ResponseEntity<List<ProfessionalScheduleResponseDTO>> getMySchedule(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(professionalScheduleService.getMySchedule(userDetails.getUserId()));
+    }
+
+    @PutMapping("/me/schedule")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Save my weekly schedule (upsert)")
+    public ResponseEntity<List<ProfessionalScheduleResponseDTO>> saveMySchedule(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody List<CreateProfessionalScheduleDTO> dtos) {
+        return ResponseEntity.ok(professionalScheduleService.saveMySchedule(userDetails.getUserId(), dtos));
     }
 }

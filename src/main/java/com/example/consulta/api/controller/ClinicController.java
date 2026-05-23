@@ -2,7 +2,10 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.clinic.ClinicResponseDTO;
 import com.example.consulta.api.dto.clinic.CreateClinicDTO;
+import com.example.consulta.api.dto.schedule.ClinicWorkingHoursResponseDTO;
+import com.example.consulta.api.dto.schedule.CreateClinicWorkingHoursDTO;
 import com.example.consulta.application.service.ClinicService;
+import com.example.consulta.application.service.ClinicWorkingHoursService;
 import com.example.consulta.application.service.NotificationService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +28,7 @@ import java.util.List;
 public class ClinicController {
 
     private final ClinicService clinicService;
+    private final ClinicWorkingHoursService clinicWorkingHoursService;
     private final NotificationService notificationService;
 
     @GetMapping
@@ -113,5 +117,23 @@ public class ClinicController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         notificationService.sendClinicInvite(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{clinicId}/working-hours")
+    @Operation(summary = "Get working hours for a clinic")
+    public ResponseEntity<List<ClinicWorkingHoursResponseDTO>> getWorkingHours(@PathVariable String clinicId) {
+        return ResponseEntity.ok(clinicWorkingHoursService.getClinicWorkingHours(clinicId));
+    }
+
+    @PutMapping("/{clinicId}/working-hours")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Save working hours for a clinic (upsert, owner only)")
+    public ResponseEntity<List<ClinicWorkingHoursResponseDTO>> saveWorkingHours(
+            @PathVariable String clinicId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody List<CreateClinicWorkingHoursDTO> dtos) {
+        return ResponseEntity.ok(clinicWorkingHoursService.saveClinicWorkingHours(
+                clinicId, userDetails.getUserId(), dtos));
     }
 }

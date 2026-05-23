@@ -74,6 +74,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/professionals/**").permitAll()
                 .requestMatchers("/clinics", "/clinics/nearby", "/clinics/{id}").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/clinics/{id}/working-hours").permitAll()
                 .requestMatchers("/subscriptions/webhook").permitAll()
                 .anyRequest().authenticated()
             )
