@@ -76,6 +76,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/clinics", "/clinics/nearby", "/clinics/{id}").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/clinics/{id}/working-hours").permitAll()
                 .requestMatchers("/subscriptions/webhook").permitAll()
+                .requestMatchers("/payments/webhook").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex

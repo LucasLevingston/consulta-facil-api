@@ -1,7 +1,9 @@
 package com.example.consulta.domain.entity;
 
 import com.example.consulta.domain.enums.AppointmentModality;
+import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
+import java.math.BigDecimal;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -71,6 +73,20 @@ public class Appointment {
 
     @Column
     private LocalDateTime calledAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private AppointmentPaymentStatus paymentStatus = AppointmentPaymentStatus.UNPAID;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal paymentAmount;
+
+    @Column(length = 255)
+    private String paymentPreferenceId;
+
+    @Column(length = 255)
+    private String paymentId;
 
     @Column
     private Integer rating;

@@ -56,6 +56,8 @@ public class GetQueueService {
                 .modality(a.getModality())
                 .meetLink(a.getMeetLink())
                 .status(a.getStatus())
+                .paymentStatus(a.getPaymentStatus())
+                .paymentAmount(a.getPaymentAmount())
                 .createdAt(a.getCreatedAt())
                 .updatedAt(a.getUpdatedAt())
                 .build();

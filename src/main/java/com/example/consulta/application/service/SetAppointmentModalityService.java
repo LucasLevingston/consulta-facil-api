@@ -67,6 +67,8 @@ public class SetAppointmentModalityService {
                 .meetLink(a.getMeetLink())
                 .status(a.getStatus())
                 .cancellationReason(a.getCancellationReason())
+                .paymentStatus(a.getPaymentStatus())
+                .paymentAmount(a.getPaymentAmount())
                 .rating(a.getRating())
                 .ratingComment(a.getRatingComment())
                 .createdAt(a.getCreatedAt())

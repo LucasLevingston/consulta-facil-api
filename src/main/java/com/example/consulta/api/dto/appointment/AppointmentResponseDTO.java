@@ -1,7 +1,9 @@
 package com.example.consulta.api.dto.appointment;
 
 import com.example.consulta.domain.enums.AppointmentModality;
+import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +32,8 @@ public class AppointmentResponseDTO {
     private String meetLink;
     private AppointmentStatus status;
     private String cancellationReason;
+    private AppointmentPaymentStatus paymentStatus;
+    private BigDecimal paymentAmount;
     private Integer rating;
     private String ratingComment;
     private LocalDateTime createdAt;
