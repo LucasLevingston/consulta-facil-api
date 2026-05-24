@@ -2,11 +2,13 @@ package com.example.consulta.core.seeder;
 
 import com.example.consulta.application.service.AppointmentService;
 import com.example.consulta.application.service.ClinicService;
+import com.example.consulta.application.service.InviteReceptionistService;
 import com.example.consulta.application.service.ProfessionalService;
 import com.example.consulta.application.service.UserService;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.clinic.CreateClinicDTO;
 import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
+import com.example.consulta.api.dto.receptionist.InviteReceptionistDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.enums.AppointmentModality;
@@ -44,6 +46,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ProfessionalService professionalService;
     private final AppointmentService appointmentService;
     private final ClinicService clinicService;
+    private final InviteReceptionistService inviteReceptionistService;
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -139,7 +142,22 @@ public class DatabaseSeeder implements CommandLineRunner {
                 }
             });
 
-            createClinics(professionalProfileId, adminProfessionalProfileId, professionalProfileIds);
+            String firstClinicId = createClinics(professionalProfileId, adminProfessionalProfileId, professionalProfileIds);
+
+            String professionalOwnerUserId = professionalProfileRepository
+                    .findById(professionalProfileId)
+                    .map(p -> p.getUser().getId())
+                    .orElse(null);
+
+            if (firstClinicId != null && professionalOwnerUserId != null) {
+                createReceptionist(
+                        "receptionist@example.com",
+                        "12345678",
+                        "Recepcionista Teste",
+                        "00000000004",
+                        firstClinicId,
+                        professionalOwnerUserId);
+            }
 
             createAppointments(patientUserIds, professionalProfileIds);
 
@@ -156,7 +174,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private record CityLocation(String city, String state, double lat, double lng) {}
 
-    private void createClinics(String testProfessionalProfileId, String adminProfessionalProfileId, List<String> extraProfessionalProfileIds) {
+    private String createClinics(String testProfessionalProfileId, String adminProfessionalProfileId, List<String> extraProfessionalProfileIds) {
 
         record ClinicDef(String name, String description, String phone, String address,
                          CityLocation location, String imageUrl, String ownerProfileId) {}
@@ -255,6 +273,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         extraProfessionalProfileIds.size() > 14 ? extraProfessionalProfileIds.get(14) : testProfessionalProfileId)
         );
 
+        String firstClinicId = null;
+
         for (ClinicDef def : defs) {
             try {
                 // Set location on the owner professional profile
@@ -286,6 +306,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
                 var clinic = clinicService.createClinic(ownerUserId, dto);
 
+                if (firstClinicId == null) firstClinicId = clinic.getId();
+
                 // Add 1-2 extra doctors from the pool as members
                 int added = 0;
                 for (String extraId : extraProfessionalProfileIds) {
@@ -312,6 +334,26 @@ public class DatabaseSeeder implements CommandLineRunner {
             } catch (Exception e) {
                 log.warn("Erro ao criar clínica {}: {}", def.name(), e.getMessage());
             }
+        }
+
+        return firstClinicId;
+    }
+
+    private void createReceptionist(
+            String email,
+            String password,
+            String name,
+            String cpf,
+            String clinicId,
+            String ownerUserId) {
+        try {
+            createPatient(email, password, name, cpf, "https://i.pravatar.cc/150?img=5");
+            InviteReceptionistDTO dto = new InviteReceptionistDTO();
+            dto.setEmail(email);
+            inviteReceptionistService.execute(clinicId, ownerUserId, dto);
+            log.info("Recepcionista criada: {}", email);
+        } catch (Exception e) {
+            log.warn("Erro ao criar recepcionista: {}", e.getMessage());
         }
     }
 
