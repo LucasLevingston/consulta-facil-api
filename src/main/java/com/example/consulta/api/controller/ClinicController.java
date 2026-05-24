@@ -2,11 +2,16 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.clinic.ClinicResponseDTO;
 import com.example.consulta.api.dto.clinic.CreateClinicDTO;
+import com.example.consulta.api.dto.receptionist.InviteReceptionistDTO;
+import com.example.consulta.api.dto.receptionist.ReceptionistResponseDTO;
 import com.example.consulta.api.dto.schedule.ClinicWorkingHoursResponseDTO;
 import com.example.consulta.api.dto.schedule.CreateClinicWorkingHoursDTO;
 import com.example.consulta.application.service.ClinicService;
 import com.example.consulta.application.service.ClinicWorkingHoursService;
+import com.example.consulta.application.service.GetClinicReceptionistsService;
+import com.example.consulta.application.service.InviteReceptionistService;
 import com.example.consulta.application.service.NotificationService;
+import com.example.consulta.application.service.RemoveReceptionistService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,6 +35,9 @@ public class ClinicController {
     private final ClinicService clinicService;
     private final ClinicWorkingHoursService clinicWorkingHoursService;
     private final NotificationService notificationService;
+    private final InviteReceptionistService inviteReceptionistService;
+    private final RemoveReceptionistService removeReceptionistService;
+    private final GetClinicReceptionistsService getClinicReceptionistsService;
 
     @GetMapping
     @Operation(summary = "List all active clinics")
@@ -117,6 +125,40 @@ public class ClinicController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         notificationService.sendClinicInvite(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{clinicId}/receptionists")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Invite a receptionist to a clinic")
+    public ResponseEntity<ReceptionistResponseDTO> inviteReceptionist(
+            @PathVariable String clinicId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody InviteReceptionistDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(inviteReceptionistService.execute(clinicId, userDetails.getUserId(), dto));
+    }
+
+    @DeleteMapping("/{clinicId}/receptionists/{receptionistId}")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Remove a receptionist from a clinic")
+    public ResponseEntity<Void> removeReceptionist(
+            @PathVariable String clinicId,
+            @PathVariable String receptionistId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        removeReceptionistService.execute(clinicId, receptionistId, userDetails.getUserId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{clinicId}/receptionists")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Get receptionists of a clinic")
+    public ResponseEntity<List<ReceptionistResponseDTO>> getReceptionists(
+            @PathVariable String clinicId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(getClinicReceptionistsService.execute(clinicId, userDetails.getUserId()));
     }
 
     @GetMapping("/{clinicId}/working-hours")
