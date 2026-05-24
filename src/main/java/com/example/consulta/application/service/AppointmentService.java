@@ -122,8 +122,9 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
-        if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
-            throw new BadRequestException("Only confirmed appointments can be marked as completed");
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED
+                && appointment.getStatus() != AppointmentStatus.IN_PROGRESS) {
+            throw new BadRequestException("Only confirmed or in-progress appointments can be marked as completed");
         }
 
         appointment.setStatus(AppointmentStatus.COMPLETED);

@@ -22,22 +22,24 @@ public class GetQueueService {
     private final ProfessionalProfileRepository professionalProfileRepository;
 
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> execute(String professionalUserId) {
-        var profile = professionalProfileRepository.findByUserId(professionalUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("ProfessionalProfile", professionalUserId));
-
+    public List<AppointmentResponseDTO> execute(String userId, String role) {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
+        List<AppointmentStatus> statuses = List.of(AppointmentStatus.CHECKED_IN, AppointmentStatus.IN_PROGRESS);
 
-        return appointmentRepository
-                .findByProfessionalIdAndStatusInAndScheduledAtBetweenOrderByCheckedInAt(
-                        profile.getId(),
-                        List.of(AppointmentStatus.CHECKED_IN, AppointmentStatus.IN_PROGRESS),
-                        startOfDay,
-                        endOfDay)
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+        List<Appointment> appointments;
+        if ("ROLE_PROFESSIONAL".equals(role)) {
+            var profile = professionalProfileRepository.findByUserId(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("ProfessionalProfile", userId));
+            appointments = appointmentRepository
+                    .findByProfessionalIdAndStatusInAndScheduledAtBetweenOrderByCheckedInAt(
+                            profile.getId(), statuses, startOfDay, endOfDay);
+        } else {
+            appointments = appointmentRepository
+                    .findByStatusInAndScheduledAtBetweenOrderByCheckedInAt(statuses, startOfDay, endOfDay);
+        }
+
+        return appointments.stream().map(this::toResponseDTO).toList();
     }
 
     private AppointmentResponseDTO toResponseDTO(Appointment a) {

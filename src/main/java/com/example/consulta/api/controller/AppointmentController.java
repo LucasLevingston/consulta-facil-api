@@ -156,7 +156,11 @@ public class AppointmentController {
     @Operation(summary = "Get today's queue for the professional")
     public ResponseEntity<List<AppointmentResponseDTO>> getQueue(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(getQueueService.execute(userDetails.getUserId()));
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority())
+                .orElse("");
+        return ResponseEntity.ok(getQueueService.execute(userDetails.getUserId(), role));
     }
 
     @PutMapping("/{appointmentId}/call")
