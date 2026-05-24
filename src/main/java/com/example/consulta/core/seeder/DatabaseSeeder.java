@@ -61,21 +61,37 @@ public class DatabaseSeeder implements CommandLineRunner {
             new ProfessionData("Médico", "Pediatria",             "CRM/SP"),
             new ProfessionData("Médico", "Pneumologia",           "CRM/SP"),
             new ProfessionData("Médico", "Psiquiatria",           "CRM/SP"),
+            new ProfessionData("Médico", "Cardiologia",           "CRM/PB"),
+            new ProfessionData("Médico", "Clínica Geral",         "CRM/PB"),
+            new ProfessionData("Médico", "Pediatria",             "CRM/PB"),
+            new ProfessionData("Médico", "Ginecologia",           "CRM/PB"),
+            new ProfessionData("Médico", "Ortopedia",             "CRM/PB"),
+            new ProfessionData("Médico", "Neurologia",            "CRM/PB"),
+            new ProfessionData("Médico", "Psiquiatria",           "CRM/PB"),
             new ProfessionData("Nutricionista", "Nutrição Clínica",          "CRN/SP"),
             new ProfessionData("Nutricionista", "Nutrição Esportiva",        "CRN/SP"),
             new ProfessionData("Nutricionista", "Nutrição Oncológica",       "CRN/SP"),
             new ProfessionData("Nutricionista", "Nutrição Materno-Infantil", "CRN/SP"),
             new ProfessionData("Nutricionista", "Nutrição Funcional",        "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Clínica",          "CRN/PB"),
+            new ProfessionData("Nutricionista", "Nutrição Esportiva",        "CRN/PB"),
             new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica",   "CREFITO/SP"),
             new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica",  "CREFITO/SP"),
             new ProfessionData("Fisioterapeuta", "Fisioterapia Respiratória", "CREFITO/SP"),
             new ProfessionData("Fisioterapeuta", "Fisioterapia Desportiva",   "CREFITO/SP"),
             new ProfessionData("Fisioterapeuta", "Pilates Clínico",           "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica",   "CREFITO/PB"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica",  "CREFITO/PB"),
             new ProfessionData("Psicólogo", "TCC",                       "CRP/SP"),
             new ProfessionData("Psicólogo", "Psicanálise",               "CRP/SP"),
             new ProfessionData("Psicólogo", "Psicologia Infantil",       "CRP/SP"),
             new ProfessionData("Psicólogo", "Psicologia Organizacional", "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicologia do Esporte",     "CRP/SP"));
+            new ProfessionData("Psicólogo", "Psicologia do Esporte",     "CRP/SP"),
+            new ProfessionData("Psicólogo", "TCC",                       "CRP/PB"),
+            new ProfessionData("Psicólogo", "Psicanálise",               "CRP/PB"),
+            new ProfessionData("Dentista", "Odontologia Geral",          "CRO/PB"),
+            new ProfessionData("Dentista", "Ortodontia",                 "CRO/PB"),
+            new ProfessionData("Dentista", "Implantodontia",             "CRO/PB"));
 
     @Override
     public void run(String... args) {
@@ -95,7 +111,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             String professionalProfileId = createProfessional(
                     "professional@example.com",
                     "12345678",
-                    "Dr. Profissional Teste",
+                    "Profissional Teste",
                     "00000000002",
                     "Médico",
                     "Cardiologia",
@@ -151,7 +167,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                 new CityLocation("Belo Horizonte", "MG", -19.9191, -43.9386),
                 new CityLocation("Curitiba",       "PR", -25.4290, -49.2671),
                 new CityLocation("Porto Alegre",   "RS", -30.0346, -51.2177),
-                new CityLocation("Brasília",       "DF", -15.7942, -47.8822)
+                new CityLocation("Brasília",       "DF", -15.7942, -47.8822),
+                new CityLocation("João Pessoa",    "PB", -7.1195, -34.8450),
+                new CityLocation("Campina Grande", "PB", -7.2306, -35.8811)
         );
 
         List<ClinicDef> defs = List.of(
@@ -202,7 +220,39 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "SCS Quadra 2, Bloco C",
                         cities.get(5),
                         "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=600",
-                        extraProfessionalProfileIds.size() > 6 ? extraProfessionalProfileIds.get(6) : testProfessionalProfileId)
+                        extraProfessionalProfileIds.size() > 6 ? extraProfessionalProfileIds.get(6) : testProfessionalProfileId),
+                new ClinicDef(
+                        "Clínica Saúde João Pessoa",
+                        "Atendimento completo em cardiologia, pediatria e clínica geral",
+                        "(83) 3224-5566",
+                        "Av. Epitácio Pessoa, 1234",
+                        cities.get(6),
+                        "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600",
+                        extraProfessionalProfileIds.size() > 8 ? extraProfessionalProfileIds.get(8) : testProfessionalProfileId),
+                new ClinicDef(
+                        "Centro de Saúde Paraibano",
+                        "Medicina preventiva e especialidades para toda a família em João Pessoa",
+                        "(83) 3311-7788",
+                        "Rua Cardoso Vieira, 200 — Miramar",
+                        cities.get(6),
+                        "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600",
+                        extraProfessionalProfileIds.size() > 10 ? extraProfessionalProfileIds.get(10) : testProfessionalProfileId),
+                new ClinicDef(
+                        "Clínica Campina Grande Saúde",
+                        "Referência em saúde no Agreste paraibano",
+                        "(83) 3322-4411",
+                        "Av. Assis Chateaubriand, 500",
+                        cities.get(7),
+                        "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=600",
+                        extraProfessionalProfileIds.size() > 12 ? extraProfessionalProfileIds.get(12) : testProfessionalProfileId),
+                new ClinicDef(
+                        "NutriVida João Pessoa",
+                        "Nutrição e fisioterapia integradas para melhor qualidade de vida",
+                        "(83) 3244-9900",
+                        "Rua Padre Meira, 89 — Tambauzinho",
+                        cities.get(6),
+                        "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600",
+                        extraProfessionalProfileIds.size() > 14 ? extraProfessionalProfileIds.get(14) : testProfessionalProfileId)
         );
 
         for (ClinicDef def : defs) {
@@ -630,7 +680,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             } catch (Exception e) {
                 log.debug(
-                        "Erro ao criar consulta fake para médico teste: {}",
+                        "Erro ao criar consulta fake para profissional teste: {}",
                         e.getMessage());
             }
         }
