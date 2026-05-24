@@ -1,57 +1,58 @@
-.PHONY: help \
-        api-run api-test api-build api-seed \
-        web-run web-build web-lint \
-        up down logs
+.PHONY: help run seed test build clean coverage openapi up down logs
 
-# Default target
 help:
 	@echo ""
-	@echo "  Consulta Fácil — comandos disponíveis"
-	@echo "  (rodar a partir da pasta api/)"
+	@echo "  Consulta Fácil — API (Spring Boot 3 / Java 17 / Gradle)"
 	@echo ""
-	@echo "  API (Spring Boot / Gradle)"
-	@echo "    make api-run       Sobe a API localmente (porta 8080)"
-	@echo "    make api-seed      Sobe a API com perfil seed (reset + dados fake)"
-	@echo "    make api-test      Executa todos os testes"
-	@echo "    make api-build     Gera o JAR de produção"
+	@echo "  Desenvolvimento"
+	@echo "    make run         Sobe a API localmente (porta 8080)"
+	@echo "    make seed        Sobe a API com dados de teste (perfil seed)"
+	@echo "    make build       Gera o JAR de produção"
+	@echo "    make clean       Remove arquivos de build"
 	@echo ""
-	@echo "  Web (Next.js)"
-	@echo "    make web-run       Sobe o frontend em modo dev (porta 3000)"
-	@echo "    make web-build     Build de produção"
-	@echo "    make web-lint      Lint com Biome"
+	@echo "  Testes"
+	@echo "    make test        Executa todos os testes"
+	@echo "    make coverage    Gera relatório de cobertura (build/reports/jacoco)"
+	@echo ""
+	@echo "  Documentação"
+	@echo "    make openapi     Gera openapi.json e copia para ../web"
 	@echo ""
 	@echo "  Docker / Infra"
-	@echo "    make up            docker compose up -d (banco + dependências)"
-	@echo "    make down          docker compose down"
-	@echo "    make logs          docker compose logs -f"
+	@echo "    make up          docker compose up -d (banco PostgreSQL)"
+	@echo "    make down        docker compose down"
+	@echo "    make logs        docker compose logs -f"
 	@echo ""
 
-# ── API ──────────────────────────────────────────────────────────────────────
+# ── Desenvolvimento ───────────────────────────────────────────────────────────
 
-api-run:
+run:
 	./gradlew bootRun
 
-api-seed:
+seed:
 	./gradlew bootRun --args='--spring.profiles.active=seed'
 
-api-test:
-	./gradlew test
-
-api-build:
+build:
 	./gradlew bootJar
 
-# ── Web ──────────────────────────────────────────────────────────────────────
+clean:
+	./gradlew clean
 
-web-run:
-	cd ../web && npm run dev
+# ── Testes ────────────────────────────────────────────────────────────────────
 
-web-build:
-	cd ../web && npm run build
+test:
+	./gradlew test
 
-web-lint:
-	cd ../web && npm run lint
+coverage:
+	./gradlew test jacocoTestReport
+	@echo "Relatório gerado em: build/reports/jacoco/test/html/index.html"
 
-# ── Docker ───────────────────────────────────────────────────────────────────
+# ── Documentação ──────────────────────────────────────────────────────────────
+
+openapi:
+	./gradlew generateOpenApiDocs
+	@echo "openapi.json copiado para ../web"
+
+# ── Docker ────────────────────────────────────────────────────────────────────
 
 up:
 	docker compose up -d

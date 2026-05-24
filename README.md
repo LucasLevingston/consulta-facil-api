@@ -1,439 +1,213 @@
-# 🏥 Consulta Fácil - API de Agendamento de Consultas Médicas
+# Consulta Fácil — API
 
-API RESTful completa em Spring Boot para gerenciamento de agendamento de consultas médicas com autenticação JWT, roles de usuário e segurança.
+API RESTful para gerenciamento de consultas médicas. Autenticação JWT, multi-role, filas de espera, exames, pagamentos e consultas online.
 
-## 📋 Índice
+## Stack
 
-- [Tecnologias](#-tecnologias)
-- [Pré-requisitos](#-pré-requisitos)
-- [Instalação](#-instalação)
-- [Como Executar](#-como-executar)
-- [Documentação da API](#-documentação-da-api)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Endpoints](#-endpoints)
-- [Autenticação](#-autenticação)
-- [Variáveis de Ambiente](#-variáveis-de-ambiente)
+| Tecnologia | Versão |
+|---|---|
+| Java | 17 |
+| Spring Boot | 3.2.0 |
+| Spring Security + JWT | JJWT 0.12.5 |
+| PostgreSQL | 16 |
+| Flyway | 10 |
+| AWS S3 | SDK v2 |
+| MercadoPago | SDK 2.1.7 |
+| Testcontainers | 1.19.7 |
+| JaCoCo (cobertura) | 0.8.11 |
 
-## 🚀 Tecnologias
+## Pré-requisitos
 
-### Backend
-- **Java 26** - Linguagem de programação
-- **Spring Boot 4.0.6** - Framework web
-- **Spring Security** - Autenticação e autorização
-- **Spring Data JPA** - ORM e persistência
-- **JWT (JJWT)** - Token de autenticação
-- **PostgreSQL 16** - Banco de dados
-- **Flyway** - Migrações de banco de dados
-- **Lombok** - Redução de boilerplate
-- **MapStruct** - Mapeamento de DTOs
-- **Swagger/OpenAPI 3.0** - Documentação da API
-- **Testcontainers** - Testes integrados
-
-### Padrões e Arquitetura
-- **Clean Architecture** - Separação de responsabilidades
-- **SOLID Principles** - Princípios de design
-- **Design Patterns** - Factory, Builder, Singleton, Repository
-- **DTO Pattern** - Transferência de dados entre camadas
-- **Service Layer** - Lógica de negócio centralizada
-
-## 📦 Pré-requisitos
-
-- Java 26+
+- Java 17+
 - Docker e Docker Compose
-- Git
-- IDE (VS Code, IntelliJ IDEA, Eclipse)
+- (Opcional) Make
 
-## 🔧 Instalação
-
-### 1. Clonar o repositório
-```bash
-cd /d/projetos/consulta\ facil/api
-```
-
-### 2. Compilar o projeto
-```bash
-./gradlew build
-```
-
-## ▶️ Como Executar
-
-### Opção 1: Com Docker Compose (Recomendado)
+## Setup rápido
 
 ```bash
-# Iniciar o PostgreSQL
-docker-compose up -d
+# 1. Sobe o banco
+make up          # ou: docker compose up -d
 
-# Compilar e executar a aplicação
-./gradlew bootRun
+# 2. Roda com dados de teste
+make seed        # ou: ./gradlew bootRun --args='--spring.profiles.active=seed'
 ```
 
-A aplicação estará disponível em: `http://localhost:8080/v1`
+API disponível em `http://localhost:8080/v1`  
+Swagger UI: `http://localhost:8080/v1/swagger-ui.html`
 
-### Opção 2: Localmente (sem Docker)
-
-Você precisa ter PostgreSQL instalado localmente. Configure as credenciais no `application.properties`:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/consulta_facil_db
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
-```
-
-Depois execute:
-```bash
-./gradlew bootRun
-```
-
-### Parar os containers
-```bash
-docker-compose down
-```
-
-## 📚 Documentação da API
-
-Acesse a documentação interativa (Swagger UI):
-
-```
-http://localhost:8080/v1/swagger-ui.html
-```
-
-Ou a documentação JSON:
-```
-http://localhost:8080/v1/docs
-```
-
-## 📁 Estrutura do Projeto
-
-```
-src/main/
-├── java/com/example/consulta/
-│   ├── api/
-│   │   ├── controller/       # Controllers REST
-│   │   └── dto/              # Data Transfer Objects
-│   ├── application/
-│   │   └── service/          # Lógica de negócio
-│   ├── core/
-│   │   ├── config/           # Configurações
-│   │   ├── exception/        # Tratamento de exceções
-│   │   └── security/         # JWT e segurança
-│   └── domain/
-│       ├── entity/           # Entidades JPA
-│       ├── enums/            # Enums
-│       └── repository/       # Repositórios
-└── resources/
-    ├── application.properties # Configurações
-    └── db/migration/         # Scripts SQL Flyway
-```
-
-## 🔐 Endpoints
-
-### 🔓 Autenticação (Público)
-
-#### 1. Registrar Novo Usuário
-```http
-POST /auth/register
-Content-Type: application/json
-
-{
-  "name": "João Silva",
-  "email": "joao@email.com",
-  "password": "senha123456",
-  "cpf": "12345678901",
-  "phone": "(11) 98765-4321",
-  "birthDate": "1990-01-15",
-  "gender": "MALE"
-}
-```
-
-**Response (201 Created):**
-```json
-{
-  "id": "uuid-string",
-  "name": "João Silva",
-  "email": "joao@email.com",
-  "role": "USER",
-  "phone": "(11) 98765-4321",
-  "cpf": "12345678901",
-  "birthDate": "1990-01-15",
-  "gender": "MALE",
-  "createdAt": "2026-05-16T10:30:00",
-  "updatedAt": "2026-05-16T10:30:00"
-}
-```
-
-#### 2. Login
-```http
-POST /auth/login
-Content-Type: application/json
-
-{
-  "email": "joao@email.com",
-  "password": "senha123456"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "token": "eyJhbGciOiJIUzUxMiJ9...",
-  "type": "Bearer",
-  "expiresIn": 86400000,
-  "userId": "uuid-string",
-  "email": "joao@email.com",
-  "role": "USER"
-}
-```
-
-### 👥 Usuários (Autenticado)
-
-#### Obter Usuário Autenticado
-```http
-GET /users/me
-Authorization: Bearer {token}
-```
-
-#### Obter Usuário por ID
-```http
-GET /users/{userId}
-Authorization: Bearer {token}
-```
-
-#### Deletar Usuário (Admin)
-```http
-DELETE /users/{userId}
-Authorization: Bearer {token}
-```
-
-### 👨‍⚕️ Médicos (Público/Autenticado)
-
-#### Listar Todos os Médicos
-```http
-GET /doctors?page=0&size=10
-```
-
-#### Buscar Médicos por Especialidade
-```http
-GET /doctors/search?specialty=Cardiologia&page=0&size=10
-```
-
-#### Obter Médico por ID
-```http
-GET /doctors/{doctorId}
-```
-
-#### Criar Perfil de Médico (Admin)
-```http
-POST /doctors
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "specialty": "Cardiologia",
-  "licenseNumber": "CRM/SP12345"
-}
-```
-
-#### Atualizar Perfil de Médico (Admin)
-```http
-PUT /doctors/{doctorId}
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "specialty": "Cardiologia",
-  "licenseNumber": "CRM/SP12345"
-}
-```
-
-#### Deletar Perfil de Médico (Admin)
-```http
-DELETE /doctors/{doctorId}
-Authorization: Bearer {token}
-```
-
-### 📅 Consultas (Autenticado)
-
-#### Agendar Consulta (Paciente)
-```http
-POST /appointments
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "doctorId": "uuid-string",
-  "scheduledAt": "2026-06-15T14:30:00",
-  "reason": "Consulta de rotina",
-  "notes": "Paciente com histórico de hipertensão"
-}
-```
-
-#### Obter Consulta por ID
-```http
-GET /appointments/{appointmentId}
-Authorization: Bearer {token}
-```
-
-#### Listar Consultas do Paciente
-```http
-GET /appointments/patient/{patientId}?page=0&size=10
-Authorization: Bearer {token}
-```
-
-#### Listar Consultas do Médico (Admin)
-```http
-GET /appointments/doctor/{doctorId}?page=0&size=10
-Authorization: Bearer {token}
-```
-
-#### Confirmar Consulta (Admin)
-```http
-PUT /appointments/{appointmentId}/confirm
-Authorization: Bearer {token}
-```
-
-#### Cancelar Consulta
-```http
-PUT /appointments/{appointmentId}/cancel
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "cancellationReason": "Motivo do cancelamento"
-}
-```
-
-#### Marcar Consulta como Concluída (Admin)
-```http
-PUT /appointments/{appointmentId}/complete
-Authorization: Bearer {token}
-```
-
-#### Deletar Consulta (Admin)
-```http
-DELETE /appointments/{appointmentId}
-Authorization: Bearer {token}
-```
-
-## 🔐 Autenticação
-
-A API usa **JWT (JSON Web Token)** para autenticação:
-
-1. Faça login ou registre-se para obter um token
-2. Inclua o token em todas as requisições subsequentes no header:
-   ```
-   Authorization: Bearer {seu_token_jwt}
-   ```
-3. O token expira em 24 horas (configurável)
-
-## 🔒 Roles e Permissões
-
-| Role | Permissões |
-|------|-----------|
-| **USER** | Agendar consultas, visualizar próprias consultas |
-| **ADMIN** | Gerenciar médicos, confirmar/cancelar consultas, gerenciar usuários |
-
-## 📝 Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto:
+## Comandos
 
 ```bash
-# JWT
-JWT_SECRET=sua-chave-secreta-muito-segura-mude-em-producao
-JWT_EXPIRATION=86400000
+make run         # dev sem seed
+make seed        # dev com dados fake
+make test        # testes
+make coverage    # testes + relatório JaCoCo
+make build       # JAR de produção
+make openapi     # gera openapi.json e copia para ../web
+make up / down   # docker compose
+```
 
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=consulta_facil_db
+## Variáveis de Ambiente
+
+```env
+# Banco
+DB_URL=jdbc:postgresql://localhost:5432/consulta_facil_db
 DB_USER=postgres
 DB_PASSWORD=postgres
 
-# Logging
-LOGGING_LEVEL=INFO
+# JWT
+JWT_SECRET=sua-chave-secreta-muito-longa
+
+# AWS S3
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET=
+AWS_REGION=us-east-1
+
+# MercadoPago
+MERCADOPAGO_ACCESS_TOKEN=
 ```
 
-Depois atualize o `application.properties`:
+## Roles
 
-```properties
-jwt.secret=${JWT_SECRET:seu-valor-padrao}
-jwt.expiration=${JWT_EXPIRATION:86400000}
-spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:consulta_facil_db}
-spring.datasource.username=${DB_USER:postgres}
-spring.datasource.password=${DB_PASSWORD:postgres}
+| Role | Descrição |
+|---|---|
+| `PATIENT` | Paciente: agenda consultas, faz upload de exames, paga |
+| `PROFESSIONAL` | Profissional de saúde: confirma, completa, solicita exames, gerencia fila |
+| `RECEPTIONIST` | Faz check-in de pacientes via QR, visualiza fila do dia |
+| `ADMIN` | Acesso total |
+
+## Funcionalidades
+
+### Autenticação
+| Método | Endpoint | Acesso |
+|---|---|---|
+| POST | `/auth/register` | Público |
+| POST | `/auth/login` | Público |
+
+### Usuários
+| Método | Endpoint | Acesso |
+|---|---|---|
+| GET | `/users/me` | Autenticado |
+| GET | `/users/{id}` | Autenticado |
+| DELETE | `/users/{id}` | ADMIN |
+
+### Profissionais
+| Método | Endpoint | Acesso |
+|---|---|---|
+| GET | `/professionals` | Público |
+| GET | `/professionals/search?specialty=` | Público |
+| GET | `/professionals/nearby?lat=&lng=&radiusKm=` | Público |
+| GET | `/professionals/{id}` | Público |
+| POST | `/professionals` | PATIENT / ADMIN |
+| PUT | `/professionals/{id}` | PROFESSIONAL / ADMIN |
+| DELETE | `/professionals/{id}` | ADMIN |
+| GET | `/professionals/applications` | ADMIN |
+| PUT | `/professionals/{id}/approve` | ADMIN |
+| PUT | `/professionals/{id}/reject` | ADMIN |
+| GET | `/professionals/me/schedule` | PROFESSIONAL / ADMIN |
+| PUT | `/professionals/me/schedule` | PROFESSIONAL / ADMIN |
+
+### Consultas
+| Método | Endpoint | Acesso |
+|---|---|---|
+| POST | `/appointments` | PATIENT |
+| GET | `/appointments/{id}` | Autenticado |
+| GET | `/appointments/patient/{userId}` | PATIENT |
+| GET | `/appointments/professional/{id}` | PROFESSIONAL / ADMIN |
+| PUT | `/appointments/{id}/confirm` | PROFESSIONAL / ADMIN |
+| PUT | `/appointments/{id}/reschedule` | PATIENT / PROFESSIONAL / ADMIN |
+| PUT | `/appointments/{id}/cancel` | Autenticado |
+| PUT | `/appointments/{id}/complete` | PROFESSIONAL / ADMIN |
+| POST | `/appointments/{id}/rate` | PATIENT |
+| DELETE | `/appointments/{id}` | ADMIN |
+
+### Anamnese & Prontuário
+| Método | Endpoint | Acesso |
+|---|---|---|
+| GET | `/appointments/{id}/anamnesis` | Autenticado |
+| PUT | `/appointments/{id}/anamnesis` | PATIENT / PROFESSIONAL / ADMIN |
+| GET | `/appointments/{id}/prontuario` | Autenticado |
+| PUT | `/appointments/{id}/prontuario` | PROFESSIONAL / ADMIN |
+
+### Fila de Espera / Check-in via QR
+| Método | Endpoint | Acesso |
+|---|---|---|
+| GET | `/appointments/{id}/checkin-token` | PATIENT |
+| POST | `/appointments/checkin?token=` | RECEPTIONIST / PROFESSIONAL / ADMIN |
+| GET | `/appointments/queue` | PROFESSIONAL / RECEPTIONIST / ADMIN |
+| PUT | `/appointments/{id}/call` | PROFESSIONAL / ADMIN |
+
+Fluxo: `PENDING → CONFIRMED → CHECKED_IN → IN_PROGRESS → COMPLETED`
+
+### Consulta Online (Modality)
+| Método | Endpoint | Acesso |
+|---|---|---|
+| PUT | `/appointments/{id}/modality` | PROFESSIONAL / ADMIN |
+| POST | `/appointments/{id}/meet-link` | PROFESSIONAL / ADMIN |
+
+### Exames
+| Método | Endpoint | Acesso |
+|---|---|---|
+| POST | `/appointments/{id}/exams` | PROFESSIONAL / ADMIN |
+| GET | `/appointments/{id}/exams` | PATIENT / PROFESSIONAL / ADMIN |
+| PUT | `/exams/{id}/upload` | PATIENT (multipart) |
+| PUT | `/exams/{id}/review` | PROFESSIONAL / ADMIN |
+
+### Pagamentos (MercadoPago)
+| Método | Endpoint | Acesso |
+|---|---|---|
+| POST | `/appointments/{id}/payment` | PATIENT |
+| POST | `/payments/webhook` | Público (MP callback) |
+
+Fluxo: `UNPAID → PENDING_PAYMENT → PAID`
+
+### Clínicas
+| Método | Endpoint | Acesso |
+|---|---|---|
+| GET | `/clinics` | Público |
+| GET | `/clinics/nearby?lat=&lng=` | Público |
+| GET | `/clinics/{id}` | Público |
+| POST | `/clinics` | PROFESSIONAL / ADMIN |
+| PUT | `/clinics/{id}` | PROFESSIONAL / ADMIN |
+| GET | `/clinics/my` | PROFESSIONAL / ADMIN |
+| POST | `/clinics/{id}/members/{professionalId}` | PROFESSIONAL / ADMIN |
+| DELETE | `/clinics/{id}/members/{professionalId}` | PROFESSIONAL / ADMIN |
+| POST | `/clinics/{id}/invites/{professionalId}` | PROFESSIONAL / ADMIN |
+| POST | `/clinics/{id}/receptionists` | PROFESSIONAL / ADMIN |
+| DELETE | `/clinics/{id}/receptionists/{id}` | PROFESSIONAL / ADMIN |
+| GET | `/clinics/{id}/receptionists` | PROFESSIONAL / ADMIN |
+| GET | `/clinics/{id}/working-hours` | Público |
+| PUT | `/clinics/{id}/working-hours` | PROFESSIONAL / ADMIN |
+
+## Estrutura
+
+```
+src/main/java/com/example/consulta/
+├── api/
+│   ├── controller/        # Endpoints REST
+│   └── dto/               # Request/Response DTOs
+├── application/
+│   └── service/           # Um arquivo por operação (ex: ConfirmAppointmentService)
+├── core/
+│   ├── config/            # SecurityConfiguration, CORS, Swagger
+│   ├── exception/         # GlobalExceptionHandler
+│   ├── seeder/            # DatabaseSeeder (perfil seed)
+│   └── security/          # JWT filter, CustomUserDetails
+└── domain/
+    ├── entity/            # Entidades JPA
+    ├── enums/             # AppointmentStatus, UserRole, etc.
+    └── repository/        # Spring Data repositories
 ```
 
-## 🧪 Testes
-
-Execute os testes com:
+## Deploy com Docker
 
 ```bash
-./gradlew test
+# Build da imagem
+docker build -t consulta-facil-api .
+
+# Stack completa (db + api + web) via docker-compose no projeto web
+cd ../web && docker compose up -d
 ```
 
-Com cobertura de testes:
-
-```bash
-./gradlew test jacocoTestReport
-```
-
-## 🛠️ Scripts Úteis
-
-### Limpar e compilar
-```bash
-./gradlew clean build
-```
-
-### Executar testes
-```bash
-./gradlew test
-```
-
-### Gerar documentação
-```bash
-./gradlew javadoc
-```
-
-### Verificar estilo de código
-```bash
-./gradlew checkstyleMain
-```
-
-## 📊 Modelo de Dados
-
-```
-┌─────────────────────────────────────────────┐
-│               USERS                         │
-│  (id, email, name, password, role, cpf)    │
-└────────────┬────────────────────────────────┘
-             │
-    ┌────────┴────────┐
-    │                 │
-┌───▼──────────────┐ ┌┴──────────────────┐
-│PATIENT_PROFILES │ │DOCTOR_PROFILES    │
-│                 │ │(specialty)        │
-└────┬────────────┘ └──────────────────┘
-     │
-     ├─ APPOINTMENTS (patient <-> doctor)
-     ├─ EMERGENCY_CONTACTS
-     └─ MEDICAL_RECORDS
-```
-
-## 🤝 Contribuindo
-
-1. Faça fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, abra uma issue no repositório ou entre em contato em `support@consultafacil.com`.
-
----
-
-**Desenvolvido com ❤️ por Consulta Fácil Team**
+Ver variáveis de ambiente necessárias na seção acima.
