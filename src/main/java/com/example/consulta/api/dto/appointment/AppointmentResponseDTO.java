@@ -1,5 +1,6 @@
 package com.example.consulta.api.dto.appointment;
 
+import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,8 @@ public class AppointmentResponseDTO {
     private LocalDateTime calledAt;
     private String reason;
     private String notes;
+    private AppointmentModality modality;
+    private String meetLink;
     private AppointmentStatus status;
     private String cancellationReason;
     private Integer rating;

@@ -72,6 +72,8 @@ public class CheckInByQrService {
                 .calledAt(a.getCalledAt())
                 .reason(a.getReason())
                 .notes(a.getNotes())
+                .modality(a.getModality())
+                .meetLink(a.getMeetLink())
                 .status(a.getStatus())
                 .cancellationReason(a.getCancellationReason())
                 .rating(a.getRating())

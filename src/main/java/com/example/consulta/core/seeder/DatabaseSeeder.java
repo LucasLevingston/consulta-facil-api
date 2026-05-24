@@ -9,6 +9,7 @@ import com.example.consulta.api.dto.clinic.CreateClinicDTO;
 import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.PatientProfile;
+import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.repository.AppointmentRepository;
@@ -483,6 +484,43 @@ public class DatabaseSeeder implements CommandLineRunner {
             } catch (Exception e) {
                 log.debug("Erro ao criar consulta de teste: {}", e.getMessage());
             }
+        }
+
+        // ONLINE appointments for frontend testing
+        try {
+            var onlineConfirmed = appointmentService.scheduleAppointment(
+                    patientUserId,
+                    CreateAppointmentDTO.builder()
+                            .professionalId(testProfessionalProfileId)
+                            .scheduledAt(LocalDateTime.now().plusDays(3).withHour(16).withMinute(0).withSecond(0).withNano(0))
+                            .reason("Teleconsulta — acompanhamento")
+                            .notes("Consulta online de acompanhamento.")
+                            .build());
+            appointmentRepository.findById(onlineConfirmed.getId()).ifPresent(a -> {
+                a.setStatus(AppointmentStatus.CONFIRMED);
+                a.setModality(AppointmentModality.ONLINE);
+                a.setMeetLink("https://meet.google.com/abc-defg-hij");
+                appointmentRepository.save(a);
+            });
+        } catch (Exception e) {
+            log.debug("Erro ao criar consulta online confirmada: {}", e.getMessage());
+        }
+
+        try {
+            var onlinePending = appointmentService.scheduleAppointment(
+                    patientUserId,
+                    CreateAppointmentDTO.builder()
+                            .professionalId(testProfessionalProfileId)
+                            .scheduledAt(LocalDateTime.now().plusDays(12).withHour(9).withMinute(30).withSecond(0).withNano(0))
+                            .reason("Teleconsulta — primeira consulta")
+                            .notes("Paciente solicita atendimento online.")
+                            .build());
+            appointmentRepository.findById(onlinePending.getId()).ifPresent(a -> {
+                a.setModality(AppointmentModality.ONLINE);
+                appointmentRepository.save(a);
+            });
+        } catch (Exception e) {
+            log.debug("Erro ao criar consulta online pendente: {}", e.getMessage());
         }
     }
 

@@ -8,6 +8,7 @@ import com.example.consulta.api.dto.appointment.ProntuarioResponseDTO;
 import com.example.consulta.api.dto.appointment.QrCheckInTokenDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
+import com.example.consulta.api.dto.appointment.SetModalityDTO;
 import com.example.consulta.api.dto.appointment.SaveAnamneseDTO;
 import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
 import com.example.consulta.application.service.AnamneseService;
@@ -15,9 +16,11 @@ import com.example.consulta.application.service.AppointmentService;
 import com.example.consulta.application.service.CallNextPatientService;
 import com.example.consulta.application.service.CheckInByQrService;
 import com.example.consulta.application.service.GenerateCheckInTokenService;
+import com.example.consulta.application.service.GenerateMeetLinkService;
 import com.example.consulta.application.service.GetQueueService;
 import com.example.consulta.application.service.ProntuarioService;
 import com.example.consulta.application.service.RescheduleAppointmentService;
+import com.example.consulta.application.service.SetAppointmentModalityService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -49,6 +52,8 @@ public class AppointmentController {
     private final CheckInByQrService checkInByQrService;
     private final GetQueueService getQueueService;
     private final CallNextPatientService callNextPatientService;
+    private final SetAppointmentModalityService setAppointmentModalityService;
+    private final GenerateMeetLinkService generateMeetLinkService;
 
     @PostMapping
     @PreAuthorize("hasRole('PATIENT')")
@@ -161,6 +166,25 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(callNextPatientService.execute(appointmentId, userDetails.getUserId()));
+    }
+
+    @PutMapping("/{appointmentId}/modality")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "Set appointment modality (IN_PERSON / ONLINE)")
+    public ResponseEntity<AppointmentResponseDTO> setModality(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody SetModalityDTO dto) {
+        return ResponseEntity.ok(setAppointmentModalityService.execute(appointmentId, userDetails.getUserId(), dto));
+    }
+
+    @PostMapping("/{appointmentId}/meet-link")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "Generate Google Meet link for an ONLINE appointment")
+    public ResponseEntity<AppointmentResponseDTO> generateMeetLink(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(generateMeetLinkService.execute(appointmentId, userDetails.getUserId()));
     }
 
     @DeleteMapping("/{appointmentId}")

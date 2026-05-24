@@ -4,18 +4,18 @@ import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
-import com.example.consulta.domain.enums.AppointmentStatus;
+import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CallNextPatientService {
+public class GenerateMeetLinkService {
 
     private final AppointmentRepository appointmentRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;
@@ -32,15 +32,18 @@ public class CallNextPatientService {
             throw new BadRequestException("Appointment does not belong to this professional");
         }
 
-        if (appointment.getStatus() != AppointmentStatus.CHECKED_IN) {
-            throw new BadRequestException("Patient has not checked in yet");
+        if (appointment.getModality() != AppointmentModality.ONLINE) {
+            throw new BadRequestException("Cannot generate meet link for in-person appointment");
         }
 
-        appointment.setStatus(AppointmentStatus.IN_PROGRESS);
-        appointment.setCalledAt(LocalDateTime.now());
+        appointment.setMeetLink(generateMeetUrl());
         Appointment saved = appointmentRepository.save(appointment);
-
         return toResponseDTO(saved);
+    }
+
+    private String generateMeetUrl() {
+        String uid = UUID.randomUUID().toString().replace("-", "");
+        return "https://meet.google.com/" + uid.substring(0, 3) + "-" + uid.substring(3, 7) + "-" + uid.substring(7, 10);
     }
 
     private AppointmentResponseDTO toResponseDTO(Appointment a) {
@@ -52,6 +55,7 @@ public class CallNextPatientService {
                 .professionalId(a.getProfessional().getId())
                 .specialty(a.getProfessional().getSpecialty())
                 .scheduledAt(a.getScheduledAt())
+                .previousScheduledAt(a.getPreviousScheduledAt())
                 .checkedInAt(a.getCheckedInAt())
                 .calledAt(a.getCalledAt())
                 .reason(a.getReason())
@@ -59,6 +63,9 @@ public class CallNextPatientService {
                 .modality(a.getModality())
                 .meetLink(a.getMeetLink())
                 .status(a.getStatus())
+                .cancellationReason(a.getCancellationReason())
+                .rating(a.getRating())
+                .ratingComment(a.getRatingComment())
                 .createdAt(a.getCreatedAt())
                 .updatedAt(a.getUpdatedAt())
                 .build();

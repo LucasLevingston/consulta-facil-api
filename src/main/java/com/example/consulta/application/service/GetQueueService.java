@@ -53,6 +53,8 @@ public class GetQueueService {
                 .calledAt(a.getCalledAt())
                 .reason(a.getReason())
                 .notes(a.getNotes())
+                .modality(a.getModality())
+                .meetLink(a.getMeetLink())
                 .status(a.getStatus())
                 .createdAt(a.getCreatedAt())
                 .updatedAt(a.getUpdatedAt())

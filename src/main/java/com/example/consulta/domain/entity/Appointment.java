@@ -1,6 +1,8 @@
 package com.example.consulta.domain.entity;
 
+import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -44,6 +46,14 @@ public class Appointment {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private AppointmentModality modality = AppointmentModality.IN_PERSON;
+
+    @Column(length = 255)
+    private String meetLink;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

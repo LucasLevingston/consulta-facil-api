@@ -192,6 +192,8 @@ public class AppointmentService {
                 .calledAt(appointment.getCalledAt())
                 .reason(appointment.getReason())
                 .notes(appointment.getNotes())
+                .modality(appointment.getModality())
+                .meetLink(appointment.getMeetLink())
                 .status(appointment.getStatus())
                 .cancellationReason(appointment.getCancellationReason())
                 .rating(appointment.getRating())
