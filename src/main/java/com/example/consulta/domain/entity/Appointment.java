@@ -54,6 +54,9 @@ public class Appointment {
     private String cancellationReason;
 
     @Column
+    private LocalDateTime previousScheduledAt;
+
+    @Column
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")

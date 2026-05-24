@@ -3,6 +3,7 @@ package com.example.consulta.application.service;
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.appointment.PatientSummaryDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.core.exception.BadRequestException;
@@ -186,6 +187,7 @@ public class AppointmentService {
                 .professionalId(appointment.getProfessional().getId())
                 .specialty(appointment.getProfessional().getSpecialty())
                 .scheduledAt(appointment.getScheduledAt())
+                .previousScheduledAt(appointment.getPreviousScheduledAt())
                 .reason(appointment.getReason())
                 .notes(appointment.getNotes())
                 .status(appointment.getStatus())
