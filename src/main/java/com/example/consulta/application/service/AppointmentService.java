@@ -188,6 +188,8 @@ public class AppointmentService {
                 .specialty(appointment.getProfessional().getSpecialty())
                 .scheduledAt(appointment.getScheduledAt())
                 .previousScheduledAt(appointment.getPreviousScheduledAt())
+                .checkedInAt(appointment.getCheckedInAt())
+                .calledAt(appointment.getCalledAt())
                 .reason(appointment.getReason())
                 .notes(appointment.getNotes())
                 .status(appointment.getStatus())

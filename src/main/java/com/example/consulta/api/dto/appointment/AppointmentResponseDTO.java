@@ -21,6 +21,8 @@ public class AppointmentResponseDTO {
     private String specialty;
     private LocalDateTime scheduledAt;
     private LocalDateTime previousScheduledAt;
+    private LocalDateTime checkedInAt;
+    private LocalDateTime calledAt;
     private String reason;
     private String notes;
     private AppointmentStatus status;

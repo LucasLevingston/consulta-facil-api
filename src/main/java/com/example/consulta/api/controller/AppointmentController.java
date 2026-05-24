@@ -5,12 +5,17 @@ import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.ProntuarioResponseDTO;
+import com.example.consulta.api.dto.appointment.QrCheckInTokenDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.appointment.SaveAnamneseDTO;
 import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
 import com.example.consulta.application.service.AnamneseService;
 import com.example.consulta.application.service.AppointmentService;
+import com.example.consulta.application.service.CallNextPatientService;
+import com.example.consulta.application.service.CheckInByQrService;
+import com.example.consulta.application.service.GenerateCheckInTokenService;
+import com.example.consulta.application.service.GetQueueService;
 import com.example.consulta.application.service.ProntuarioService;
 import com.example.consulta.application.service.RescheduleAppointmentService;
 import com.example.consulta.core.security.CustomUserDetails;
@@ -22,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,6 +45,10 @@ public class AppointmentController {
     private final RescheduleAppointmentService rescheduleAppointmentService;
     private final AnamneseService anamneseService;
     private final ProntuarioService prontuarioService;
+    private final GenerateCheckInTokenService generateCheckInTokenService;
+    private final CheckInByQrService checkInByQrService;
+    private final GetQueueService getQueueService;
+    private final CallNextPatientService callNextPatientService;
 
     @PostMapping
     @PreAuthorize("hasRole('PATIENT')")
@@ -117,6 +128,39 @@ public class AppointmentController {
         AppointmentResponseDTO response = appointmentService.rateAppointment(
                 appointmentId, userDetails.getUserId(), dto);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{appointmentId}/checkin-token")
+    @PreAuthorize("hasRole('PATIENT')")
+    @Operation(summary = "Generate QR check-in token for patient")
+    public ResponseEntity<QrCheckInTokenDTO> generateCheckInToken(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(generateCheckInTokenService.execute(appointmentId, userDetails.getUserId()));
+    }
+
+    @PostMapping("/checkin")
+    @PreAuthorize("hasAnyRole('RECEPTIONIST', 'PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "Check in patient via QR token")
+    public ResponseEntity<AppointmentResponseDTO> checkInByQr(@RequestParam String token) {
+        return ResponseEntity.ok(checkInByQrService.execute(token));
+    }
+
+    @GetMapping("/queue")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN', 'RECEPTIONIST')")
+    @Operation(summary = "Get today's queue for the professional")
+    public ResponseEntity<List<AppointmentResponseDTO>> getQueue(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(getQueueService.execute(userDetails.getUserId()));
+    }
+
+    @PutMapping("/{appointmentId}/call")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "Call next patient (move to IN_PROGRESS)")
+    public ResponseEntity<AppointmentResponseDTO> callNextPatient(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(callNextPatientService.execute(appointmentId, userDetails.getUserId()));
     }
 
     @DeleteMapping("/{appointmentId}")

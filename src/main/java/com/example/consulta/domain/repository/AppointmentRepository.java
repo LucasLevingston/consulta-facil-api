@@ -24,6 +24,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     List<Appointment> findByProfessionalIdAndStatusAndScheduledAtBetween(String professionalId, AppointmentStatus status, LocalDateTime start, LocalDateTime end);
     boolean existsByProfessionalIdAndScheduledAt(String professionalId, LocalDateTime scheduledAt);
 
+    List<Appointment> findByProfessionalIdAndStatusInAndScheduledAtBetweenOrderByCheckedInAt(
+            String professionalId, List<AppointmentStatus> statuses, LocalDateTime start, LocalDateTime end);
+
     @Query("""
             SELECT new com.example.consulta.api.dto.appointment.PatientSummaryDTO(
                 u.id, u.name, MAX(a.scheduledAt), COUNT(a.id))

@@ -57,6 +57,12 @@ public class Appointment {
     private LocalDateTime previousScheduledAt;
 
     @Column
+    private LocalDateTime checkedInAt;
+
+    @Column
+    private LocalDateTime calledAt;
+
+    @Column
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")
