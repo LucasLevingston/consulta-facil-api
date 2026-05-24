@@ -2,6 +2,7 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.Appointment;
@@ -554,6 +555,112 @@ class AppointmentControllerIntegrationTest {
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(cancelDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testReschedulePendingAppointment() throws Exception {
+        LocalDateTime original = LocalDateTime.now().withNano(0).plusDays(20);
+        LocalDateTime newTime = LocalDateTime.now().withNano(0).plusDays(25);
+
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(original)
+                .reason("Consulta original")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        RescheduleAppointmentDTO rescheduleDTO = new RescheduleAppointmentDTO();
+        rescheduleDTO.setScheduledAt(newTime);
+        rescheduleDTO.setReason("Novo motivo");
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/reschedule")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(rescheduleDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", equalTo("PENDING")))
+                .andExpect(jsonPath("$.previousScheduledAt", notNullValue()))
+                .andExpect(jsonPath("$.reason", equalTo("Novo motivo")));
+    }
+
+    @Test
+    void testRescheduleCompletedAppointmentFails() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(21))
+                .reason("Consulta")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).get("id").asText();
+
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepository.saveAndFlush(appointment);
+
+        RescheduleAppointmentDTO rescheduleDTO = new RescheduleAppointmentDTO();
+        rescheduleDTO.setScheduledAt(LocalDateTime.now().plusDays(30));
+
+        mockMvc.perform(put("/appointments/" + appointmentId + "/reschedule")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(rescheduleDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRescheduleToConflictingTimeFails() throws Exception {
+        LocalDateTime conflictTime = LocalDateTime.now().withNano(0).plusDays(22);
+
+        CreateAppointmentDTO first = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(conflictTime)
+                .reason("Primeira consulta no horário")
+                .build();
+
+        mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(first)))
+                .andExpect(status().isCreated());
+
+        CreateAppointmentDTO second = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(23))
+                .reason("Segunda consulta")
+                .build();
+
+        String secondResponse = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(second)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String secondId = objectMapper.readTree(secondResponse).get("id").asText();
+
+        RescheduleAppointmentDTO rescheduleDTO = new RescheduleAppointmentDTO();
+        rescheduleDTO.setScheduledAt(conflictTime);
+
+        mockMvc.perform(put("/appointments/" + secondId + "/reschedule")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(rescheduleDTO)))
                 .andExpect(status().isBadRequest());
     }
 

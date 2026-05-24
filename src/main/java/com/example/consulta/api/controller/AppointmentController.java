@@ -6,11 +6,13 @@ import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.ProntuarioResponseDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.appointment.SaveAnamneseDTO;
 import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
 import com.example.consulta.application.service.AnamneseService;
 import com.example.consulta.application.service.AppointmentService;
 import com.example.consulta.application.service.ProntuarioService;
+import com.example.consulta.application.service.RescheduleAppointmentService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
+    private final RescheduleAppointmentService rescheduleAppointmentService;
     private final AnamneseService anamneseService;
     private final ProntuarioService prontuarioService;
 
@@ -76,6 +79,15 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDTO> confirmAppointment(@PathVariable String appointmentId) {
         AppointmentResponseDTO response = appointmentService.confirmAppointment(appointmentId);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{appointmentId}/reschedule")
+    @PreAuthorize("hasAnyRole('PATIENT', 'PROFESSIONAL', 'ADMIN')")
+    @Operation(summary = "Reschedule appointment")
+    public ResponseEntity<AppointmentResponseDTO> rescheduleAppointment(
+            @PathVariable String appointmentId,
+            @Valid @RequestBody RescheduleAppointmentDTO dto) {
+        return ResponseEntity.ok(rescheduleAppointmentService.execute(appointmentId, dto));
     }
 
     @PutMapping("/{appointmentId}/cancel")
