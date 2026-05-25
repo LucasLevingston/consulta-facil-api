@@ -35,6 +35,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final PatientProfileRepository patientProfileRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;
+    private final AppointmentNotificationService appointmentNotificationService;
 
     @Transactional
     public AppointmentResponseDTO scheduleAppointment(String userId, CreateAppointmentDTO dto) {
@@ -60,6 +61,7 @@ public class AppointmentService {
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
+        appointmentNotificationService.notifyScheduled(saved);
         return toResponseDTO(saved);
     }
 
@@ -100,6 +102,7 @@ public class AppointmentService {
 
         appointment.setStatus(AppointmentStatus.CONFIRMED);
         Appointment updated = appointmentRepository.save(appointment);
+        appointmentNotificationService.notifyConfirmed(updated);
         return toResponseDTO(updated);
     }
 
@@ -116,6 +119,7 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.CANCELED);
         appointment.setCancellationReason(dto.getCancellationReason());
         Appointment updated = appointmentRepository.save(appointment);
+        appointmentNotificationService.notifyCanceled(updated);
         return toResponseDTO(updated);
     }
 
