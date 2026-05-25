@@ -183,4 +183,14 @@ class AppointmentPaymentIntegrationTest {
                 .content(objectMapper.writeValueAsString(webhookBody)))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void webhook_paymentTypeWithNoId_shouldReturn200() throws Exception {
+        Map<String, Object> webhookBody = Map.of("type", "payment");
+
+        mockMvc.perform(post("/payments/webhook")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(webhookBody)))
+                .andExpect(status().isOk());
+    }
 }
