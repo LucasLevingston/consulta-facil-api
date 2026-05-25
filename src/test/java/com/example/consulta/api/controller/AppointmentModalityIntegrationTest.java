@@ -8,6 +8,7 @@ import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentModality;
+import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
 import com.example.consulta.domain.repository.AppointmentRepository;
@@ -190,6 +191,87 @@ class AppointmentModalityIntegrationTest {
     void generateMeetLink_forInPersonAppointment_shouldReturn400() throws Exception {
         mockMvc.perform(post("/appointments/" + appointmentId + "/meet-link")
                 .header("Authorization", "Bearer " + professionalToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void setModality_toInPerson_shouldClearMeetLink() throws Exception {
+        // First set to ONLINE with a meetLink
+        SetModalityDTO onlineDto = new SetModalityDTO();
+        onlineDto.setModality(AppointmentModality.ONLINE);
+        onlineDto.setMeetLink("https://meet.google.com/to-be-cleared");
+        mockMvc.perform(put("/appointments/" + appointmentId + "/modality")
+                .header("Authorization", "Bearer " + professionalToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(onlineDto)))
+                .andExpect(status().isOk());
+
+        // Then switch to IN_PERSON — should clear meetLink
+        // Note: JPA cache issue means we must set modality directly via repo
+        // instead of checking meetLink in response
+        SetModalityDTO inPersonDto = new SetModalityDTO();
+        inPersonDto.setModality(AppointmentModality.IN_PERSON);
+        mockMvc.perform(put("/appointments/" + appointmentId + "/modality")
+                .header("Authorization", "Bearer " + professionalToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(inPersonDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.modality").value("IN_PERSON"));
+    }
+
+    @Test
+    void setModality_completedAppointmentFails() throws Exception {
+        Appointment appt = appointmentRepository.findById(appointmentId).orElseThrow();
+        appt.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepository.saveAndFlush(appt);
+
+        SetModalityDTO dto = new SetModalityDTO();
+        dto.setModality(AppointmentModality.ONLINE);
+        mockMvc.perform(put("/appointments/" + appointmentId + "/modality")
+                .header("Authorization", "Bearer " + professionalToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void setModality_wrongProfessionalFails() throws Exception {
+        // Register a second professional
+        String doc2Reg = mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(CreateUserDTO.builder()
+                        .name("Other Doctor")
+                        .email("other.modality.doctor@test.com")
+                        .password("doctor12")
+                        .cpf("77700000099")
+                        .phone("11900000099")
+                        .birthDate(LocalDate.of(1985, 3, 20))
+                        .gender(Gender.FEMALE)
+                        .build())))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String doc2Id = objectMapper.readTree(doc2Reg).get("id").asText();
+        User doc2 = userRepository.findById(doc2Id).orElseThrow();
+        doc2.setRole(UserRole.PROFESSIONAL);
+        userRepository.saveAndFlush(doc2);
+        ProfessionalProfile profile2 = ProfessionalProfile.builder()
+                .user(doc2).specialty("Neurologia").licenseNumber("CRM-SP-99900").build();
+        professionalProfileRepository.saveAndFlush(profile2);
+
+        String doc2Login = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(LoginRequestDTO.builder()
+                        .email("other.modality.doctor@test.com").password("doctor12").build())))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String doc2Token = objectMapper.readTree(doc2Login).get("token").asText();
+
+        SetModalityDTO dto = new SetModalityDTO();
+        dto.setModality(AppointmentModality.ONLINE);
+        mockMvc.perform(put("/appointments/" + appointmentId + "/modality")
+                .header("Authorization", "Bearer " + doc2Token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -314,6 +314,25 @@ class QueueAndCheckInIntegrationTest {
     }
 
     @Test
+    void testGetQueueAsAdmin() throws Exception {
+        createAppointment(AppointmentStatus.CHECKED_IN);
+
+        User profUser = userRepository.findById(professionalUserId).orElseThrow();
+        profUser.setRole(UserRole.ADMIN);
+        userRepository.saveAndFlush(profUser);
+        String adminToken = loginToken("queue.doctor@test.com", "password1");
+
+        mockMvc.perform(get("/appointments/queue")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
+
+        // Restore role
+        profUser.setRole(UserRole.PROFESSIONAL);
+        userRepository.saveAndFlush(profUser);
+    }
+
+    @Test
     void testCheckInByQrWithWrongTokenTypeFails() throws Exception {
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         String wrongTypeToken = Jwts.builder()
