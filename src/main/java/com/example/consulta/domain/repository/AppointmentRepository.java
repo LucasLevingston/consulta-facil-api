@@ -31,6 +31,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             List<AppointmentStatus> statuses, LocalDateTime start, LocalDateTime end);
 
     @Query("""
+            SELECT a FROM Appointment a
+            JOIN a.professional p
+            JOIN p.clinicMemberships m
+            WHERE m.clinic.id = :clinicId
+            AND a.status IN :statuses
+            AND a.scheduledAt BETWEEN :start AND :end
+            ORDER BY a.checkedInAt ASC NULLS LAST
+            """)
+    List<Appointment> findClinicQueueAppointments(
+            @Param("clinicId") String clinicId,
+            @Param("statuses") List<AppointmentStatus> statuses,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    @Query("""
             SELECT new com.example.consulta.api.dto.appointment.PatientSummaryDTO(
                 u.id, u.name, MAX(a.scheduledAt), COUNT(a.id))
             FROM Appointment a

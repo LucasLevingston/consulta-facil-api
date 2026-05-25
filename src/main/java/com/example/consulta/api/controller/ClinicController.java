@@ -1,5 +1,6 @@
 package com.example.consulta.api.controller;
 
+import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.clinic.ClinicResponseDTO;
 import com.example.consulta.api.dto.clinic.CreateClinicDTO;
 import com.example.consulta.api.dto.receptionist.InviteReceptionistDTO;
@@ -8,6 +9,7 @@ import com.example.consulta.api.dto.schedule.ClinicWorkingHoursResponseDTO;
 import com.example.consulta.api.dto.schedule.CreateClinicWorkingHoursDTO;
 import com.example.consulta.application.service.ClinicService;
 import com.example.consulta.application.service.ClinicWorkingHoursService;
+import com.example.consulta.application.service.GetClinicQueueService;
 import com.example.consulta.application.service.GetClinicReceptionistsService;
 import com.example.consulta.application.service.InviteReceptionistService;
 import com.example.consulta.application.service.NotificationService;
@@ -38,6 +40,7 @@ public class ClinicController {
     private final InviteReceptionistService inviteReceptionistService;
     private final RemoveReceptionistService removeReceptionistService;
     private final GetClinicReceptionistsService getClinicReceptionistsService;
+    private final GetClinicQueueService getClinicQueueService;
 
     @GetMapping
     @Operation(summary = "List all active clinics")
@@ -159,6 +162,12 @@ public class ClinicController {
             @PathVariable String clinicId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(getClinicReceptionistsService.execute(clinicId, userDetails.getUserId()));
+    }
+
+    @GetMapping("/{clinicId}/queue")
+    @Operation(summary = "Get today's waiting room queue for a clinic")
+    public ResponseEntity<List<AppointmentResponseDTO>> getClinicQueue(@PathVariable String clinicId) {
+        return ResponseEntity.ok(getClinicQueueService.execute(clinicId));
     }
 
     @GetMapping("/{clinicId}/working-hours")
