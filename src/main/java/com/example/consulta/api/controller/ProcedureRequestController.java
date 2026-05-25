@@ -5,7 +5,8 @@ import com.example.consulta.api.dto.procedurerequest.ProcedureRequestResponseDTO
 import com.example.consulta.api.dto.procedurerequest.ScheduleProcedureRequestDTO;
 import com.example.consulta.application.service.CancelProcedureRequestService;
 import com.example.consulta.application.service.CreateProcedureRequestService;
-import com.example.consulta.application.service.GetProcedureRequestsService;
+import com.example.consulta.application.service.GetPatientProcedureRequestsService;
+import com.example.consulta.application.service.GetProfessionalProcedureRequestsService;
 import com.example.consulta.application.service.ScheduleProcedureRequestService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,8 @@ import java.util.List;
 public class ProcedureRequestController {
 
     private final CreateProcedureRequestService createProcedureRequestService;
-    private final GetProcedureRequestsService getProcedureRequestsService;
+    private final GetPatientProcedureRequestsService getPatientProcedureRequestsService;
+    private final GetProfessionalProcedureRequestsService getProfessionalProcedureRequestsService;
     private final ScheduleProcedureRequestService scheduleProcedureRequestService;
     private final CancelProcedureRequestService cancelProcedureRequestService;
 
@@ -46,14 +48,14 @@ public class ProcedureRequestController {
     @GetMapping("/mine")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "List procedure requests for the authenticated user (patient or professional)")
+    @Operation(summary = "List procedure requests for the authenticated user")
     public ResponseEntity<List<ProcedureRequestResponseDTO>> getMine(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         boolean isProfessional = userDetails.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSIONAL") || a.getAuthority().equals("ROLE_ADMIN"));
         List<ProcedureRequestResponseDTO> result = isProfessional
-                ? getProcedureRequestsService.executeForProfessional(userDetails.getUserId())
-                : getProcedureRequestsService.executeForPatient(userDetails.getUserId());
+                ? getProfessionalProcedureRequestsService.execute(userDetails.getUserId())
+                : getPatientProcedureRequestsService.execute(userDetails.getUserId());
         return ResponseEntity.ok(result);
     }
 
