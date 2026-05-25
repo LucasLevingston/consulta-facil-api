@@ -232,6 +232,30 @@ class PatientProfileControllerIntegrationTest {
     }
 
     @Test
+    void testGetProfessionalPatientsSortByName() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(5))
+                .reason("Consulta sort-by-name test")
+                .build();
+
+        mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/patients/professional/" + doctorUserId)
+                .header("Authorization", "Bearer " + doctorToken)
+                .param("page", "0")
+                .param("size", "20")
+                .param("search", "")
+                .param("sort", "name"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements", equalTo(1)));
+    }
+
+    @Test
     void testGetProfessionalPatientsRequiresAuth() throws Exception {
         mockMvc.perform(get("/patients/professional/" + doctorUserId)
                 .param("page", "0")
