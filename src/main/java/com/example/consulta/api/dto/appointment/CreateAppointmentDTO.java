@@ -1,6 +1,6 @@
 package com.example.consulta.api.dto.appointment;
 
-import com.example.consulta.domain.enums.AppointmentStatus;
+import com.example.consulta.domain.enums.AppointmentModality;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,4 +26,6 @@ public class CreateAppointmentDTO {
     private String reason;
 
     private String notes;
+
+    private AppointmentModality modality;
 }

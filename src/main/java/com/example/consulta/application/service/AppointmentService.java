@@ -11,6 +11,7 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.PatientProfile;
+import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
@@ -54,6 +55,7 @@ public class AppointmentService {
                 .scheduledAt(dto.getScheduledAt())
                 .reason(dto.getReason())
                 .notes(dto.getNotes())
+                .modality(dto.getModality() != null ? dto.getModality() : AppointmentModality.IN_PERSON)
                 .status(AppointmentStatus.PENDING)
                 .build();
 
