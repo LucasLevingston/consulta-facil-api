@@ -207,6 +207,7 @@ public class ProfessionalService {
                 .longitude(profile.getLongitude())
                 .clinicId(clinic != null ? clinic.getId() : null)
                 .clinicName(clinic != null ? clinic.getName() : null)
+                .consultationPrice(profile.getConsultationPrice())
                 .build();
     }
 }

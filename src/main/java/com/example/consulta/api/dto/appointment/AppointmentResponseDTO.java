@@ -36,6 +36,8 @@ public class AppointmentResponseDTO {
     private BigDecimal paymentAmount;
     private Integer rating;
     private String ratingComment;
+    private String serviceId;
+    private String serviceName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

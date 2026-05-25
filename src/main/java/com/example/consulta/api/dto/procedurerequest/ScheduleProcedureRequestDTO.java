@@ -1,8 +1,7 @@
-package com.example.consulta.api.dto.appointment;
+package com.example.consulta.api.dto.procedurerequest;
 
 import com.example.consulta.domain.enums.AppointmentModality;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,19 +14,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateAppointmentDTO {
-    @NotBlank(message = "ID do profissional é obrigatório")
-    private String professionalId;
+public class ScheduleProcedureRequestDTO {
 
     @NotNull(message = "Data e hora são obrigatórias")
     @Future(message = "A data deve ser no futuro")
     private LocalDateTime scheduledAt;
 
-    private String reason;
-
-    private String notes;
-
     private AppointmentModality modality;
-
-    private String serviceId;
 }

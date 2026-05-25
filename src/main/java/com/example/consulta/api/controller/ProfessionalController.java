@@ -6,6 +6,7 @@ import com.example.consulta.api.dto.schedule.CreateProfessionalScheduleDTO;
 import com.example.consulta.api.dto.schedule.ProfessionalScheduleResponseDTO;
 import com.example.consulta.application.service.ProfessionalScheduleService;
 import com.example.consulta.application.service.ProfessionalService;
+import com.example.consulta.application.service.SetConsultationPriceService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -20,6 +21,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 import java.util.List;
 
 @RestController
@@ -30,6 +34,7 @@ public class ProfessionalController {
 
     private final ProfessionalService professionalService;
     private final ProfessionalScheduleService professionalScheduleService;
+    private final SetConsultationPriceService setConsultationPriceService;
 
     @GetMapping
     @Operation(summary = "List professionals", description = "Returns active professionals with optional filters")
@@ -151,6 +156,17 @@ public class ProfessionalController {
     public ResponseEntity<List<ProfessionalScheduleResponseDTO>> getMySchedule(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(professionalScheduleService.getMySchedule(userDetails.getUserId()));
+    }
+
+    @PutMapping("/me/consultation-price")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Set my consultation price")
+    public ResponseEntity<ProfessionalResponseDTO> setConsultationPrice(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody Map<String, BigDecimal> body) {
+        BigDecimal price = body.get("price");
+        return ResponseEntity.ok(setConsultationPriceService.execute(userDetails.getUserId(), price));
     }
 
     @PutMapping("/me/schedule")

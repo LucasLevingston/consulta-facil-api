@@ -2,12 +2,17 @@ package com.example.consulta.core.seeder;
 
 import com.example.consulta.application.service.AppointmentService;
 import com.example.consulta.application.service.ClinicService;
+import com.example.consulta.application.service.CreateProcedureRequestService;
+import com.example.consulta.application.service.CreateProfessionalServiceService;
 import com.example.consulta.application.service.InviteReceptionistService;
 import com.example.consulta.application.service.ProfessionalService;
+import com.example.consulta.application.service.SetConsultationPriceService;
 import com.example.consulta.application.service.UserService;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.clinic.CreateClinicDTO;
+import com.example.consulta.api.dto.procedurerequest.CreateProcedureRequestDTO;
 import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
+import com.example.consulta.api.dto.professionalservice.CreateProfessionalServiceDTO;
 import com.example.consulta.api.dto.receptionist.InviteReceptionistDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.PatientProfile;
@@ -49,54 +54,58 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final AppointmentService appointmentService;
     private final ClinicService clinicService;
     private final InviteReceptionistService inviteReceptionistService;
+    private final CreateProfessionalServiceService createProfessionalServiceService;
+    private final SetConsultationPriceService setConsultationPriceService;
+    private final CreateProcedureRequestService createProcedureRequestService;
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
-    private record ProfessionData(String profession, String specialty, String licensePrefix) {}
+    private record ProfessionData(String profession, String specialty, String licensePrefix) {
+    }
 
     private final List<ProfessionData> professionData = List.of(
-            new ProfessionData("Médico", "Cardiologia",           "CRM/SP"),
-            new ProfessionData("Médico", "Clínica Geral",         "CRM/SP"),
-            new ProfessionData("Médico", "Dermatologia",          "CRM/SP"),
-            new ProfessionData("Médico", "Endocrinologia",        "CRM/SP"),
-            new ProfessionData("Médico", "Gastroenterologia",     "CRM/SP"),
-            new ProfessionData("Médico", "Neurologia",            "CRM/SP"),
-            new ProfessionData("Médico", "Oftalmologia",          "CRM/SP"),
-            new ProfessionData("Médico", "Ortopedia",             "CRM/SP"),
-            new ProfessionData("Médico", "Pediatria",             "CRM/SP"),
-            new ProfessionData("Médico", "Pneumologia",           "CRM/SP"),
-            new ProfessionData("Médico", "Psiquiatria",           "CRM/SP"),
-            new ProfessionData("Médico", "Cardiologia",           "CRM/PB"),
-            new ProfessionData("Médico", "Clínica Geral",         "CRM/PB"),
-            new ProfessionData("Médico", "Pediatria",             "CRM/PB"),
-            new ProfessionData("Médico", "Ginecologia",           "CRM/PB"),
-            new ProfessionData("Médico", "Ortopedia",             "CRM/PB"),
-            new ProfessionData("Médico", "Neurologia",            "CRM/PB"),
-            new ProfessionData("Médico", "Psiquiatria",           "CRM/PB"),
-            new ProfessionData("Nutricionista", "Nutrição Clínica",          "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Esportiva",        "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Oncológica",       "CRN/SP"),
+            new ProfessionData("Médico", "Cardiologia", "CRM/SP"),
+            new ProfessionData("Médico", "Clínica Geral", "CRM/SP"),
+            new ProfessionData("Médico", "Dermatologia", "CRM/SP"),
+            new ProfessionData("Médico", "Endocrinologia", "CRM/SP"),
+            new ProfessionData("Médico", "Gastroenterologia", "CRM/SP"),
+            new ProfessionData("Médico", "Neurologia", "CRM/SP"),
+            new ProfessionData("Médico", "Oftalmologia", "CRM/SP"),
+            new ProfessionData("Médico", "Ortopedia", "CRM/SP"),
+            new ProfessionData("Médico", "Pediatria", "CRM/SP"),
+            new ProfessionData("Médico", "Pneumologia", "CRM/SP"),
+            new ProfessionData("Médico", "Psiquiatria", "CRM/SP"),
+            new ProfessionData("Médico", "Cardiologia", "CRM/PB"),
+            new ProfessionData("Médico", "Clínica Geral", "CRM/PB"),
+            new ProfessionData("Médico", "Pediatria", "CRM/PB"),
+            new ProfessionData("Médico", "Ginecologia", "CRM/PB"),
+            new ProfessionData("Médico", "Ortopedia", "CRM/PB"),
+            new ProfessionData("Médico", "Neurologia", "CRM/PB"),
+            new ProfessionData("Médico", "Psiquiatria", "CRM/PB"),
+            new ProfessionData("Nutricionista", "Nutrição Clínica", "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Esportiva", "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Oncológica", "CRN/SP"),
             new ProfessionData("Nutricionista", "Nutrição Materno-Infantil", "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Funcional",        "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Clínica",          "CRN/PB"),
-            new ProfessionData("Nutricionista", "Nutrição Esportiva",        "CRN/PB"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica",   "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica",  "CREFITO/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Funcional", "CRN/SP"),
+            new ProfessionData("Nutricionista", "Nutrição Clínica", "CRN/PB"),
+            new ProfessionData("Nutricionista", "Nutrição Esportiva", "CRN/PB"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica", "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica", "CREFITO/SP"),
             new ProfessionData("Fisioterapeuta", "Fisioterapia Respiratória", "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Desportiva",   "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Pilates Clínico",           "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica",   "CREFITO/PB"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica",  "CREFITO/PB"),
-            new ProfessionData("Psicólogo", "TCC",                       "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicanálise",               "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicologia Infantil",       "CRP/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Desportiva", "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Pilates Clínico", "CREFITO/SP"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica", "CREFITO/PB"),
+            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica", "CREFITO/PB"),
+            new ProfessionData("Psicólogo", "TCC", "CRP/SP"),
+            new ProfessionData("Psicólogo", "Psicanálise", "CRP/SP"),
+            new ProfessionData("Psicólogo", "Psicologia Infantil", "CRP/SP"),
             new ProfessionData("Psicólogo", "Psicologia Organizacional", "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicologia do Esporte",     "CRP/SP"),
-            new ProfessionData("Psicólogo", "TCC",                       "CRP/PB"),
-            new ProfessionData("Psicólogo", "Psicanálise",               "CRP/PB"),
-            new ProfessionData("Dentista", "Odontologia Geral",          "CRO/PB"),
-            new ProfessionData("Dentista", "Ortodontia",                 "CRO/PB"),
-            new ProfessionData("Dentista", "Implantodontia",             "CRO/PB"));
+            new ProfessionData("Psicólogo", "Psicologia do Esporte", "CRP/SP"),
+            new ProfessionData("Psicólogo", "TCC", "CRP/PB"),
+            new ProfessionData("Psicólogo", "Psicanálise", "CRP/PB"),
+            new ProfessionData("Dentista", "Odontologia Geral", "CRO/PB"),
+            new ProfessionData("Dentista", "Ortodontia", "CRO/PB"),
+            new ProfessionData("Dentista", "Implantodontia", "CRO/PB"));
 
     @Override
     public void run(String... args) {
@@ -120,8 +129,17 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "00000000002",
                     "Médico",
                     "Cardiologia",
-                    "CRM-TESTE-001");
+                    "CRM-TESTE-001"
+
+            );
             professionalService.approveApplication(professionalProfileId);
+
+            String professionalUserId = professionalProfileRepository
+                    .findById(professionalProfileId)
+                    .map(p -> p.getUser().getId())
+                    .orElse(null);
+
+            seedServicesAndProcedureRequests(professionalUserId, patientUserId);
 
             String adminProfessionalProfileId = createProfessional(
                     "admin@example.com",
@@ -144,7 +162,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 }
             });
 
-            String firstClinicId = createClinics(professionalProfileId, adminProfessionalProfileId, professionalProfileIds);
+            String firstClinicId = createClinics(professionalProfileId, adminProfessionalProfileId,
+                    professionalProfileIds);
 
             String professionalOwnerUserId = professionalProfileRepository
                     .findById(professionalProfileId)
@@ -174,23 +193,25 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
     }
 
-    private record CityLocation(String city, String state, double lat, double lng) {}
+    private record CityLocation(String city, String state, double lat, double lng) {
+    }
 
-    private String createClinics(String testProfessionalProfileId, String adminProfessionalProfileId, List<String> extraProfessionalProfileIds) {
+    private String createClinics(String testProfessionalProfileId, String adminProfessionalProfileId,
+            List<String> extraProfessionalProfileIds) {
 
         record ClinicDef(String name, String description, String phone, String address,
-                         CityLocation location, String imageUrl, String ownerProfileId) {}
+                CityLocation location, String imageUrl, String ownerProfileId) {
+        }
 
         List<CityLocation> cities = List.of(
-                new CityLocation("São Paulo",      "SP", -23.5505, -46.6333),
+                new CityLocation("São Paulo", "SP", -23.5505, -46.6333),
                 new CityLocation("Rio de Janeiro", "RJ", -22.9068, -43.1729),
                 new CityLocation("Belo Horizonte", "MG", -19.9191, -43.9386),
-                new CityLocation("Curitiba",       "PR", -25.4290, -49.2671),
-                new CityLocation("Porto Alegre",   "RS", -30.0346, -51.2177),
-                new CityLocation("Brasília",       "DF", -15.7942, -47.8822),
-                new CityLocation("João Pessoa",    "PB", -7.1195, -34.8450),
-                new CityLocation("Campina Grande", "PB", -7.2306, -35.8811)
-        );
+                new CityLocation("Curitiba", "PR", -25.4290, -49.2671),
+                new CityLocation("Porto Alegre", "RS", -30.0346, -51.2177),
+                new CityLocation("Brasília", "DF", -15.7942, -47.8822),
+                new CityLocation("João Pessoa", "PB", -7.1195, -34.8450),
+                new CityLocation("Campina Grande", "PB", -7.2306, -35.8811));
 
         List<ClinicDef> defs = List.of(
                 new ClinicDef(
@@ -216,7 +237,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Afonso Pena, 1000",
                         cities.get(2),
                         "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=600",
-                        extraProfessionalProfileIds.size() > 0 ? extraProfessionalProfileIds.get(0) : testProfessionalProfileId),
+                        extraProfessionalProfileIds.size() > 0 ? extraProfessionalProfileIds.get(0)
+                                : testProfessionalProfileId),
                 new ClinicDef(
                         "Clínica Curitibana",
                         "Medicina preventiva e diagnóstico avançado",
@@ -224,7 +246,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua XV de Novembro, 700",
                         cities.get(3),
                         "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600",
-                        extraProfessionalProfileIds.size() > 2 ? extraProfessionalProfileIds.get(2) : testProfessionalProfileId),
+                        extraProfessionalProfileIds.size() > 2 ? extraProfessionalProfileIds.get(2)
+                                : testProfessionalProfileId),
                 new ClinicDef(
                         "Saúde Sul Clínica",
                         "Atendimento humanizado em Porto Alegre",
@@ -232,7 +255,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Independência, 500",
                         cities.get(4),
                         "https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=600",
-                        extraProfessionalProfileIds.size() > 4 ? extraProfessionalProfileIds.get(4) : testProfessionalProfileId),
+                        extraProfessionalProfileIds.size() > 4 ? extraProfessionalProfileIds.get(4)
+                                : testProfessionalProfileId),
                 new ClinicDef(
                         "Clínica Capital Federal",
                         "Excelência em saúde no coração do Brasil",
@@ -240,7 +264,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "SCS Quadra 2, Bloco C",
                         cities.get(5),
                         "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=600",
-                        extraProfessionalProfileIds.size() > 6 ? extraProfessionalProfileIds.get(6) : testProfessionalProfileId),
+                        extraProfessionalProfileIds.size() > 6 ? extraProfessionalProfileIds.get(6)
+                                : testProfessionalProfileId),
                 new ClinicDef(
                         "Clínica Saúde João Pessoa",
                         "Atendimento completo em cardiologia, pediatria e clínica geral",
@@ -248,7 +273,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Epitácio Pessoa, 1234",
                         cities.get(6),
                         "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600",
-                        extraProfessionalProfileIds.size() > 8 ? extraProfessionalProfileIds.get(8) : testProfessionalProfileId),
+                        extraProfessionalProfileIds.size() > 8 ? extraProfessionalProfileIds.get(8)
+                                : testProfessionalProfileId),
                 new ClinicDef(
                         "Centro de Saúde Paraibano",
                         "Medicina preventiva e especialidades para toda a família em João Pessoa",
@@ -256,7 +282,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Cardoso Vieira, 200 — Miramar",
                         cities.get(6),
                         "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600",
-                        extraProfessionalProfileIds.size() > 10 ? extraProfessionalProfileIds.get(10) : testProfessionalProfileId),
+                        extraProfessionalProfileIds.size() > 10 ? extraProfessionalProfileIds.get(10)
+                                : testProfessionalProfileId),
                 new ClinicDef(
                         "Clínica Campina Grande Saúde",
                         "Referência em saúde no Agreste paraibano",
@@ -264,7 +291,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Assis Chateaubriand, 500",
                         cities.get(7),
                         "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=600",
-                        extraProfessionalProfileIds.size() > 12 ? extraProfessionalProfileIds.get(12) : testProfessionalProfileId),
+                        extraProfessionalProfileIds.size() > 12 ? extraProfessionalProfileIds.get(12)
+                                : testProfessionalProfileId),
                 new ClinicDef(
                         "NutriVida João Pessoa",
                         "Nutrição e fisioterapia integradas para melhor qualidade de vida",
@@ -272,8 +300,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Padre Meira, 89 — Tambauzinho",
                         cities.get(6),
                         "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600",
-                        extraProfessionalProfileIds.size() > 14 ? extraProfessionalProfileIds.get(14) : testProfessionalProfileId)
-        );
+                        extraProfessionalProfileIds.size() > 14 ? extraProfessionalProfileIds.get(14)
+                                : testProfessionalProfileId));
 
         String firstClinicId = null;
 
@@ -293,7 +321,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .map(p -> p.getUser().getId())
                         .orElse(null);
 
-                if (ownerUserId == null) continue;
+                if (ownerUserId == null)
+                    continue;
 
                 CreateClinicDTO dto = new CreateClinicDTO();
                 dto.setName(def.name());
@@ -308,13 +337,16 @@ public class DatabaseSeeder implements CommandLineRunner {
 
                 var clinic = clinicService.createClinic(ownerUserId, dto);
 
-                if (firstClinicId == null) firstClinicId = clinic.getId();
+                if (firstClinicId == null)
+                    firstClinicId = clinic.getId();
 
                 // Add 1-2 extra doctors from the pool as members
                 int added = 0;
                 for (String extraId : extraProfessionalProfileIds) {
-                    if (added >= 2) break;
-                    if (extraId.equals(def.ownerProfileId())) continue;
+                    if (added >= 2)
+                        break;
+                    if (extraId.equals(def.ownerProfileId()))
+                        continue;
                     try {
                         clinicService.addMember(clinic.getId(), extraId, ownerUserId);
 
@@ -329,10 +361,12 @@ public class DatabaseSeeder implements CommandLineRunner {
                             }
                         });
                         added++;
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
 
-                log.info("Clínica criada: {} ({}, {})", clinic.getName(), def.location().city(), def.location().state());
+                log.info("Clínica criada: {} ({}, {})", clinic.getName(), def.location().city(),
+                        def.location().state());
             } catch (Exception e) {
                 log.warn("Erro ao criar clínica {}: {}", def.name(), e.getMessage());
             }
@@ -372,7 +406,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         for (String userId : patientUserIds) {
             int appointmentsPerPatient = faker.random().nextInt(5, 13);
             for (int i = 0; i < appointmentsPerPatient; i++) {
-                String professionalId = professionalProfileIds.get(faker.random().nextInt(professionalProfileIds.size()));
+                String professionalId = professionalProfileIds
+                        .get(faker.random().nextInt(professionalProfileIds.size()));
                 AppointmentStatus status = statusPool.get(faker.random().nextInt(statusPool.size()));
                 LocalDateTime scheduledAt;
                 switch (status) {
@@ -602,7 +637,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                     patientUserId,
                     CreateAppointmentDTO.builder()
                             .professionalId(testProfessionalProfileId)
-                            .scheduledAt(LocalDateTime.now().plusDays(3).withHour(16).withMinute(0).withSecond(0).withNano(0))
+                            .scheduledAt(LocalDateTime.now().plusDays(3).withHour(16).withMinute(0).withSecond(0)
+                                    .withNano(0))
                             .reason("Teleconsulta — acompanhamento")
                             .notes("Consulta online de acompanhamento.")
                             .build());
@@ -621,7 +657,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                     patientUserId,
                     CreateAppointmentDTO.builder()
                             .professionalId(testProfessionalProfileId)
-                            .scheduledAt(LocalDateTime.now().plusDays(12).withHour(9).withMinute(30).withSecond(0).withNano(0))
+                            .scheduledAt(LocalDateTime.now().plusDays(12).withHour(9).withMinute(30).withSecond(0)
+                                    .withNano(0))
                             .reason("Teleconsulta — primeira consulta")
                             .notes("Paciente solicita atendimento online.")
                             .build());
@@ -801,6 +838,61 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         return userIds;
+    }
+
+    private void seedServicesAndProcedureRequests(String professionalUserId, String patientUserId) {
+        if (professionalUserId == null) return;
+
+        try {
+            setConsultationPriceService.execute(professionalUserId, new BigDecimal("250.00"));
+        } catch (Exception e) {
+            log.warn("Erro ao definir preço de consulta no seed: {}", e.getMessage());
+        }
+
+        record ServiceDef(String name, String description, BigDecimal price, int duration, boolean requiresConsultation) {}
+
+        List<ServiceDef> services = List.of(
+                new ServiceDef("Consulta de Cardiologia", "Consulta clínica de cardiologia", new BigDecimal("250.00"), 30, false),
+                new ServiceDef("ECG - Eletrocardiograma", "Exame do ritmo cardíaco em repouso", new BigDecimal("180.00"), 20, false),
+                new ServiceDef("Holter 24h", "Monitoramento cardíaco contínuo de 24 horas", new BigDecimal("350.00"), 60, true),
+                new ServiceDef("Ecocardiograma", "Ultrassom do coração com avaliação funcional", new BigDecimal("450.00"), 60, true),
+                new ServiceDef("MAPA", "Monitoramento ambulatorial da pressão arterial", new BigDecimal("320.00"), 45, true)
+        );
+
+        List<String> requiresConsultationServiceIds = new ArrayList<>();
+
+        for (ServiceDef def : services) {
+            try {
+                var dto = CreateProfessionalServiceDTO.builder()
+                        .name(def.name())
+                        .description(def.description())
+                        .price(def.price())
+                        .durationMinutes(def.duration())
+                        .requiresConsultation(def.requiresConsultation())
+                        .build();
+                var created = createProfessionalServiceService.execute(professionalUserId, dto);
+                if (def.requiresConsultation()) requiresConsultationServiceIds.add(created.getId());
+                log.info("Serviço criado no seed: {}", def.name());
+            } catch (Exception e) {
+                log.warn("Erro ao criar serviço no seed: {}", e.getMessage());
+            }
+        }
+
+        patientProfileRepository.findByUserId(patientUserId).ifPresent(patientProfile -> {
+            for (String serviceId : requiresConsultationServiceIds) {
+                try {
+                    var dto = CreateProcedureRequestDTO.builder()
+                            .serviceId(serviceId)
+                            .patientId(patientProfile.getId())
+                            .notes("Paciente encaminhado para avaliação. Aguarda agendamento.")
+                            .build();
+                    createProcedureRequestService.execute(professionalUserId, dto);
+                    log.info("Procedure request criado no seed para serviceId={}", serviceId);
+                } catch (Exception e) {
+                    log.warn("Erro ao criar procedure request no seed: {}", e.getMessage());
+                }
+            }
+        });
     }
 
     private String generateFakeCPF() {

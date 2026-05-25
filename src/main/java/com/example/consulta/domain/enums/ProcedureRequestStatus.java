@@ -1,0 +1,8 @@
+package com.example.consulta.domain.enums;
+
+public enum ProcedureRequestStatus {
+    PENDING,
+    SCHEDULED,
+    COMPLETED,
+    CANCELED
+}

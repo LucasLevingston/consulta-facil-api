@@ -82,6 +82,11 @@ public class Appointment {
     @Column(precision = 10, scale = 2)
     private BigDecimal paymentAmount;
 
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    @ToString.Exclude
+    private ProfessionalService service;
+
     @Column(length = 255)
     private String paymentPreferenceId;
 

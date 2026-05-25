@@ -6,6 +6,8 @@ import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.appointment.PatientSummaryDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
+import com.example.consulta.domain.entity.ProfessionalService;
+import com.example.consulta.domain.repository.ProfessionalServiceRepository;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
@@ -35,6 +37,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final PatientProfileRepository patientProfileRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ProfessionalServiceRepository professionalServiceRepository;
     private final AppointmentNotificationService appointmentNotificationService;
 
     @Transactional
@@ -50,6 +53,12 @@ public class AppointmentService {
             throw new BadRequestException("Professional already has an appointment scheduled at this time");
         }
 
+        ProfessionalService service = null;
+        if (dto.getServiceId() != null && !dto.getServiceId().isBlank()) {
+            service = professionalServiceRepository.findById(dto.getServiceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("ProfessionalService", dto.getServiceId()));
+        }
+
         Appointment appointment = Appointment.builder()
                 .patient(patient)
                 .professional(professional)
@@ -58,6 +67,8 @@ public class AppointmentService {
                 .notes(dto.getNotes())
                 .modality(dto.getModality() != null ? dto.getModality() : AppointmentModality.IN_PERSON)
                 .status(AppointmentStatus.PENDING)
+                .service(service)
+                .paymentAmount(service != null ? service.getPrice() : null)
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
@@ -207,6 +218,8 @@ public class AppointmentService {
                 .paymentAmount(appointment.getPaymentAmount())
                 .rating(appointment.getRating())
                 .ratingComment(appointment.getRatingComment())
+                .serviceId(appointment.getService() != null ? appointment.getService().getId() : null)
+                .serviceName(appointment.getService() != null ? appointment.getService().getName() : null)
                 .createdAt(appointment.getCreatedAt())
                 .updatedAt(appointment.getUpdatedAt())
                 .build();

@@ -2,6 +2,8 @@ package com.example.consulta.domain.entity;
 
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -47,6 +49,9 @@ public class ProfessionalProfile {
     private Double latitude;
 
     private Double longitude;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal consultationPrice;
 
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
