@@ -2,6 +2,7 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
@@ -661,6 +662,96 @@ class AppointmentControllerIntegrationTest {
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(rescheduleDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRateCompletedAppointment() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(1))
+                .reason("Consulta para avaliar")
+                .build();
+
+        String createResp = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String appointmentId = objectMapper.readTree(createResp).get("id").asText();
+
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointment.setScheduledAt(LocalDateTime.now().minusHours(1));
+        appointmentRepository.saveAndFlush(appointment);
+
+        RateAppointmentDTO rateDTO = RateAppointmentDTO.builder()
+                .stars(5)
+                .comment("Excelente atendimento!")
+                .build();
+
+        mockMvc.perform(post("/appointments/" + appointmentId + "/rate")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(rateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating", equalTo(5)))
+                .andExpect(jsonPath("$.ratingComment", equalTo("Excelente atendimento!")));
+    }
+
+    @Test
+    void testRateNonCompletedAppointmentFails() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(2))
+                .reason("Consulta pendente")
+                .build();
+
+        String createResp = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String appointmentId = objectMapper.readTree(createResp).get("id").asText();
+
+        RateAppointmentDTO rateDTO = RateAppointmentDTO.builder().stars(3).build();
+
+        mockMvc.perform(post("/appointments/" + appointmentId + "/rate")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(rateDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRateAlreadyRatedAppointmentFails() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(1))
+                .reason("Consulta já avaliada")
+                .build();
+
+        String createResp = mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String appointmentId = objectMapper.readTree(createResp).get("id").asText();
+
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointment.setRating(4);
+        appointmentRepository.saveAndFlush(appointment);
+
+        RateAppointmentDTO rateDTO = RateAppointmentDTO.builder().stars(2).build();
+
+        mockMvc.perform(post("/appointments/" + appointmentId + "/rate")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(rateDTO)))
                 .andExpect(status().isBadRequest());
     }
 

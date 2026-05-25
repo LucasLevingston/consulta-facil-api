@@ -333,4 +333,125 @@ class ProfessionalControllerIntegrationTest {
         mockMvc.perform(get("/professionals/me"))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void testGetPendingApplications() throws Exception {
+        CreateUserDTO applicantDTO = CreateUserDTO.builder()
+                .name("Pending Applicant")
+                .email("pending.applicant@example.com")
+                .password("password123")
+                .cpf("33344455500")
+                .phone("11933334444")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .gender(Gender.FEMALE)
+                .build();
+
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(applicantDTO)))
+                .andExpect(status().isCreated());
+
+        String applicantLogin = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(LoginRequestDTO.builder()
+                        .email("pending.applicant@example.com").password("password123").build())))
+                .andReturn().getResponse().getContentAsString();
+        String applicantToken = objectMapper.readTree(applicantLogin).get("token").asText();
+
+        CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
+                .profession("Médico").specialty("Reumatologia").licenseNumber("CRM-SP-88888").build();
+
+        mockMvc.perform(post("/professionals")
+                .header("Authorization", "Bearer " + applicantToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/professionals/applications")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$.content[0].status", equalTo("PENDING_REVIEW")));
+    }
+
+    @Test
+    void testGetApplicationStatus() throws Exception {
+        CreateUserDTO applicantDTO = CreateUserDTO.builder()
+                .name("Status Applicant")
+                .email("status.applicant@example.com")
+                .password("password123")
+                .cpf("44455566600")
+                .phone("11944445555")
+                .birthDate(LocalDate.of(1992, 3, 10))
+                .gender(Gender.MALE)
+                .build();
+
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(applicantDTO)))
+                .andExpect(status().isCreated());
+
+        String applicantLogin = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(LoginRequestDTO.builder()
+                        .email("status.applicant@example.com").password("password123").build())))
+                .andReturn().getResponse().getContentAsString();
+        String applicantToken = objectMapper.readTree(applicantLogin).get("token").asText();
+
+        CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
+                .profession("Médico").specialty("Psiquiatria").licenseNumber("CRM-SP-77777").build();
+
+        mockMvc.perform(post("/professionals")
+                .header("Authorization", "Bearer " + applicantToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/professionals/application-status")
+                .header("Authorization", "Bearer " + applicantToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", equalTo("PENDING_REVIEW")))
+                .andExpect(jsonPath("$.specialty", equalTo("Psiquiatria")));
+    }
+
+    @Test
+    void testRejectApplication() throws Exception {
+        CreateUserDTO applicantDTO = CreateUserDTO.builder()
+                .name("Reject Applicant")
+                .email("reject.applicant@example.com")
+                .password("password123")
+                .cpf("55566677700")
+                .phone("11955556666")
+                .birthDate(LocalDate.of(1988, 7, 20))
+                .gender(Gender.FEMALE)
+                .build();
+
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(applicantDTO)))
+                .andExpect(status().isCreated());
+
+        String applicantLogin = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(LoginRequestDTO.builder()
+                        .email("reject.applicant@example.com").password("password123").build())))
+                .andReturn().getResponse().getContentAsString();
+        String applicantToken = objectMapper.readTree(applicantLogin).get("token").asText();
+
+        CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
+                .profession("Médico").specialty("Dermatologia").licenseNumber("CRM-SP-66666").build();
+
+        String createResp = mockMvc.perform(post("/professionals")
+                .header("Authorization", "Bearer " + applicantToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String newProfileId = objectMapper.readTree(createResp).get("id").asText();
+
+        mockMvc.perform(put("/professionals/" + newProfileId + "/reject")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", equalTo("REJECTED")));
+    }
 }

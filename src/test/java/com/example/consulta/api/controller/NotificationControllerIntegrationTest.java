@@ -282,4 +282,41 @@ class NotificationControllerIntegrationTest {
                 .header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isBadRequest());
     }
+
+    // ─── POST /clinics/{clinicId}/invites/{professionalProfileId} ─────────────
+
+    @Test
+    void testSendClinicInviteSuccess() throws Exception {
+        User ownerUser = userRepository.findById(ownerUserId).orElseThrow();
+        ownerUser.setRole(UserRole.PROFESSIONAL);
+        userRepository.saveAndFlush(ownerUser);
+        String freshOwnerToken = loginToken("notif.owner@test.com", "password1");
+
+        mockMvc.perform(post("/clinics/" + clinic.getId() + "/invites/" + professionalProfileId)
+                .header("Authorization", "Bearer " + freshOwnerToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void testSendClinicInviteDuplicateFails() throws Exception {
+        User ownerUser = userRepository.findById(ownerUserId).orElseThrow();
+        ownerUser.setRole(UserRole.PROFESSIONAL);
+        userRepository.saveAndFlush(ownerUser);
+        String freshOwnerToken = loginToken("notif.owner@test.com", "password1");
+
+        mockMvc.perform(post("/clinics/" + clinic.getId() + "/invites/" + professionalProfileId)
+                .header("Authorization", "Bearer " + freshOwnerToken))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(post("/clinics/" + clinic.getId() + "/invites/" + professionalProfileId)
+                .header("Authorization", "Bearer " + freshOwnerToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testSendClinicInviteNonOwnerFails() throws Exception {
+        mockMvc.perform(post("/clinics/" + clinic.getId() + "/invites/" + professionalProfileId)
+                .header("Authorization", "Bearer " + professionalToken))
+                .andExpect(status().isBadRequest());
+    }
 }
