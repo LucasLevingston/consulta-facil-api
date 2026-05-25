@@ -77,6 +77,7 @@ public class SecurityConfiguration {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/clinics/{id}/working-hours").permitAll()
                 .requestMatchers("/subscriptions/webhook").permitAll()
                 .requestMatchers("/payments/webhook").permitAll()
+                .requestMatchers("/webhook/whatsapp").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
