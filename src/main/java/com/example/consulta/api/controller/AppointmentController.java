@@ -72,7 +72,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{userId}")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("hasAnyRole('PATIENT', 'PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "List patient appointments")
     public ResponseEntity<Page<AppointmentResponseDTO>> getPatientAppointments(
             @PathVariable String userId,

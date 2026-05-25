@@ -12,6 +12,7 @@ import com.example.consulta.api.dto.receptionist.InviteReceptionistDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.enums.AppointmentModality;
+import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.repository.AppointmentRepository;
@@ -25,6 +26,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -409,6 +411,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 appointment.setRating(3 + faker.random().nextInt(3));
                                 appointment.setRatingComment(faker.lorem().sentence());
                             }
+                            int roll = faker.random().nextInt(100);
+                            if (roll < 70) {
+                                appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
+                                appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
+                            } else if (roll < 90) {
+                                appointment.setPaymentStatus(AppointmentPaymentStatus.PENDING_PAYMENT);
+                                appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
+                            }
                         }
                         appointmentRepository.save(appointment);
                     });
@@ -571,7 +581,15 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 .notes(faker.lorem().sentence())
                                 .build());
 
-                forceStatus(response.getId(), statuses[i]);
+                final AppointmentStatus finalStatus = statuses[i];
+                appointmentRepository.findById(response.getId()).ifPresent(appointment -> {
+                    appointment.setStatus(finalStatus);
+                    if (finalStatus == AppointmentStatus.COMPLETED) {
+                        appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
+                        appointment.setPaymentAmount(BigDecimal.valueOf(250));
+                    }
+                    appointmentRepository.save(appointment);
+                });
 
             } catch (Exception e) {
                 log.debug("Erro ao criar consulta de teste: {}", e.getMessage());
@@ -653,7 +671,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 switch (status) {
 
                     case COMPLETED -> scheduledAt = LocalDateTime.now()
-                            .minusDays(faker.random().nextInt(1, 120))
+                            .minusDays(faker.random().nextInt(1, 180))
                             .withHour(faker.random().nextInt(8, 18))
                             .withMinute(List.of(0, 30).get(faker.random().nextInt(2)))
                             .withSecond(0)
@@ -712,6 +730,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                         if (faker.bool().bool()) {
                             appointment.setRating(3 + faker.random().nextInt(3));
                             appointment.setRatingComment(faker.lorem().sentence());
+                        }
+                        int roll = faker.random().nextInt(100);
+                        if (roll < 70) {
+                            appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
+                            appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
+                        } else if (roll < 90) {
+                            appointment.setPaymentStatus(AppointmentPaymentStatus.PENDING_PAYMENT);
+                            appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
                         }
                     }
 
