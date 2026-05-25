@@ -114,4 +114,17 @@ class AuthControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(wrongPassword)))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void testLoginNonexistentEmail() throws Exception {
+        LoginRequestDTO dto = LoginRequestDTO.builder()
+                .email("nobody@nonexistent.com")
+                .password("password123")
+                .build();
+
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isUnauthorized());
+    }
 }
