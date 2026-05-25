@@ -161,6 +161,44 @@ class ReceptionistControllerIntegrationTest {
     }
 
     @Test
+    void removeReceptionist_nonOwnerShouldReturn400() throws Exception {
+        String inviteResp = mockMvc.perform(post("/clinics/{clinicId}/receptionists", clinicId)
+                .header("Authorization", "Bearer " + ownerToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("email", receptionistEmail))))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String receptionistId = objectMapper.readTree(inviteResp).get("id").asText();
+
+        CreateUserDTO otherDTO = CreateUserDTO.builder()
+                .name("Other Owner").email("recep.otherowner.unique@test.com")
+                .password("other1234").cpf("63312300010")
+                .phone("11900000070").birthDate(LocalDate.of(1980, 1, 1)).gender(Gender.MALE).build();
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(otherDTO)))
+                .andExpect(status().isCreated());
+
+        String otherId = objectMapper.readTree(mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(CreateUserDTO.builder()
+                        .name("Other Owner2").email("recep.otherowner2.unique@test.com")
+                        .password("other1234").cpf("63312300011")
+                        .phone("11900000071").birthDate(LocalDate.of(1980, 1, 1)).gender(Gender.MALE).build())))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString()).get("id").asText();
+        User otherUser = userRepository.findById(otherId).orElseThrow();
+        otherUser.setRole(UserRole.PROFESSIONAL);
+        userRepository.saveAndFlush(otherUser);
+
+        String otherToken = loginAndGetToken("recep.otherowner2.unique@test.com", "other1234");
+
+        mockMvc.perform(delete("/clinics/{clinicId}/receptionists/{receptionistId}", clinicId, receptionistId)
+                .header("Authorization", "Bearer " + otherToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void inviteReceptionist_nonOwnerShouldReturn400() throws Exception {
         CreateUserDTO otherDTO = CreateUserDTO.builder()
                 .name("Other Prof").email("recep.other.unique@test.com")
