@@ -334,6 +334,22 @@ class ClinicControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void testUpdateClinic_withImageUrl() throws Exception {
+        String clinicId = createClinicAndGetId(doctorToken, "Image Clinic");
+
+        Map<String, Object> update = new java.util.HashMap<>();
+        update.put("name", "Image Clinic Updated");
+        update.put("imageUrl", "https://example.com/logo.png");
+
+        mockMvc.perform(put("/clinics/" + clinicId)
+                .header("Authorization", "Bearer " + doctorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(update)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", equalTo("Image Clinic Updated")));
+    }
+
     // ─── Member management ────────────────────────────────────────────────────
 
     @Test
