@@ -1,0 +1,30 @@
+# ─── terraform.tfvars — copy to terraform.tfvars and fill in real values
+# NEVER commit terraform.tfvars to git (it is in .gitignore)
+# ─────────────────────────────────────────────────────────────────────────────
+
+aws_region  = "us-east-1"
+environment = "prod"
+app_name    = "consulta-facil"
+
+# ─── Domain (optional — leave empty for HTTP-only) ───────────────────────────
+domain_name         = ""   # e.g. "consulta-facil.com"
+acm_certificate_arn = ""   # e.g. "arn:aws:acm:us-east-1:123456789:certificate/abc..."
+
+# ─── Secrets ─────────────────────────────────────────────────────────────────
+jwt_secret               = "CHANGE_ME_at_least_64_random_chars"
+db_password              = "CHANGE_ME_strong_password"
+mercadopago_access_token = "APP_USR-..."
+grafana_otlp_endpoint    = "https://otlp-gateway-prod-us-east-0.grafana.net/otlp"
+grafana_otlp_token       = "base64(instanceId:apiKey)"
+
+# ─── Optional integrations ───────────────────────────────────────────────────
+anthropic_api_key  = ""
+twilio_account_sid = ""
+twilio_auth_token  = ""
+grafana_faro_url   = ""
+
+# ─── Sizing (defaults are minimal for cost — scale as needed) ────────────────
+api_cpu    = 512
+api_memory = 1024
+web_cpu    = 256
+web_memory = 512
