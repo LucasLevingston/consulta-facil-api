@@ -60,6 +60,16 @@ dependencies {
 	implementation('com.github.javafaker:javafaker:1.0.2') { exclude group: 'org.yaml', module: 'snakeyaml' }
         implementation 'org.yaml:snakeyaml:2.2'
 
+	// Observability — Metrics
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	// Observability — Distributed Tracing (Micrometer + OTEL bridge)
+	implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+	implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+
+	// Observability — Structured JSON logging (stdout → CloudWatch on ECS)
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
 	// AWS S3
 	implementation platform('software.amazon.awssdk:bom:2.21.0')
 	implementation 'software.amazon.awssdk:s3'

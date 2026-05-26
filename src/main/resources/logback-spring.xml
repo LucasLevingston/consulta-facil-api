@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- registers %clr, %wex and other Spring Boot converters -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- ─── Dev / test: colored console ─────────────────────────────────── -->
+    <springProfile name="!prod">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.example.consulta" level="DEBUG"/>
+    </springProfile>
+
+    <!-- ─── Prod: JSON stdout (ECS captures to CloudWatch) ───────────────── -->
+    <springProfile name="prod">
+        <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"service":"consulta-facil-api","environment":"production"}</customFields>
+                <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                    <maxDepthPerCause>8</maxDepthPerCause>
+                    <shortenedClassNameLength>36</shortenedClassNameLength>
+                    <rootCauseFirst>true</rootCauseFirst>
+                </throwableConverter>
+            </encoder>
+        </appender>
+        <root level="WARN">
+            <appender-ref ref="JSON_CONSOLE"/>
+        </root>
+        <logger name="com.example.consulta" level="INFO"/>
+        <logger name="org.flywaydb" level="INFO"/>
+    </springProfile>
+
+</configuration>
