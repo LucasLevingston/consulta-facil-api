@@ -1,5 +1,6 @@
 package com.example.consulta.application.service;
 
+import com.example.consulta.application.observability.BusinessMetrics;
 import com.example.consulta.api.dto.procedurerequest.ProcedureRequestResponseDTO;
 import com.example.consulta.api.dto.procedurerequest.ScheduleProcedureRequestDTO;
 import com.example.consulta.core.exception.BadRequestException;
@@ -24,6 +25,7 @@ public class ScheduleProcedureRequestService {
     private final ProcedureRequestRepository procedureRequestRepository;
     private final AppointmentRepository appointmentRepository;
     private final PatientProfileRepository patientProfileRepository;
+    private final BusinessMetrics businessMetrics;
 
     @Transactional
     public ProcedureRequestResponseDTO execute(String requestId, String patientUserId, ScheduleProcedureRequestDTO dto) {
@@ -56,6 +58,8 @@ public class ScheduleProcedureRequestService {
 
         request.setAppointment(savedAppointment);
         request.setStatus(ProcedureRequestStatus.SCHEDULED);
-        return CreateProcedureRequestService.toResponseDTO(procedureRequestRepository.save(request));
+        ProcedureRequestResponseDTO response = CreateProcedureRequestService.toResponseDTO(procedureRequestRepository.save(request));
+        businessMetrics.recordProcedureRequestScheduled();
+        return response;
     }
 }

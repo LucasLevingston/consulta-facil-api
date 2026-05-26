@@ -18,6 +18,7 @@ import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
+import com.example.consulta.application.observability.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ public class AppointmentService {
     private final ProfessionalProfileRepository professionalProfileRepository;
     private final ProfessionalServiceRepository professionalServiceRepository;
     private final AppointmentNotificationService appointmentNotificationService;
+    private final BusinessMetrics businessMetrics;
 
     @Transactional
     public AppointmentResponseDTO scheduleAppointment(String userId, CreateAppointmentDTO dto) {
@@ -73,6 +75,7 @@ public class AppointmentService {
 
         Appointment saved = appointmentRepository.save(appointment);
         appointmentNotificationService.notifyScheduled(saved);
+        businessMetrics.recordAppointmentCreated();
         return toResponseDTO(saved);
     }
 
@@ -131,6 +134,7 @@ public class AppointmentService {
         appointment.setCancellationReason(dto.getCancellationReason());
         Appointment updated = appointmentRepository.save(appointment);
         appointmentNotificationService.notifyCanceled(updated);
+        businessMetrics.recordAppointmentCanceled();
         return toResponseDTO(updated);
     }
 

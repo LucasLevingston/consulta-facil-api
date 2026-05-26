@@ -1,5 +1,6 @@
 package com.example.consulta.application.service;
 
+import com.example.consulta.application.observability.BusinessMetrics;
 import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.mercadopago.client.payment.PaymentClient;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class HandleAppointmentPaymentWebhookService {
 
     private final AppointmentRepository appointmentRepository;
+    private final BusinessMetrics businessMetrics;
 
     @Transactional
     public void execute(Map<String, Object> body) {
@@ -40,6 +42,7 @@ public class HandleAppointmentPaymentWebhookService {
 
             if (!"approved".equals(payment.getStatus())) {
                 log.info("Pagamento {} status {} para consulta {} — sem mudança", paymentId, payment.getStatus(), appointmentId);
+                businessMetrics.recordPaymentFailed();
                 return;
             }
 
@@ -47,6 +50,7 @@ public class HandleAppointmentPaymentWebhookService {
                 appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
                 appointment.setPaymentId(paymentId);
                 appointmentRepository.save(appointment);
+                businessMetrics.recordPaymentSucceeded();
                 log.info("Consulta {} marcada como PAID via pagamento {}", appointmentId, paymentId);
             });
 
