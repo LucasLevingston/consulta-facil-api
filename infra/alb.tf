@@ -58,10 +58,10 @@ resource "aws_lb_listener" "http" {
   protocol          = "HTTP"
 
   default_action {
-    type = var.acm_certificate_arn != "" ? "redirect" : "forward"
+    type = local.certificate_arn != "" ? "redirect" : "forward"
 
     dynamic "redirect" {
-      for_each = var.acm_certificate_arn != "" ? [1] : []
+      for_each = local.certificate_arn != "" ? [1] : []
       content {
         port        = "443"
         protocol    = "HTTPS"
@@ -99,12 +99,12 @@ resource "aws_lb_listener_rule" "api_http" {
 # ─── HTTPS Listener (only when ACM cert is provided) ─────────────────────────
 
 resource "aws_lb_listener" "https" {
-  count             = var.acm_certificate_arn != "" ? 1 : 0
+  count             = local.certificate_arn != "" ? 1 : 0
   load_balancer_arn = aws_lb.main.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = var.acm_certificate_arn
+  certificate_arn   = local.certificate_arn
 
   default_action {
     type             = "forward"
@@ -113,7 +113,7 @@ resource "aws_lb_listener" "https" {
 }
 
 resource "aws_lb_listener_rule" "api_https" {
-  count        = var.acm_certificate_arn != "" ? 1 : 0
+  count        = local.certificate_arn != "" ? 1 : 0
   listener_arn = aws_lb_listener.https[0].arn
   priority     = 10
 

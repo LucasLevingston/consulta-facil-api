@@ -1,9 +1,17 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  account_id  = data.aws_caller_identity.current.account_id
-  app_url     = var.acm_certificate_arn != "" ? "https://${var.domain_name}" : "http://${aws_lb.main.dns_name}"
-  api_url     = "${local.app_url}/v1"
+  account_id = data.aws_caller_identity.current.account_id
+
+  # Resolve cert ARN: BYO > Terraform-created > none
+  certificate_arn = (
+    var.acm_certificate_arn != "" ? var.acm_certificate_arn :
+    (var.domain_name != "" ? aws_acm_certificate_validation.main[0].certificate_arn : "")
+  )
+
+  https_enabled = local.certificate_arn != ""
+  app_url       = local.https_enabled ? "https://${var.domain_name}" : "http://${aws_lb.main.dns_name}"
+  api_url       = "${local.app_url}/v1"
 }
 
 # ─── ECS Cluster ──────────────────────────────────────────────────────────────
