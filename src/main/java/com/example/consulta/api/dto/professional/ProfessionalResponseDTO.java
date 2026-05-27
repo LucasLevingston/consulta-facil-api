@@ -1,5 +1,7 @@
 package com.example.consulta.api.dto.professional;
 
+import com.example.consulta.domain.enums.PaymentMethod;
+import com.example.consulta.domain.enums.PaymentTiming;
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 
 @Data
@@ -34,4 +37,6 @@ public class ProfessionalResponseDTO {
     private String clinicId;
     private String clinicName;
     private BigDecimal consultationPrice;
+    private Set<PaymentMethod> acceptedPaymentMethods;
+    private PaymentTiming paymentTiming;
 }

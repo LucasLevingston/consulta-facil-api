@@ -3,6 +3,7 @@ package com.example.consulta.domain.entity;
 import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
+import com.example.consulta.domain.enums.PaymentMethod;
 import java.math.BigDecimal;
 
 import jakarta.persistence.*;
@@ -86,6 +87,10 @@ public class Appointment {
     @JoinColumn(name = "service_id")
     @ToString.Exclude
     private ProfessionalService service;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
+    private PaymentMethod chosenPaymentMethod;
 
     @Column(length = 255)
     private String paymentPreferenceId;
