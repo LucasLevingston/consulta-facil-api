@@ -70,6 +70,7 @@ resource "aws_ecs_task_definition" "api" {
       { name = "AWS_S3_BUCKET",          value = "${var.app_name}-images" },
       { name = "APP_URL",                value = local.app_url },
       { name = "CORS_ALLOWED_ORIGINS",   value = local.app_url },
+      { name = "AWS_SES_FROM_EMAIL",     value = aws_ssm_parameter.ses_from_email.value },
     ]
 
     secrets = [
