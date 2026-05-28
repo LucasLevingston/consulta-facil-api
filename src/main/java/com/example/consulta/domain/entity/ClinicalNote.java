@@ -8,13 +8,13 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "anamneses")
+@Table(name = "prontuarios")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Anamnese {
+public class ClinicalNote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,22 +27,25 @@ public class Anamnese {
     private Appointment appointment;
 
     @Column(columnDefinition = "TEXT")
-    private String chiefComplaint;
+    private String clinicalNotes;
 
     @Column(columnDefinition = "TEXT")
-    private String currentMedications;
+    private String diagnosis;
+
+    @Column(length = 20)
+    private String diagnosisCid;
 
     @Column(columnDefinition = "TEXT")
-    private String allergies;
+    private String prescription;
 
     @Column(columnDefinition = "TEXT")
-    private String medicalHistory;
+    private String examRequests;
 
     @Column(columnDefinition = "TEXT")
-    private String familyHistory;
+    private String treatmentPlan;
 
     @Column(columnDefinition = "TEXT")
-    private String observations;
+    private String followUpInstructions;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

@@ -1,7 +1,7 @@
 package com.example.consulta.api.controller;
 
-import com.example.consulta.api.dto.appointment.SaveAnamneseDTO;
-import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
+import com.example.consulta.api.dto.appointment.SaveMedicalHistoryDTO;
+import com.example.consulta.api.dto.appointment.SaveClinicalNoteDTO;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.domain.entity.Appointment;
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestPropertySource(properties = {"spring.profiles.active=test"})
 @Transactional
-class AnamneseAndProntuarioIntegrationTest {
+class MedicalHistoryAndClinicalNoteIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
@@ -60,8 +60,8 @@ class AnamneseAndProntuarioIntegrationTest {
         String patientResp = mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(CreateUserDTO.builder()
-                        .name("Anamnese Patient")
-                        .email("anamnese.patient@test.com")
+                        .name("MedicalHistory Patient")
+                        .email("medicalHistory.patient@test.com")
                         .password("password1")
                         .cpf("11122233344")
                         .phone("11911111111")
@@ -71,7 +71,7 @@ class AnamneseAndProntuarioIntegrationTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         patientUserId = objectMapper.readTree(patientResp).get("id").asText();
-        patientToken = loginToken("anamnese.patient@test.com", "password1");
+        patientToken = loginToken("medicalHistory.patient@test.com", "password1");
 
         PatientProfile patientProfile = patientProfileRepository.findByUserId(patientUserId).orElseThrow();
         patientProfileId = patientProfile.getId();
@@ -79,8 +79,8 @@ class AnamneseAndProntuarioIntegrationTest {
         String profResp = mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(CreateUserDTO.builder()
-                        .name("Anamnese Doctor")
-                        .email("anamnese.doctor@test.com")
+                        .name("MedicalHistory Doctor")
+                        .email("medicalHistory.doctor@test.com")
                         .password("password1")
                         .cpf("55566677788")
                         .phone("11922222222")
@@ -99,7 +99,7 @@ class AnamneseAndProntuarioIntegrationTest {
                 .user(profUser).specialty("Clínica Geral").licenseNumber("CRM-SP-88888").build();
         professionalProfileId = professionalProfileRepository.saveAndFlush(profile).getId();
 
-        professionalToken = loginToken("anamnese.doctor@test.com", "password1");
+        professionalToken = loginToken("medicalHistory.doctor@test.com", "password1");
     }
 
     private String loginToken(String email, String password) throws Exception {
@@ -143,7 +143,7 @@ class AnamneseAndProntuarioIntegrationTest {
         mockMvc.perform(put("/appointments/" + appt.getId() + "/anamnesis")
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveAnamneseDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveMedicalHistoryDTO.builder()
                         .chiefComplaint("Dor de cabeça")
                         .allergies("Dipirona")
                         .build())))
@@ -165,7 +165,7 @@ class AnamneseAndProntuarioIntegrationTest {
         mockMvc.perform(put("/appointments/" + appt.getId() + "/anamnesis")
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveAnamneseDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveMedicalHistoryDTO.builder()
                         .chiefComplaint("Tontura")
                         .currentMedications("Losartana 50mg")
                         .allergies("Nenhuma")
@@ -183,7 +183,7 @@ class AnamneseAndProntuarioIntegrationTest {
         mockMvc.perform(put("/appointments/" + appt.getId() + "/anamnesis")
                 .header("Authorization", "Bearer " + professionalToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveAnamneseDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveMedicalHistoryDTO.builder()
                         .chiefComplaint("Anotado pelo médico")
                         .observations("Paciente apresenta bom estado geral")
                         .build())))
@@ -198,61 +198,61 @@ class AnamneseAndProntuarioIntegrationTest {
         mockMvc.perform(put("/appointments/" + appt.getId() + "/anamnesis")
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveAnamneseDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveMedicalHistoryDTO.builder()
                         .chiefComplaint("Primeiro preenchimento").build())))
                 .andExpect(status().isOk());
 
         mockMvc.perform(put("/appointments/" + appt.getId() + "/anamnesis")
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveAnamneseDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveMedicalHistoryDTO.builder()
                         .chiefComplaint("Atualização").build())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.chiefComplaint", equalTo("Atualização")));
     }
 
-    // ─── GET /appointments/{id}/prontuario ────────────────────────────────────
+    // ─── GET /appointments/{id}/clinicalNote ────────────────────────────────────
 
     @Test
-    void testGetProntuarioNoContentWhenNotFilled() throws Exception {
+    void testGetClinicalNoteNoContentWhenNotFilled() throws Exception {
         Appointment appt = createAppointment();
 
-        mockMvc.perform(get("/appointments/" + appt.getId() + "/prontuario")
+        mockMvc.perform(get("/appointments/" + appt.getId() + "/clinicalNote")
                 .header("Authorization", "Bearer " + professionalToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void testGetProntuarioAfterSaveReturnsData() throws Exception {
+    void testGetClinicalNoteAfterSaveReturnsData() throws Exception {
         Appointment appt = createAppointment();
 
-        mockMvc.perform(put("/appointments/" + appt.getId() + "/prontuario")
+        mockMvc.perform(put("/appointments/" + appt.getId() + "/clinicalNote")
                 .header("Authorization", "Bearer " + professionalToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveProntuarioDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveClinicalNoteDTO.builder()
                         .clinicalNotes("Paciente estável")
                         .diagnosis("Hipertensão arterial")
                         .diagnosisCid("I10")
                         .build())))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/appointments/" + appt.getId() + "/prontuario")
+        mockMvc.perform(get("/appointments/" + appt.getId() + "/clinicalNote")
                 .header("Authorization", "Bearer " + professionalToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.diagnosis", equalTo("Hipertensão arterial")))
                 .andExpect(jsonPath("$.diagnosisCid", equalTo("I10")));
     }
 
-    // ─── PUT /appointments/{id}/prontuario ────────────────────────────────────
+    // ─── PUT /appointments/{id}/clinicalNote ────────────────────────────────────
 
     @Test
-    void testSaveProntuarioAsProfessionalSuccess() throws Exception {
+    void testSaveClinicalNoteAsProfessionalSuccess() throws Exception {
         Appointment appt = createAppointment();
 
-        mockMvc.perform(put("/appointments/" + appt.getId() + "/prontuario")
+        mockMvc.perform(put("/appointments/" + appt.getId() + "/clinicalNote")
                 .header("Authorization", "Bearer " + professionalToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveProntuarioDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveClinicalNoteDTO.builder()
                         .clinicalNotes("Paciente em bom estado geral")
                         .diagnosis("Cefaleia tensional")
                         .diagnosisCid("G44.2")
@@ -266,33 +266,33 @@ class AnamneseAndProntuarioIntegrationTest {
     }
 
     @Test
-    void testSaveProntuarioAsPatientFails() throws Exception {
+    void testSaveClinicalNoteAsPatientFails() throws Exception {
         Appointment appt = createAppointment();
 
-        mockMvc.perform(put("/appointments/" + appt.getId() + "/prontuario")
+        mockMvc.perform(put("/appointments/" + appt.getId() + "/clinicalNote")
                 .header("Authorization", "Bearer " + patientToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveProntuarioDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveClinicalNoteDTO.builder()
                         .clinicalNotes("Tentativa indevida")
                         .build())))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void testSaveProntuarioIdempotentUpdate() throws Exception {
+    void testSaveClinicalNoteIdempotentUpdate() throws Exception {
         Appointment appt = createAppointment();
 
-        mockMvc.perform(put("/appointments/" + appt.getId() + "/prontuario")
+        mockMvc.perform(put("/appointments/" + appt.getId() + "/clinicalNote")
                 .header("Authorization", "Bearer " + professionalToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveProntuarioDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveClinicalNoteDTO.builder()
                         .clinicalNotes("Inicial").build())))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/appointments/" + appt.getId() + "/prontuario")
+        mockMvc.perform(put("/appointments/" + appt.getId() + "/clinicalNote")
                 .header("Authorization", "Bearer " + professionalToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SaveProntuarioDTO.builder()
+                .content(objectMapper.writeValueAsString(SaveClinicalNoteDTO.builder()
                         .clinicalNotes("Atualizado").diagnosis("Nova hipótese").build())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clinicalNotes", equalTo("Atualizado")))

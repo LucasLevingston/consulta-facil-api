@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SaveProntuarioDTO {
+public class SaveClinicalNoteDTO {
     private String clinicalNotes;
     private String diagnosis;
     private String diagnosisCid;

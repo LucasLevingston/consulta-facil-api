@@ -1,13 +1,13 @@
 package com.example.consulta.application.service;
 
-import com.example.consulta.api.dto.appointment.ProntuarioResponseDTO;
-import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
+import com.example.consulta.api.dto.appointment.ClinicalNoteResponseDTO;
+import com.example.consulta.api.dto.appointment.SaveClinicalNoteDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
-import com.example.consulta.domain.entity.Prontuario;
+import com.example.consulta.domain.entity.ClinicalNote;
 import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.ProntuarioRepository;
+import com.example.consulta.domain.repository.ClinicalNoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,19 +16,19 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ProntuarioService {
+public class ClinicalNoteService {
 
-    private final ProntuarioRepository prontuarioRepository;
+    private final ClinicalNoteRepository clinicalNoteRepository;
     private final AppointmentRepository appointmentRepository;
 
     @Transactional(readOnly = true)
-    public Optional<ProntuarioResponseDTO> getByAppointmentId(String appointmentId) {
-        return prontuarioRepository.findByAppointmentId(appointmentId)
+    public Optional<ClinicalNoteResponseDTO> getByAppointmentId(String appointmentId) {
+        return clinicalNoteRepository.findByAppointmentId(appointmentId)
                 .map(this::toResponseDTO);
     }
 
     @Transactional
-    public ProntuarioResponseDTO save(String appointmentId, String userId, SaveProntuarioDTO dto) {
+    public ClinicalNoteResponseDTO save(String appointmentId, String userId, SaveClinicalNoteDTO dto) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Consulta não encontrada: " + appointmentId));
 
@@ -37,22 +37,22 @@ public class ProntuarioService {
             throw new BadRequestException("Apenas o profissional responsável pode preencher o prontuário desta consulta");
         }
 
-        Prontuario prontuario = prontuarioRepository.findByAppointmentId(appointmentId)
-                .orElse(Prontuario.builder().appointment(appointment).build());
+        ClinicalNote clinicalNote = clinicalNoteRepository.findByAppointmentId(appointmentId)
+                .orElse(ClinicalNote.builder().appointment(appointment).build());
 
-        prontuario.setClinicalNotes(dto.getClinicalNotes());
-        prontuario.setDiagnosis(dto.getDiagnosis());
-        prontuario.setDiagnosisCid(dto.getDiagnosisCid());
-        prontuario.setPrescription(dto.getPrescription());
-        prontuario.setExamRequests(dto.getExamRequests());
-        prontuario.setTreatmentPlan(dto.getTreatmentPlan());
-        prontuario.setFollowUpInstructions(dto.getFollowUpInstructions());
+        clinicalNote.setClinicalNotes(dto.getClinicalNotes());
+        clinicalNote.setDiagnosis(dto.getDiagnosis());
+        clinicalNote.setDiagnosisCid(dto.getDiagnosisCid());
+        clinicalNote.setPrescription(dto.getPrescription());
+        clinicalNote.setExamRequests(dto.getExamRequests());
+        clinicalNote.setTreatmentPlan(dto.getTreatmentPlan());
+        clinicalNote.setFollowUpInstructions(dto.getFollowUpInstructions());
 
-        return toResponseDTO(prontuarioRepository.save(prontuario));
+        return toResponseDTO(clinicalNoteRepository.save(clinicalNote));
     }
 
-    private ProntuarioResponseDTO toResponseDTO(Prontuario p) {
-        return ProntuarioResponseDTO.builder()
+    private ClinicalNoteResponseDTO toResponseDTO(ClinicalNote p) {
+        return ClinicalNoteResponseDTO.builder()
                 .id(p.getId())
                 .appointmentId(p.getAppointment().getId())
                 .clinicalNotes(p.getClinicalNotes())
