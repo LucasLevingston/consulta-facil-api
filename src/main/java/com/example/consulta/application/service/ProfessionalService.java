@@ -87,7 +87,7 @@ public class ProfessionalService {
         String specParam = (specialty != null && !specialty.isBlank()) ? specialty : "";
         String nameParam = (name != null && !name.isBlank()) ? name : "";
         return professionalProfileRepository.findActiveWithFilters(profParam, specParam, nameParam, pageable)
-                .map(this::toResponseDTO);
+                .map(this::toListSummaryDTO);
     }
 
     @Transactional(readOnly = true)
@@ -180,6 +180,34 @@ public class ProfessionalService {
         userRepository.save(user);
 
         professionalProfileRepository.delete(profile);
+    }
+
+    // Lightweight summary used for list endpoints — does NOT load appointments or clinicMemberships
+    private ProfessionalResponseDTO toListSummaryDTO(ProfessionalProfile profile) {
+        return ProfessionalResponseDTO.builder()
+                .id(profile.getId())
+                .userId(profile.getUser().getId())
+                .name(profile.getUser().getName())
+                .email(profile.getUser().getEmail())
+                .profession(profile.getProfession())
+                .specialty(profile.getSpecialty())
+                .licenseNumber(profile.getLicenseNumber())
+                .phone(profile.getUser().getPhone())
+                .imageUrl(profile.getUser().getImageUrl())
+                .rating(null)
+                .consultationCount(0)
+                .status(profile.getStatus())
+                .city(profile.getCity())
+                .state(profile.getState())
+                .address(profile.getAddress())
+                .latitude(profile.getLatitude())
+                .longitude(profile.getLongitude())
+                .clinicId(null)
+                .clinicName(null)
+                .consultationPrice(profile.getConsultationPrice())
+                .acceptedPaymentMethods(profile.getAcceptedPaymentMethods())
+                .paymentTiming(profile.getPaymentTiming())
+                .build();
     }
 
     public ProfessionalResponseDTO toResponseDTO(ProfessionalProfile profile) {
