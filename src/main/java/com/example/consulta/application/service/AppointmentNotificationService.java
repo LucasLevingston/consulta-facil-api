@@ -1,15 +1,22 @@
 package com.example.consulta.application.service;
 
+import com.example.consulta.core.messaging.EventPublisher;
+import com.example.consulta.core.messaging.event.AppointmentCanceledEvent;
+import com.example.consulta.core.messaging.event.AppointmentConfirmedEvent;
+import com.example.consulta.core.messaging.event.AppointmentCreatedEvent;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.Notification;
+import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.NotificationType;
 import com.example.consulta.domain.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -17,7 +24,7 @@ import java.util.Locale;
 public class AppointmentNotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final WhatsAppService whatsAppService;
+    private final EventPublisher eventPublisher;
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm", Locale.forLanguageTag("pt-BR"));
@@ -27,41 +34,52 @@ public class AppointmentNotificationService {
         String professionalName = appointment.getProfessional().getUser().getName();
         String dateStr = appointment.getScheduledAt().format(FMT);
 
-        // In-app → patient
-        saveNotification(appointment, NotificationType.APPOINTMENT_SCHEDULED,
+        saveNotification(appointment.getPatient().getUser(), NotificationType.APPOINTMENT_SCHEDULED,
                 "Consulta agendada",
-                "Sua consulta com " + professionalName + " foi agendada para " + dateStr + ".",
-                appointment.getPatient().getUser().getId());
+                "Sua consulta com " + professionalName + " foi agendada para " + dateStr + ".");
 
-        // In-app → professional
-        saveNotification(appointment, NotificationType.APPOINTMENT_SCHEDULED,
+        saveNotification(appointment.getProfessional().getUser(), NotificationType.APPOINTMENT_SCHEDULED,
                 "Nova consulta",
-                patientName + " agendou uma consulta para " + dateStr + ".",
-                appointment.getProfessional().getUser().getId());
+                patientName + " agendou uma consulta para " + dateStr + ".");
 
-        // WhatsApp → patient
-        String patientPhone = appointment.getPatient().getUser().getPhone();
-        whatsAppService.sendMessage(patientPhone,
-                "Olá " + patientName + "! ✅ Sua consulta com " + professionalName +
-                " foi agendada para " + dateStr + ". Aguardamos você!");
+        eventPublisher.publishAppointmentCreated(new AppointmentCreatedEvent(
+                UUID.randomUUID().toString(),
+                appointment.getId(),
+                appointment.getPatient().getId(),
+                patientName,
+                appointment.getPatient().getUser().getEmail(),
+                appointment.getPatient().getUser().getPhone(),
+                appointment.getProfessional().getId(),
+                professionalName,
+                appointment.getProfessional().getUser().getEmail(),
+                appointment.getProfessional().getUser().getPhone(),
+                appointment.getScheduledAt(),
+                appointment.getModality(),
+                LocalDateTime.now().toString()
+        ));
     }
 
     public void notifyConfirmed(Appointment appointment) {
-        String patientName = appointment.getPatient().getUser().getName();
         String professionalName = appointment.getProfessional().getUser().getName();
         String dateStr = appointment.getScheduledAt().format(FMT);
 
-        // In-app → patient
-        saveNotification(appointment, NotificationType.APPOINTMENT_CONFIRMED,
+        saveNotification(appointment.getPatient().getUser(), NotificationType.APPOINTMENT_CONFIRMED,
                 "Consulta confirmada",
-                "Sua consulta com " + professionalName + " em " + dateStr + " foi confirmada.",
-                appointment.getPatient().getUser().getId());
+                "Sua consulta com " + professionalName + " em " + dateStr + " foi confirmada.");
 
-        // WhatsApp → patient
-        String patientPhone = appointment.getPatient().getUser().getPhone();
-        whatsAppService.sendMessage(patientPhone,
-                "Olá " + patientName + "! 🗓️ Sua consulta com " + professionalName +
-                " em " + dateStr + " está *confirmada*. Até lá!");
+        eventPublisher.publishAppointmentConfirmed(new AppointmentConfirmedEvent(
+                UUID.randomUUID().toString(),
+                appointment.getId(),
+                appointment.getPatient().getId(),
+                appointment.getPatient().getUser().getName(),
+                appointment.getPatient().getUser().getEmail(),
+                appointment.getPatient().getUser().getPhone(),
+                appointment.getProfessional().getId(),
+                professionalName,
+                appointment.getScheduledAt(),
+                appointment.getModality(),
+                LocalDateTime.now().toString()
+        ));
     }
 
     public void notifyCanceled(Appointment appointment) {
@@ -69,33 +87,42 @@ public class AppointmentNotificationService {
         String professionalName = appointment.getProfessional().getUser().getName();
         String dateStr = appointment.getScheduledAt().format(FMT);
 
-        // In-app → patient
-        saveNotification(appointment, NotificationType.APPOINTMENT_CANCELED,
+        saveNotification(appointment.getPatient().getUser(), NotificationType.APPOINTMENT_CANCELED,
                 "Consulta cancelada",
-                "Sua consulta com " + professionalName + " em " + dateStr + " foi cancelada.",
-                appointment.getPatient().getUser().getId());
+                "Sua consulta com " + professionalName + " em " + dateStr + " foi cancelada.");
 
-        // WhatsApp → patient
-        String patientPhone = appointment.getPatient().getUser().getPhone();
-        whatsAppService.sendMessage(patientPhone,
-                "Olá " + patientName + "! ❌ Sua consulta com " + professionalName +
-                " em " + dateStr + " foi *cancelada*. Entre em contato para reagendar.");
+        saveNotification(appointment.getProfessional().getUser(), NotificationType.APPOINTMENT_CANCELED,
+                "Consulta cancelada",
+                "A consulta com " + patientName + " em " + dateStr + " foi cancelada.");
+
+        eventPublisher.publishAppointmentCanceled(new AppointmentCanceledEvent(
+                UUID.randomUUID().toString(),
+                appointment.getId(),
+                appointment.getPatient().getId(),
+                patientName,
+                appointment.getPatient().getUser().getEmail(),
+                appointment.getPatient().getUser().getPhone(),
+                appointment.getProfessional().getId(),
+                professionalName,
+                appointment.getProfessional().getUser().getEmail(),
+                appointment.getProfessional().getUser().getPhone(),
+                appointment.getScheduledAt(),
+                appointment.getModality(),
+                appointment.getCancellationReason(),
+                LocalDateTime.now().toString()
+        ));
     }
 
-    private void saveNotification(Appointment appointment, NotificationType type,
-                                  String title, String message, String targetUserId) {
+    private void saveNotification(User user, NotificationType type, String title, String message) {
         try {
-            Notification notification = Notification.builder()
+            notificationRepository.save(Notification.builder()
                     .type(type)
                     .title(title)
                     .message(message)
-                    .targetUser(appointment.getPatient().getUser().getId().equals(targetUserId)
-                            ? appointment.getPatient().getUser()
-                            : appointment.getProfessional().getUser())
-                    .build();
-            notificationRepository.save(notification);
+                    .targetUser(user)
+                    .build());
         } catch (Exception e) {
-            log.error("[Notification] Falha ao salvar notificação in-app: {}", e.getMessage());
+            log.error("[Notification] Failed to save in-app notification: {}", e.getMessage());
         }
     }
 }
