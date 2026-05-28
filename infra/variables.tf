@@ -109,6 +109,12 @@ variable "acm_certificate_arn" {
   default     = ""
 }
 
+variable "enable_cloudfront" {
+  description = "Put CloudFront in front of the ALB (requires domain_name to be set)"
+  type        = bool
+  default     = false
+}
+
 # ─── Secrets (set via terraform.tfvars or -var flags — never commit actual values) ───
 
 variable "jwt_secret" {
