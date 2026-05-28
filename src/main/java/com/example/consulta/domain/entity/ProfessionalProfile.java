@@ -1,5 +1,7 @@
 package com.example.consulta.domain.entity;
 
+import com.example.consulta.domain.enums.PaymentMethod;
+import com.example.consulta.domain.enums.PaymentTiming;
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
 import jakarta.persistence.*;
 
@@ -7,7 +9,9 @@ import java.math.BigDecimal;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "professional_profiles", indexes = {
@@ -52,6 +56,18 @@ public class ProfessionalProfile {
 
     @Column(precision = 10, scale = 2)
     private BigDecimal consultationPrice;
+
+    @ElementCollection(targetClass = PaymentMethod.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "professional_payment_methods", joinColumns = @JoinColumn(name = "professional_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    @Builder.Default
+    private Set<PaymentMethod> acceptedPaymentMethods = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private PaymentTiming paymentTiming = PaymentTiming.AT_CONSULTATION;
 
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

@@ -182,7 +182,7 @@ public class ProfessionalService {
         professionalProfileRepository.delete(profile);
     }
 
-    private ProfessionalResponseDTO toResponseDTO(ProfessionalProfile profile) {
+    public ProfessionalResponseDTO toResponseDTO(ProfessionalProfile profile) {
         int consultationCount = (int) profile.getAppointments().stream()
                 .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
                 .count();
@@ -220,6 +220,8 @@ public class ProfessionalService {
                 .clinicId(clinic != null ? clinic.getId() : null)
                 .clinicName(clinic != null ? clinic.getName() : null)
                 .consultationPrice(profile.getConsultationPrice())
+                .acceptedPaymentMethods(profile.getAcceptedPaymentMethods())
+                .paymentTiming(profile.getPaymentTiming())
                 .build();
     }
 }

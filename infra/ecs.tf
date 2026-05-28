@@ -1,9 +1,17 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  account_id  = data.aws_caller_identity.current.account_id
-  app_url     = var.acm_certificate_arn != "" ? "https://${var.domain_name}" : "http://${aws_lb.main.dns_name}"
-  api_url     = "${local.app_url}/v1"
+  account_id = data.aws_caller_identity.current.account_id
+
+  # Resolve cert ARN: BYO > Terraform-created > none
+  certificate_arn = (
+    var.acm_certificate_arn != "" ? var.acm_certificate_arn :
+    (var.domain_name != "" ? aws_acm_certificate_validation.main[0].certificate_arn : "")
+  )
+
+  https_enabled = local.certificate_arn != ""
+  app_url       = local.https_enabled ? "https://${var.domain_name}" : "http://${aws_lb.main.dns_name}"
+  api_url       = "${local.app_url}/v1"
 }
 
 # ─── ECS Cluster ──────────────────────────────────────────────────────────────
@@ -70,6 +78,7 @@ resource "aws_ecs_task_definition" "api" {
       { name = "AWS_S3_BUCKET",          value = "${var.app_name}-images" },
       { name = "APP_URL",                value = local.app_url },
       { name = "CORS_ALLOWED_ORIGINS",   value = local.app_url },
+      { name = "AWS_SES_FROM_EMAIL",     value = aws_ssm_parameter.ses_from_email.value },
     ], var.enable_elasticache ? [
       { name = "REDIS_HOST", value = local.redis_host },
       { name = "REDIS_PORT", value = local.redis_port },
