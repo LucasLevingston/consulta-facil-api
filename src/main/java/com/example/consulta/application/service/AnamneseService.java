@@ -2,8 +2,8 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AnamneseResponseDTO;
 import com.example.consulta.api.dto.appointment.SaveAnamneseDTO;
-import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.Anamnese;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.repository.AnamneseRepository;
@@ -20,9 +20,13 @@ public class AnamneseService {
 
     private final AnamneseRepository anamneseRepository;
     private final AppointmentRepository appointmentRepository;
+    private final OwnershipValidator ownershipValidator;
 
     @Transactional(readOnly = true)
-    public Optional<AnamneseResponseDTO> getByAppointmentId(String appointmentId) {
+    public Optional<AnamneseResponseDTO> getByAppointmentId(String appointmentId, String authenticatedUserId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+        ownershipValidator.verifyAppointmentAccess(appointment, authenticatedUserId);
         return anamneseRepository.findByAppointmentId(appointmentId)
                 .map(this::toResponseDTO);
     }
@@ -32,11 +36,7 @@ public class AnamneseService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Consulta não encontrada: " + appointmentId));
 
-        String patientUserId = appointment.getPatient().getUser().getId();
-        String professionalUserId = appointment.getProfessional().getUser().getId();
-        if (!userId.equals(patientUserId) && !userId.equals(professionalUserId)) {
-            throw new BadRequestException("Você não tem permissão para preencher a anamnese desta consulta");
-        }
+        ownershipValidator.verifyAppointmentAccess(appointment, userId);
 
         Anamnese anamnese = anamneseRepository.findByAppointmentId(appointmentId)
                 .orElse(Anamnese.builder().appointment(appointment).build());

@@ -2,8 +2,8 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.ProntuarioResponseDTO;
 import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
-import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.Prontuario;
 import com.example.consulta.domain.repository.AppointmentRepository;
@@ -20,9 +20,13 @@ public class ProntuarioService {
 
     private final ProntuarioRepository prontuarioRepository;
     private final AppointmentRepository appointmentRepository;
+    private final OwnershipValidator ownershipValidator;
 
     @Transactional(readOnly = true)
-    public Optional<ProntuarioResponseDTO> getByAppointmentId(String appointmentId) {
+    public Optional<ProntuarioResponseDTO> getByAppointmentId(String appointmentId, String authenticatedUserId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+        ownershipValidator.verifyAppointmentAccess(appointment, authenticatedUserId);
         return prontuarioRepository.findByAppointmentId(appointmentId)
                 .map(this::toResponseDTO);
     }
@@ -32,10 +36,7 @@ public class ProntuarioService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Consulta não encontrada: " + appointmentId));
 
-        String professionalUserId = appointment.getProfessional().getUser().getId();
-        if (!userId.equals(professionalUserId)) {
-            throw new BadRequestException("Apenas o profissional responsável pode preencher o prontuário desta consulta");
-        }
+        ownershipValidator.verifyProfessionalOwnership(appointment, userId);
 
         Prontuario prontuario = prontuarioRepository.findByAppointmentId(appointmentId)
                 .orElse(Prontuario.builder().appointment(appointment).build());

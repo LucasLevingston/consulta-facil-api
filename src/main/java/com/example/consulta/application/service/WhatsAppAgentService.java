@@ -207,7 +207,7 @@ public class WhatsAppAgentService {
                     if (userId == null) yield "Usuário não cadastrado.";
                     String appointmentId = input.path("appointment_id").asText();
                     String reason = input.path("reason").asText("Cancelado pelo paciente via WhatsApp");
-                    appointmentService.cancelAppointment(appointmentId,
+                    appointmentService.cancelAppointment(appointmentId, userId,
                             new CancelAppointmentDTO(reason));
                     yield "Consulta cancelada com sucesso.";
                 }
