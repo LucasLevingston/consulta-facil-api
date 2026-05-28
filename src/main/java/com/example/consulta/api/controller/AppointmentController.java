@@ -66,18 +66,24 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get appointment by ID")
-    public ResponseEntity<AppointmentResponseDTO> getAppointmentById(@PathVariable String appointmentId) {
-        return ResponseEntity.ok(appointmentService.getAppointmentById(appointmentId));
+    public ResponseEntity<AppointmentResponseDTO> getAppointmentById(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(appointmentService.getAppointmentById(appointmentId, userDetails.getUserId()));
     }
 
     @GetMapping("/patient/{userId}")
-    @PreAuthorize("hasAnyRole('PATIENT', 'PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('PATIENT', 'ADMIN')")
     @Operation(summary = "List patient appointments")
     public ResponseEntity<Page<AppointmentResponseDTO>> getPatientAppointments(
             @PathVariable String userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Pageable pageable) {
-        return ResponseEntity.ok(appointmentService.getPatientAppointments(userId, pageable));
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        return ResponseEntity.ok(appointmentService.getPatientAppointments(userId, userDetails.getUserId(), isAdmin, pageable));
     }
 
     @GetMapping("/professional/{professionalId}")
@@ -92,8 +98,10 @@ public class AppointmentController {
     @PutMapping("/{appointmentId}/confirm")
     @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "Confirm appointment")
-    public ResponseEntity<AppointmentResponseDTO> confirmAppointment(@PathVariable String appointmentId) {
-        AppointmentResponseDTO response = appointmentService.confirmAppointment(appointmentId);
+    public ResponseEntity<AppointmentResponseDTO> confirmAppointment(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        AppointmentResponseDTO response = appointmentService.confirmAppointment(appointmentId, userDetails.getUserId());
         return ResponseEntity.ok(response);
     }
 
@@ -102,24 +110,29 @@ public class AppointmentController {
     @Operation(summary = "Reschedule appointment")
     public ResponseEntity<AppointmentResponseDTO> rescheduleAppointment(
             @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody RescheduleAppointmentDTO dto) {
-        return ResponseEntity.ok(rescheduleAppointmentService.execute(appointmentId, dto));
+        return ResponseEntity.ok(rescheduleAppointmentService.execute(appointmentId, userDetails.getUserId(), dto));
     }
 
     @PutMapping("/{appointmentId}/cancel")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Cancel appointment")
     public ResponseEntity<AppointmentResponseDTO> cancelAppointment(
             @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CancelAppointmentDTO dto) {
-        AppointmentResponseDTO response = appointmentService.cancelAppointment(appointmentId, dto);
+        AppointmentResponseDTO response = appointmentService.cancelAppointment(appointmentId, userDetails.getUserId(), dto);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{appointmentId}/complete")
     @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "Complete appointment")
-    public ResponseEntity<AppointmentResponseDTO> completeAppointment(@PathVariable String appointmentId) {
-        AppointmentResponseDTO response = appointmentService.completeAppointment(appointmentId);
+    public ResponseEntity<AppointmentResponseDTO> completeAppointment(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        AppointmentResponseDTO response = appointmentService.completeAppointment(appointmentId, userDetails.getUserId());
         return ResponseEntity.ok(response);
     }
 
@@ -200,9 +213,12 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}/anamnesis")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get anamnesis for an appointment")
-    public ResponseEntity<AnamneseResponseDTO> getAnamnesis(@PathVariable String appointmentId) {
-        return anamneseService.getByAppointmentId(appointmentId)
+    public ResponseEntity<AnamneseResponseDTO> getAnamnesis(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return anamneseService.getByAppointmentId(appointmentId, userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -220,8 +236,10 @@ public class AppointmentController {
     @GetMapping("/{appointmentId}/prontuario")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get prontuario for an appointment")
-    public ResponseEntity<ProntuarioResponseDTO> getProntuario(@PathVariable String appointmentId) {
-        return prontuarioService.getByAppointmentId(appointmentId)
+    public ResponseEntity<ProntuarioResponseDTO> getProntuario(
+            @PathVariable String appointmentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return prontuarioService.getByAppointmentId(appointmentId, userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }

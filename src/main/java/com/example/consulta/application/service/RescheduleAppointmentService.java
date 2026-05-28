@@ -4,6 +4,7 @@ import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.repository.AppointmentRepository;
@@ -16,11 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class RescheduleAppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final OwnershipValidator ownershipValidator;
 
     @Transactional
-    public AppointmentResponseDTO execute(String appointmentId, RescheduleAppointmentDTO dto) {
+    public AppointmentResponseDTO execute(String appointmentId, String authenticatedUserId, RescheduleAppointmentDTO dto) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+
+        ownershipValidator.verifyAppointmentAccess(appointment, authenticatedUserId);
 
         if (appointment.getStatus() != AppointmentStatus.PENDING
                 && appointment.getStatus() != AppointmentStatus.CONFIRMED) {

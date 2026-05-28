@@ -11,6 +11,7 @@ import com.example.consulta.domain.entity.ProfessionalService;
 import com.example.consulta.domain.repository.ProfessionalServiceRepository;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.PatientProfile;
@@ -47,6 +48,7 @@ public class AppointmentService {
     private final AppointmentNotificationService appointmentNotificationService;
     private final CreateAppointmentPaymentService createAppointmentPaymentService;
     private final BusinessMetrics businessMetrics;
+    private final OwnershipValidator ownershipValidator;
 
     @Transactional
     public AppointmentResponseDTO scheduleAppointment(String userId, CreateAppointmentDTO dto) {
@@ -115,16 +117,20 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public AppointmentResponseDTO getAppointmentById(String appointmentId) {
+    public AppointmentResponseDTO getAppointmentById(String appointmentId, String authenticatedUserId) {
         log.debug("Fetching appointment by ID: {}", appointmentId);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+        ownershipValidator.verifyAppointmentAccess(appointment, authenticatedUserId);
         return toResponseDTO(appointment);
     }
 
     @Transactional(readOnly = true)
-    public Page<AppointmentResponseDTO> getPatientAppointments(String userId, Pageable pageable) {
+    public Page<AppointmentResponseDTO> getPatientAppointments(String userId, String authenticatedUserId, boolean isAdmin, Pageable pageable) {
         log.debug("Fetching appointments for user: {}", userId);
+        if (!isAdmin && !userId.equals(authenticatedUserId)) {
+            throw new org.springframework.security.access.AccessDeniedException("You can only view your own appointments");
+        }
         return patientProfileRepository.findByUserId(userId)
                 .map(patient -> appointmentRepository.findByPatientId(patient.getId(), pageable)
                         .map(this::toResponseDTO))
@@ -141,9 +147,11 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponseDTO confirmAppointment(String appointmentId) {
+    public AppointmentResponseDTO confirmAppointment(String appointmentId, String professionalUserId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+
+        ownershipValidator.verifyProfessionalOwnership(appointment, professionalUserId);
 
         if (appointment.getStatus() != AppointmentStatus.PENDING) {
             throw new BadRequestException("Only pending appointments can be confirmed");
@@ -156,9 +164,11 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponseDTO cancelAppointment(String appointmentId, CancelAppointmentDTO dto) {
+    public AppointmentResponseDTO cancelAppointment(String appointmentId, String authenticatedUserId, CancelAppointmentDTO dto) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+
+        ownershipValidator.verifyAppointmentAccess(appointment, authenticatedUserId);
 
         if (appointment.getStatus() == AppointmentStatus.COMPLETED ||
                 appointment.getStatus() == AppointmentStatus.CANCELED) {
@@ -174,9 +184,11 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponseDTO completeAppointment(String appointmentId) {
+    public AppointmentResponseDTO completeAppointment(String appointmentId, String professionalUserId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+
+        ownershipValidator.verifyProfessionalOwnership(appointment, professionalUserId);
 
         if (appointment.getStatus() != AppointmentStatus.CONFIRMED
                 && appointment.getStatus() != AppointmentStatus.IN_PROGRESS) {
