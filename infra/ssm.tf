@@ -80,3 +80,11 @@ resource "aws_ssm_parameter" "grafana_faro_url" {
   value = var.grafana_faro_url != "" ? var.grafana_faro_url : "disabled"
   tags  = { Name = "grafana-faro-url" }
 }
+
+resource "aws_ssm_parameter" "redis_host" {
+  count = var.enable_elasticache ? 1 : 0
+  name  = "${local.ssm_prefix}/redis-host"
+  type  = "String"
+  value = local.redis_host
+  tags  = { Name = "redis-host" }
+}

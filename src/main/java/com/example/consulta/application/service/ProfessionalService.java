@@ -17,6 +17,9 @@ import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,6 +55,7 @@ public class ProfessionalService {
         return toResponseDTO(saved);
     }
 
+    @Cacheable(value = "professional-profile", key = "#professionalId")
     @Transactional(readOnly = true)
     public ProfessionalResponseDTO getProfessionalById(String professionalId) {
         log.debug("Fetching professional by ID: {}", professionalId);
@@ -139,6 +143,10 @@ public class ProfessionalService {
         return toResponseDTO(professionalProfileRepository.save(profile));
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "professional-profile", key = "#professionalId"),
+        @CacheEvict(value = "professional-services", allEntries = true)
+    })
     @Transactional
     public ProfessionalResponseDTO updateProfessional(String professionalId, CreateProfessionalDTO dto) {
 
@@ -158,6 +166,10 @@ public class ProfessionalService {
         return toResponseDTO(updated);
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "professional-profile", key = "#professionalId"),
+        @CacheEvict(value = "professional-services", allEntries = true)
+    })
     @Transactional
     public void deleteProfessional(String professionalId) {
         ProfessionalProfile profile = professionalProfileRepository.findById(professionalId)
