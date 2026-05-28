@@ -149,6 +149,12 @@ variable "mercadopago_access_token" {
   sensitive   = true
 }
 
+variable "mercadopago_webhook_secret" {
+  description = "MercadoPago webhook secret for HMAC signature validation"
+  type        = string
+  sensitive   = true
+}
+
 variable "grafana_otlp_endpoint" {
   description = "Grafana Cloud OTLP endpoint URL"
   type        = string

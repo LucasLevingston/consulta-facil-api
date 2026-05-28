@@ -39,6 +39,13 @@ resource "aws_ssm_parameter" "mercadopago_token" {
   tags  = { Name = "mercadopago-token" }
 }
 
+resource "aws_ssm_parameter" "mercadopago_webhook_secret" {
+  name  = "${local.ssm_prefix}/mercadopago-webhook-secret"
+  type  = "SecureString"
+  value = var.mercadopago_webhook_secret
+  tags  = { Name = "mercadopago-webhook-secret" }
+}
+
 resource "aws_ssm_parameter" "grafana_otlp_endpoint" {
   name  = "${local.ssm_prefix}/grafana-otlp-endpoint"
   type  = "SecureString"
