@@ -19,7 +19,11 @@ public interface ProfessionalProfileRepository extends JpaRepository<Professiona
     Page<ProfessionalProfile> findBySpecialtyContainingIgnoreCaseAndStatus(String specialty, ProfessionalProfileStatus status, Pageable pageable);
     boolean existsByLicenseNumber(String licenseNumber);
 
-    @Query("SELECT p FROM ProfessionalProfile p JOIN p.user u WHERE p.status = 'ACTIVE' " +
+    @Query(value = "SELECT p FROM ProfessionalProfile p JOIN FETCH p.user u WHERE p.status = 'ACTIVE' " +
+           "AND ('' = :profession OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%'))) " +
+           "AND ('' = :specialty OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%'))) " +
+           "AND ('' = :name OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))",
+           countQuery = "SELECT COUNT(p) FROM ProfessionalProfile p JOIN p.user u WHERE p.status = 'ACTIVE' " +
            "AND ('' = :profession OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%'))) " +
            "AND ('' = :specialty OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%'))) " +
            "AND ('' = :name OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))")
