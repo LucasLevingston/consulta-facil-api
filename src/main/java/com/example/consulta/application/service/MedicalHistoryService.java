@@ -2,8 +2,8 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.MedicalHistoryResponseDTO;
 import com.example.consulta.api.dto.appointment.SaveMedicalHistoryDTO;
-import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.MedicalHistory;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.repository.MedicalHistoryRepository;
@@ -20,9 +20,13 @@ public class MedicalHistoryService {
 
     private final MedicalHistoryRepository medicalHistoryRepository;
     private final AppointmentRepository appointmentRepository;
+    private final OwnershipValidator ownershipValidator;
 
     @Transactional(readOnly = true)
-    public Optional<MedicalHistoryResponseDTO> getByAppointmentId(String appointmentId) {
+    public Optional<MedicalHistoryResponseDTO> getByAppointmentId(String appointmentId, String authenticatedUserId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+        ownershipValidator.verifyAppointmentAccess(appointment, authenticatedUserId);
         return medicalHistoryRepository.findByAppointmentId(appointmentId)
                 .map(this::toResponseDTO);
     }
@@ -30,13 +34,9 @@ public class MedicalHistoryService {
     @Transactional
     public MedicalHistoryResponseDTO save(String appointmentId, String userId, SaveMedicalHistoryDTO dto) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Consulta não encontrada: " + appointmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
-        String patientUserId = appointment.getPatient().getUser().getId();
-        String professionalUserId = appointment.getProfessional().getUser().getId();
-        if (!userId.equals(patientUserId) && !userId.equals(professionalUserId)) {
-            throw new BadRequestException("Você não tem permissão para preencher a medicalHistory desta consulta");
-        }
+        ownershipValidator.verifyAppointmentAccess(appointment, userId);
 
         MedicalHistory medicalHistory = medicalHistoryRepository.findByAppointmentId(appointmentId)
                 .orElse(MedicalHistory.builder().appointment(appointment).build());

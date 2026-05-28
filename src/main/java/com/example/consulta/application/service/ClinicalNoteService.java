@@ -2,8 +2,8 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.ClinicalNoteResponseDTO;
 import com.example.consulta.api.dto.appointment.SaveClinicalNoteDTO;
-import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.ClinicalNote;
 import com.example.consulta.domain.repository.AppointmentRepository;
@@ -20,9 +20,13 @@ public class ClinicalNoteService {
 
     private final ClinicalNoteRepository clinicalNoteRepository;
     private final AppointmentRepository appointmentRepository;
+    private final OwnershipValidator ownershipValidator;
 
     @Transactional(readOnly = true)
-    public Optional<ClinicalNoteResponseDTO> getByAppointmentId(String appointmentId) {
+    public Optional<ClinicalNoteResponseDTO> getByAppointmentId(String appointmentId, String authenticatedUserId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+        ownershipValidator.verifyAppointmentAccess(appointment, authenticatedUserId);
         return clinicalNoteRepository.findByAppointmentId(appointmentId)
                 .map(this::toResponseDTO);
     }
@@ -30,12 +34,9 @@ public class ClinicalNoteService {
     @Transactional
     public ClinicalNoteResponseDTO save(String appointmentId, String userId, SaveClinicalNoteDTO dto) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Consulta não encontrada: " + appointmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
-        String professionalUserId = appointment.getProfessional().getUser().getId();
-        if (!userId.equals(professionalUserId)) {
-            throw new BadRequestException("Apenas o profissional responsável pode preencher o prontuário desta consulta");
-        }
+        ownershipValidator.verifyProfessionalOwnership(appointment, userId);
 
         ClinicalNote clinicalNote = clinicalNoteRepository.findByAppointmentId(appointmentId)
                 .orElse(ClinicalNote.builder().appointment(appointment).build());
