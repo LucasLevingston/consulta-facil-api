@@ -4,6 +4,7 @@ import com.example.consulta.api.dto.appointment.PaymentResponseDTO;
 import com.example.consulta.application.service.CreateAppointmentPaymentService;
 import com.example.consulta.application.service.HandleAppointmentPaymentWebhookService;
 import com.example.consulta.core.security.CustomUserDetails;
+import com.example.consulta.core.security.MercadoPagoWebhookValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +25,7 @@ public class PaymentController {
 
     private final CreateAppointmentPaymentService createAppointmentPaymentService;
     private final HandleAppointmentPaymentWebhookService handleAppointmentPaymentWebhookService;
+    private final MercadoPagoWebhookValidator webhookValidator;
 
     @PostMapping("/appointments/{appointmentId}/payment")
     @PreAuthorize("hasRole('PATIENT')")
@@ -39,8 +41,23 @@ public class PaymentController {
 
     @PostMapping("/payments/webhook")
     @Operation(summary = "MercadoPago payment webhook (public)")
-    public ResponseEntity<Void> handleWebhook(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Void> handleWebhook(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "x-signature", required = false) String xSignature,
+            @RequestHeader(value = "x-request-id", required = false, defaultValue = "") String xRequestId) {
+
+        String dataId = extractDataId(body);
+        webhookValidator.validate(dataId, xRequestId, xSignature);
         handleAppointmentPaymentWebhookService.execute(body);
         return ResponseEntity.ok().build();
+    }
+
+    private String extractDataId(Map<String, Object> body) {
+        Object dataObj = body.get("data");
+        if (dataObj instanceof Map<?, ?> data) {
+            Object id = data.get("id");
+            return id != null ? String.valueOf(id) : "";
+        }
+        return "";
     }
 }
