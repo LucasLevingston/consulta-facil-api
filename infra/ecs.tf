@@ -72,14 +72,17 @@ resource "aws_ecs_task_definition" "api" {
       protocol      = "tcp"
     }]
 
-    environment = [
+    environment = concat([
       { name = "SPRING_PROFILES_ACTIVE", value = "prod" },
       { name = "AWS_REGION",             value = var.aws_region },
       { name = "AWS_S3_BUCKET",          value = "${var.app_name}-images" },
       { name = "APP_URL",                value = local.app_url },
       { name = "CORS_ALLOWED_ORIGINS",   value = local.app_url },
       { name = "AWS_SES_FROM_EMAIL",     value = aws_ssm_parameter.ses_from_email.value },
-    ]
+    ], var.enable_elasticache ? [
+      { name = "REDIS_HOST", value = local.redis_host },
+      { name = "REDIS_PORT", value = local.redis_port },
+    ] : [])
 
     secrets = [
       { name = "JWT_SECRET",                valueFrom = aws_ssm_parameter.jwt_secret.arn },

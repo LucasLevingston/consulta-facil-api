@@ -71,6 +71,10 @@ dependencies {
 	// Observability — Structured JSON logging (stdout → CloudWatch on ECS)
 	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
+	// Cache — Redis
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// AWS SDK
 	implementation platform('software.amazon.awssdk:bom:2.21.0')
 	implementation 'software.amazon.awssdk:s3'

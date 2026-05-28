@@ -7,6 +7,7 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalService;
 import com.example.consulta.domain.repository.ProfessionalServiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ public class UpdateProfessionalServiceService {
 
     private final ProfessionalServiceRepository professionalServiceRepository;
 
+    @CacheEvict(value = "professional-services", allEntries = true)
     @Transactional
     public ProfessionalServiceResponseDTO execute(String serviceId, String userId, UpdateProfessionalServiceDTO dto) {
         ProfessionalService service = professionalServiceRepository.findById(serviceId)

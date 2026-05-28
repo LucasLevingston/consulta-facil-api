@@ -9,6 +9,8 @@ import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.ProfessionalScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class ProfessionalScheduleService {
     private final ProfessionalScheduleRepository scheduleRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;
 
+    @Cacheable(value = "professional-schedule", key = "#professionalId")
     @Transactional(readOnly = true)
     public List<ProfessionalScheduleResponseDTO> getScheduleByProfessionalId(String professionalId) {
         log.debug("Fetching schedule for professional: {}", professionalId);
@@ -38,6 +41,7 @@ public class ProfessionalScheduleService {
                 .stream().map(this::toDTO).toList();
     }
 
+    @CacheEvict(value = "professional-schedule", allEntries = true)
     @Transactional
     public List<ProfessionalScheduleResponseDTO> saveMySchedule(String userId, List<CreateProfessionalScheduleDTO> dtos) {
         log.debug("Saving schedule for user: {}", userId);

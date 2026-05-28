@@ -8,6 +8,7 @@ import com.example.consulta.domain.entity.ProfessionalService;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.ProfessionalServiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class CreateProfessionalServiceService {
     private final ProfessionalServiceRepository professionalServiceRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;
 
+    @CacheEvict(value = "professional-services", allEntries = true)
     @Transactional
     public ProfessionalServiceResponseDTO execute(String userId, CreateProfessionalServiceDTO dto) {
         ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)
