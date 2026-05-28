@@ -54,6 +54,11 @@ public class User {
 
     private String imageId;
 
+    @Builder.Default
+    private int failedLoginAttempts = 0;
+
+    private LocalDateTime lockedUntil;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
