@@ -71,9 +71,10 @@ dependencies {
 	// Observability — Structured JSON logging (stdout → CloudWatch on ECS)
 	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
-	// AWS S3
+	// AWS SDK
 	implementation platform('software.amazon.awssdk:bom:2.21.0')
 	implementation 'software.amazon.awssdk:s3'
+	implementation 'software.amazon.awssdk:sesv2'
 
 	// MercadoPago
 	implementation('com.mercadopago:sdk-java:2.1.7') {
