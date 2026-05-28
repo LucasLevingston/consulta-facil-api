@@ -3,10 +3,12 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
 import com.example.consulta.api.dto.professional.ProfessionalResponseDTO;
 import com.example.consulta.api.dto.schedule.CreateProfessionalScheduleDTO;
+import com.example.consulta.api.dto.professional.UpdatePaymentSettingsDTO;
 import com.example.consulta.api.dto.schedule.ProfessionalScheduleResponseDTO;
 import com.example.consulta.application.service.ProfessionalScheduleService;
 import com.example.consulta.application.service.ProfessionalService;
 import com.example.consulta.application.service.SetConsultationPriceService;
+import com.example.consulta.application.service.UpdatePaymentSettingsService;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,6 +37,7 @@ public class ProfessionalController {
     private final ProfessionalService professionalService;
     private final ProfessionalScheduleService professionalScheduleService;
     private final SetConsultationPriceService setConsultationPriceService;
+    private final UpdatePaymentSettingsService updatePaymentSettingsService;
 
     @GetMapping
     @Operation(summary = "List professionals", description = "Returns active professionals with optional filters")
@@ -167,6 +170,16 @@ public class ProfessionalController {
             @RequestBody Map<String, BigDecimal> body) {
         BigDecimal price = body.get("price");
         return ResponseEntity.ok(setConsultationPriceService.execute(userDetails.getUserId(), price));
+    }
+
+    @PutMapping("/me/payment-settings")
+    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Update my payment settings (accepted methods and timing)")
+    public ResponseEntity<ProfessionalResponseDTO> updatePaymentSettings(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody UpdatePaymentSettingsDTO dto) {
+        return ResponseEntity.ok(updatePaymentSettingsService.execute(userDetails.getUserId(), dto));
     }
 
     @PutMapping("/me/schedule")

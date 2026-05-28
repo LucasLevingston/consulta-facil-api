@@ -7,6 +7,7 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
+import com.example.consulta.domain.enums.PaymentMethod;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
@@ -50,6 +51,11 @@ public class CreateAppointmentPaymentService {
 
         if (appointment.getPaymentStatus() == AppointmentPaymentStatus.PAID) {
             throw new BadRequestException("Appointment is already paid");
+        }
+
+        var acceptedMethods = appointment.getProfessional().getAcceptedPaymentMethods();
+        if (!acceptedMethods.isEmpty() && !acceptedMethods.contains(PaymentMethod.MERCADOPAGO)) {
+            throw new BadRequestException("Este profissional não aceita pagamento via MercadoPago");
         }
 
         BigDecimal paymentAmount = amount != null ? amount : new BigDecimal("0.01");

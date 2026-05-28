@@ -1,6 +1,7 @@
 package com.example.consulta.api.dto.appointment;
 
 import com.example.consulta.domain.enums.AppointmentModality;
+import com.example.consulta.domain.enums.PaymentMethod;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,4 +31,6 @@ public class CreateAppointmentDTO {
     private AppointmentModality modality;
 
     private String serviceId;
+
+    private PaymentMethod chosenPaymentMethod;
 }

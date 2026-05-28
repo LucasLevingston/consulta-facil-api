@@ -3,6 +3,7 @@ package com.example.consulta.application.service;
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
+import com.example.consulta.api.dto.appointment.PaymentResponseDTO;
 import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.appointment.PatientSummaryDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
@@ -14,7 +15,10 @@ import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.enums.AppointmentModality;
+import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
+import com.example.consulta.domain.enums.PaymentMethod;
+import com.example.consulta.domain.enums.PaymentTiming;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
@@ -28,6 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -40,6 +45,7 @@ public class AppointmentService {
     private final ProfessionalProfileRepository professionalProfileRepository;
     private final ProfessionalServiceRepository professionalServiceRepository;
     private final AppointmentNotificationService appointmentNotificationService;
+    private final CreateAppointmentPaymentService createAppointmentPaymentService;
     private final BusinessMetrics businessMetrics;
 
     @Transactional
@@ -61,6 +67,16 @@ public class AppointmentService {
                     .orElseThrow(() -> new ResourceNotFoundException("ProfessionalService", dto.getServiceId()));
         }
 
+        PaymentMethod chosenMethod = dto.getChosenPaymentMethod();
+        if (chosenMethod != null && !professional.getAcceptedPaymentMethods().isEmpty()
+                && !professional.getAcceptedPaymentMethods().contains(chosenMethod)) {
+            throw new BadRequestException("Método de pagamento não aceito por este profissional: " + chosenMethod);
+        }
+
+        BigDecimal paymentAmount = service != null
+                ? service.getPrice()
+                : professional.getConsultationPrice();
+
         Appointment appointment = Appointment.builder()
                 .patient(patient)
                 .professional(professional)
@@ -70,13 +86,32 @@ public class AppointmentService {
                 .modality(dto.getModality() != null ? dto.getModality() : AppointmentModality.IN_PERSON)
                 .status(AppointmentStatus.PENDING)
                 .service(service)
-                .paymentAmount(service != null ? service.getPrice() : null)
+                .paymentAmount(paymentAmount)
+                .chosenPaymentMethod(chosenMethod)
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
         appointmentNotificationService.notifyScheduled(saved);
         businessMetrics.recordAppointmentCreated();
-        return toResponseDTO(saved);
+
+        AppointmentResponseDTO response = toResponseDTO(saved);
+
+        // When professional requires payment at scheduling time and patient chose MercadoPago,
+        // generate checkout immediately so the response includes the checkout URL.
+        if (professional.getPaymentTiming() == PaymentTiming.AT_SCHEDULING
+                && chosenMethod == PaymentMethod.MERCADOPAGO
+                && paymentAmount != null) {
+            try {
+                PaymentResponseDTO checkout = createAppointmentPaymentService.execute(
+                        saved.getId(), userId, paymentAmount);
+                response.setCheckoutUrl(checkout.getCheckoutUrl());
+            } catch (Exception e) {
+                log.error("Failed to auto-generate checkout for appointment {}: {}", saved.getId(), e.getMessage());
+            }
+        }
+
+        response.setPaymentTiming(professional.getPaymentTiming());
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -220,6 +255,8 @@ public class AppointmentService {
                 .cancellationReason(appointment.getCancellationReason())
                 .paymentStatus(appointment.getPaymentStatus())
                 .paymentAmount(appointment.getPaymentAmount())
+                .chosenPaymentMethod(appointment.getChosenPaymentMethod())
+                .paymentTiming(appointment.getProfessional().getPaymentTiming())
                 .rating(appointment.getRating())
                 .ratingComment(appointment.getRatingComment())
                 .serviceId(appointment.getService() != null ? appointment.getService().getId() : null)
