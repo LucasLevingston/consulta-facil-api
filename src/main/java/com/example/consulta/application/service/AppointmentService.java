@@ -27,14 +27,12 @@ import com.example.consulta.application.observability.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -204,14 +202,10 @@ public class AppointmentService {
     public Page<PatientSummaryDTO> getProfessionalPatients(String professionalId, String search, String sort, int page, int size) {
         log.debug("Fetching patients for professional: {}, search: {}, sort: {}", professionalId, search, sort);
         String term = search == null ? "" : search.trim();
-        List<PatientSummaryDTO> all = "name".equals(sort)
-                ? appointmentRepository.findProfessionalPatientsByName(professionalId, term)
-                : appointmentRepository.findProfessionalPatientsByRecent(professionalId, term);
         Pageable pageable = PageRequest.of(page, size);
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + size, all.size());
-        List<PatientSummaryDTO> slice = start >= all.size() ? List.of() : all.subList(start, end);
-        return new PageImpl<>(slice, pageable, all.size());
+        return "name".equals(sort)
+                ? appointmentRepository.findProfessionalPatientsByName(professionalId, term, pageable)
+                : appointmentRepository.findProfessionalPatientsByRecent(professionalId, term, pageable);
     }
 
     @Transactional
