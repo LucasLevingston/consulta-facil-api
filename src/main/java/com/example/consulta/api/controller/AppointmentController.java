@@ -1,24 +1,24 @@
 package com.example.consulta.api.controller;
 
-import com.example.consulta.api.dto.appointment.AnamneseResponseDTO;
+import com.example.consulta.api.dto.appointment.MedicalHistoryResponseDTO;
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.CancelAppointmentDTO;
 import com.example.consulta.api.dto.appointment.CreateAppointmentDTO;
-import com.example.consulta.api.dto.appointment.ProntuarioResponseDTO;
+import com.example.consulta.api.dto.appointment.ClinicalNoteResponseDTO;
 import com.example.consulta.api.dto.appointment.QrCheckInTokenDTO;
 import com.example.consulta.api.dto.appointment.RateAppointmentDTO;
 import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.appointment.SetModalityDTO;
-import com.example.consulta.api.dto.appointment.SaveAnamneseDTO;
-import com.example.consulta.api.dto.appointment.SaveProntuarioDTO;
-import com.example.consulta.application.service.AnamneseService;
+import com.example.consulta.api.dto.appointment.SaveMedicalHistoryDTO;
+import com.example.consulta.api.dto.appointment.SaveClinicalNoteDTO;
+import com.example.consulta.application.service.MedicalHistoryService;
 import com.example.consulta.application.service.AppointmentService;
 import com.example.consulta.application.service.CallNextPatientService;
 import com.example.consulta.application.service.CheckInByQrService;
 import com.example.consulta.application.service.GenerateCheckInTokenService;
 import com.example.consulta.application.service.GenerateMeetLinkService;
 import com.example.consulta.application.service.GetQueueService;
-import com.example.consulta.application.service.ProntuarioService;
+import com.example.consulta.application.service.ClinicalNoteService;
 import com.example.consulta.application.service.RescheduleAppointmentService;
 import com.example.consulta.application.service.SetAppointmentModalityService;
 import com.example.consulta.core.security.CustomUserDetails;
@@ -46,8 +46,8 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
     private final RescheduleAppointmentService rescheduleAppointmentService;
-    private final AnamneseService anamneseService;
-    private final ProntuarioService prontuarioService;
+    private final MedicalHistoryService medicalHistoryService;
+    private final ClinicalNoteService clinicalNoteService;
     private final GenerateCheckInTokenService generateCheckInTokenService;
     private final CheckInByQrService checkInByQrService;
     private final GetQueueService getQueueService;
@@ -215,10 +215,10 @@ public class AppointmentController {
     @GetMapping("/{appointmentId}/anamnesis")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get anamnesis for an appointment")
-    public ResponseEntity<AnamneseResponseDTO> getAnamnesis(
+    public ResponseEntity<MedicalHistoryResponseDTO> getAnamnesis(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return anamneseService.getByAppointmentId(appointmentId, userDetails.getUserId())
+        return medicalHistoryService.getByAppointmentId(appointmentId, userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -226,31 +226,31 @@ public class AppointmentController {
     @PutMapping("/{appointmentId}/anamnesis")
     @PreAuthorize("hasAnyRole('PATIENT', 'PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "Save anamnesis for an appointment")
-    public ResponseEntity<AnamneseResponseDTO> saveAnamnesis(
+    public ResponseEntity<MedicalHistoryResponseDTO> saveAnamnesis(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody SaveAnamneseDTO dto) {
-        return ResponseEntity.ok(anamneseService.save(appointmentId, userDetails.getUserId(), dto));
+            @RequestBody SaveMedicalHistoryDTO dto) {
+        return ResponseEntity.ok(medicalHistoryService.save(appointmentId, userDetails.getUserId(), dto));
     }
 
-    @GetMapping("/{appointmentId}/prontuario")
+    @GetMapping("/{appointmentId}/clinicalNote")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get prontuario for an appointment")
-    public ResponseEntity<ProntuarioResponseDTO> getProntuario(
+    @Operation(summary = "Get clinical note for an appointment")
+    public ResponseEntity<ClinicalNoteResponseDTO> getClinicalNote(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return prontuarioService.getByAppointmentId(appointmentId, userDetails.getUserId())
+        return clinicalNoteService.getByAppointmentId(appointmentId, userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
 
-    @PutMapping("/{appointmentId}/prontuario")
+    @PutMapping("/{appointmentId}/clinicalNote")
     @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
-    @Operation(summary = "Save prontuario for an appointment")
-    public ResponseEntity<ProntuarioResponseDTO> saveProntuario(
+    @Operation(summary = "Save clinicalNote for an appointment")
+    public ResponseEntity<ClinicalNoteResponseDTO> saveClinicalNote(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody SaveProntuarioDTO dto) {
-        return ResponseEntity.ok(prontuarioService.save(appointmentId, userDetails.getUserId(), dto));
+            @RequestBody SaveClinicalNoteDTO dto) {
+        return ResponseEntity.ok(clinicalNoteService.save(appointmentId, userDetails.getUserId(), dto));
     }
 }
