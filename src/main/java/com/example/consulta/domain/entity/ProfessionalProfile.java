@@ -4,6 +4,7 @@ import com.example.consulta.domain.enums.PaymentMethod;
 import com.example.consulta.domain.enums.PaymentTiming;
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import lombok.*;
@@ -57,10 +58,11 @@ public class ProfessionalProfile {
     @Column(precision = 10, scale = 2)
     private BigDecimal consultationPrice;
 
-    @ElementCollection(targetClass = PaymentMethod.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = PaymentMethod.class, fetch = FetchType.LAZY)
     @CollectionTable(name = "professional_payment_methods", joinColumns = @JoinColumn(name = "professional_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
+    @BatchSize(size = 20)
     @Builder.Default
     private Set<PaymentMethod> acceptedPaymentMethods = new HashSet<>();
 
@@ -70,11 +72,13 @@ public class ProfessionalProfile {
     private PaymentTiming paymentTiming = PaymentTiming.AT_CONSULTATION;
 
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     @Builder.Default
     @ToString.Exclude
     private List<Appointment> appointments = new ArrayList<>();
 
     @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     @Builder.Default
     @ToString.Exclude
     private List<ClinicMember> clinicMemberships = new ArrayList<>();
