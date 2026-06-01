@@ -15,6 +15,7 @@ import com.example.consulta.domain.repository.ClinicMemberRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.NotificationRepository;
+import com.example.consulta.application.port.in.NotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService {
+public class NotificationService implements NotificationUseCase {
 
     private final NotificationRepository notificationRepository;
     private final ClinicRepository clinicRepository;

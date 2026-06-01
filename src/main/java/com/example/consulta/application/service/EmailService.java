@@ -1,5 +1,6 @@
 package com.example.consulta.application.service;
 
+import com.example.consulta.domain.port.out.EmailPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,7 +9,7 @@ import software.amazon.awssdk.services.sesv2.model.*;
 
 @Slf4j
 @Service
-public class EmailService {
+public class EmailService implements EmailPort {
 
     private final SesV2Client sesClient;
     private final String fromEmail;

@@ -3,6 +3,7 @@ package com.example.consulta.domain.entity;
 import com.example.consulta.domain.enums.PaymentMethod;
 import com.example.consulta.domain.enums.PaymentTiming;
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
+import com.example.consulta.domain.exception.InvalidStateException;
 import jakarta.persistence.*;
 import org.hibernate.annotations.BatchSize;
 
@@ -82,4 +83,31 @@ public class ProfessionalProfile {
     @Builder.Default
     @ToString.Exclude
     private List<ClinicMember> clinicMemberships = new ArrayList<>();
+
+    // --- Domain behaviour methods ---
+
+    public void approve() {
+        if (this.status != ProfessionalProfileStatus.PENDING_REVIEW) {
+            throw new InvalidStateException(
+                    "Application is not pending review. Current: " + status);
+        }
+        this.status = ProfessionalProfileStatus.ACTIVE;
+    }
+
+    public void reject() {
+        if (this.status != ProfessionalProfileStatus.PENDING_REVIEW) {
+            throw new InvalidStateException(
+                    "Application is not pending review. Current: " + status);
+        }
+        this.status = ProfessionalProfileStatus.REJECTED;
+    }
+
+    public void updateConsultationPrice(java.math.BigDecimal price) {
+        this.consultationPrice = price;
+    }
+
+    public void setPaymentConfiguration(Set<PaymentMethod> methods, PaymentTiming timing) {
+        this.acceptedPaymentMethods = methods != null ? methods : new HashSet<>();
+        if (timing != null) this.paymentTiming = timing;
+    }
 }

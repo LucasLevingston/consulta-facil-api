@@ -1,6 +1,7 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
+import com.example.consulta.application.port.in.GetQueueUseCase;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentStatus;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetQueueService {
+public class GetQueueService implements GetQueueUseCase {
 
     private final AppointmentRepository appointmentRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;

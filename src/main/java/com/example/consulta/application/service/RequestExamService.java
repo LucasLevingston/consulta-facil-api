@@ -8,13 +8,14 @@ import com.example.consulta.domain.entity.ExamRequest;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.example.consulta.domain.repository.ExamRequestRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.application.port.in.RequestExamUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class RequestExamService {
+public class RequestExamService implements RequestExamUseCase {
 
     private final AppointmentRepository appointmentRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;

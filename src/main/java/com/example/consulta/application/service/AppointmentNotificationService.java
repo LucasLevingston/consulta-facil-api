@@ -8,6 +8,7 @@ import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.Notification;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.NotificationType;
+import com.example.consulta.domain.port.out.AppointmentNotificationPort;
 import com.example.consulta.domain.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AppointmentNotificationService {
+public class AppointmentNotificationService implements AppointmentNotificationPort {
 
     private final NotificationRepository notificationRepository;
     private final EventPublisher eventPublisher;

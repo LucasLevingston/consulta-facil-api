@@ -13,13 +13,14 @@ import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.example.consulta.domain.repository.ProcedureRequestRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.ProfessionalServiceRepository;
+import com.example.consulta.application.port.in.CreateProcedureRequestUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CreateProcedureRequestService {
+public class CreateProcedureRequestService implements CreateProcedureRequestUseCase {
 
     private final ProcedureRequestRepository procedureRequestRepository;
     private final ProfessionalServiceRepository professionalServiceRepository;

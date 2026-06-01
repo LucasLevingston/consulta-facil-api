@@ -11,6 +11,7 @@ import com.example.consulta.domain.enums.UserRole;
 import com.example.consulta.domain.repository.ClinicReceptionistRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
 import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.application.port.in.InviteReceptionistUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class InviteReceptionistService {
+public class InviteReceptionistService implements InviteReceptionistUseCase {
 
     private final ClinicRepository clinicRepository;
     private final UserRepository userRepository;

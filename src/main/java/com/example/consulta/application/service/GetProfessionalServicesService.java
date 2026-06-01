@@ -2,6 +2,7 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.professionalservice.ProfessionalServiceResponseDTO;
 import com.example.consulta.domain.repository.ProfessionalServiceRepository;
+import com.example.consulta.application.port.in.GetProfessionalServicesUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetProfessionalServicesService {
+public class GetProfessionalServicesService implements GetProfessionalServicesUseCase {
 
     private final ProfessionalServiceRepository professionalServiceRepository;
 

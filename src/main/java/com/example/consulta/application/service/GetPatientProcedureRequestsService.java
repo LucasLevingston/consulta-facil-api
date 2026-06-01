@@ -4,6 +4,7 @@ import com.example.consulta.api.dto.procedurerequest.ProcedureRequestResponseDTO
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.example.consulta.domain.repository.ProcedureRequestRepository;
+import com.example.consulta.application.port.in.GetPatientProcedureRequestsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetPatientProcedureRequestsService {
+public class GetPatientProcedureRequestsService implements GetPatientProcedureRequestsUseCase {
 
     private final ProcedureRequestRepository procedureRequestRepository;
     private final PatientProfileRepository patientProfileRepository;

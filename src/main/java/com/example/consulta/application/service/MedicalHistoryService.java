@@ -8,6 +8,7 @@ import com.example.consulta.domain.entity.MedicalHistory;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.repository.MedicalHistoryRepository;
 import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.application.port.in.MedicalHistoryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class MedicalHistoryService {
+public class MedicalHistoryService implements MedicalHistoryUseCase {
 
     private final MedicalHistoryRepository medicalHistoryRepository;
     private final AppointmentRepository appointmentRepository;

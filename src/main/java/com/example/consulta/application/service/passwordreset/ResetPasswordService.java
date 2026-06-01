@@ -2,6 +2,7 @@ package com.example.consulta.application.service.passwordreset;
 
 import com.example.consulta.domain.entity.PasswordResetToken;
 import com.example.consulta.domain.repository.PasswordResetTokenRepository;
+import com.example.consulta.application.port.in.ResetPasswordUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,10 +14,13 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ResetPasswordService {
+public class ResetPasswordService implements ResetPasswordUseCase {
 
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public void execute(String rawToken, String newPassword) { reset(rawToken, newPassword); }
 
     @Transactional
     public void reset(String rawToken, String newPassword) {

@@ -6,6 +6,7 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.ProfessionalSchedule;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.application.port.in.ProfessionalScheduleUseCase;
 import com.example.consulta.domain.repository.ProfessionalScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProfessionalScheduleService {
+public class ProfessionalScheduleService implements ProfessionalScheduleUseCase {
 
     private final ProfessionalScheduleRepository scheduleRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;
@@ -32,6 +33,7 @@ public class ProfessionalScheduleService {
                 .stream().map(this::toDTO).toList();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<ProfessionalScheduleResponseDTO> getMySchedule(String userId) {
         log.debug("Fetching schedule for user: {}", userId);
@@ -41,6 +43,7 @@ public class ProfessionalScheduleService {
                 .stream().map(this::toDTO).toList();
     }
 
+    @Override
     @CacheEvict(value = "professional-schedule", allEntries = true)
     @Transactional
     public List<ProfessionalScheduleResponseDTO> saveMySchedule(String userId, List<CreateProfessionalScheduleDTO> dtos) {
@@ -72,6 +75,9 @@ public class ProfessionalScheduleService {
 
         return saved.stream().map(this::toDTO).toList();
     }
+
+    @Override
+    public List<ProfessionalScheduleResponseDTO> getByProfessionalId(String professionalId) { return getScheduleByProfessionalId(professionalId); }
 
     private ProfessionalScheduleResponseDTO toDTO(ProfessionalSchedule schedule) {
         return ProfessionalScheduleResponseDTO.builder()

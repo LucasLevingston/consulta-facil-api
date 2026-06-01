@@ -7,8 +7,11 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.UserRole;
-import com.example.consulta.domain.repository.PatientProfileRepository;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.StoragePort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
+import com.example.consulta.application.port.in.RegisterUserUseCase;
+import com.example.consulta.application.port.in.UserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,20 +22,19 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserUseCase, RegisterUserUseCase {
 
-    private final UserRepository userRepository;
-    private final PatientProfileRepository patientProfileRepository;
+    private final UserRepositoryPort userRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
     private final PasswordEncoder passwordEncoder;
-    private final S3Service s3Service;
+    private final StoragePort storagePort;
 
+    @Override
     @Transactional
     public UserResponseDTO createUser(CreateUserDTO dto) {
-
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateResourceException("User", "email", dto.getEmail());
         }
-
         if (dto.getCpf() != null && userRepository.existsByCpf(dto.getCpf())) {
             throw new DuplicateResourceException("User", "CPF", dto.getCpf());
         }
@@ -50,11 +52,7 @@ public class UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
-
-        PatientProfile patientProfile = PatientProfile.builder()
-                .user(savedUser)
-                .build();
-        patientProfileRepository.save(patientProfile);
+        patientProfileRepository.save(PatientProfile.builder().user(savedUser).build());
 
         return toResponseDTO(savedUser);
     }
@@ -62,44 +60,50 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponseDTO getUserById(String id) {
         log.debug("Fetching user by ID: {}", id);
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", id));
-        return toResponseDTO(user);
+        return toResponseDTO(userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id)));
     }
 
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByEmail(String email) {
         log.debug("Fetching user by email: {}", email);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found"));
-        return toResponseDTO(user);
+        return toResponseDTO(userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found")));
     }
 
+    @Override
     @Transactional
     public UserResponseDTO uploadAvatar(String userId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
         if (user.getImageId() != null) {
-            s3Service.delete(user.getImageId());
+            storagePort.delete(user.getImageId());
         }
 
-        String imageUrl = s3Service.upload(file, "avatars");
+        String imageUrl = storagePort.upload(file, "avatars");
         String imageId = imageUrl.substring(imageUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
 
-        user.setImageUrl(imageUrl);
-        user.setImageId(imageId);
-        User savedUser = userRepository.save(user);
-
-        return toResponseDTO(savedUser);
+        user.updateAvatar(imageUrl, imageId);
+        return toResponseDTO(userRepository.save(user));
     }
 
+    @Override
     @Transactional
     public void deleteUser(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
         userRepository.delete(user);
     }
+
+    @Override
+    public UserResponseDTO getById(String id) { return getUserById(id); }
+
+    @Override
+    public UserResponseDTO getByEmail(String email) { return getUserByEmail(email); }
+
+    @Override
+    public UserResponseDTO execute(CreateUserDTO dto) { return createUser(dto); }
 
     private UserResponseDTO toResponseDTO(User user) {
         return UserResponseDTO.builder()

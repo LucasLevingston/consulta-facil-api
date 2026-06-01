@@ -4,6 +4,7 @@ import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalService;
 import com.example.consulta.domain.repository.ProfessionalServiceRepository;
+import com.example.consulta.application.port.in.DeactivateProfessionalServiceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class DeactivateProfessionalServiceService {
+public class DeactivateProfessionalServiceService implements DeactivateProfessionalServiceUseCase {
 
     private final ProfessionalServiceRepository professionalServiceRepository;
 

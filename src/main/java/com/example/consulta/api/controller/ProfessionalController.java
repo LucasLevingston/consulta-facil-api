@@ -2,13 +2,13 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
 import com.example.consulta.api.dto.professional.ProfessionalResponseDTO;
-import com.example.consulta.api.dto.schedule.CreateProfessionalScheduleDTO;
 import com.example.consulta.api.dto.professional.UpdatePaymentSettingsDTO;
+import com.example.consulta.api.dto.schedule.CreateProfessionalScheduleDTO;
 import com.example.consulta.api.dto.schedule.ProfessionalScheduleResponseDTO;
-import com.example.consulta.application.service.ProfessionalScheduleService;
-import com.example.consulta.application.service.ProfessionalService;
-import com.example.consulta.application.service.SetConsultationPriceService;
-import com.example.consulta.application.service.UpdatePaymentSettingsService;
+import com.example.consulta.application.port.in.ProfessionalProfileUseCase;
+import com.example.consulta.application.port.in.ProfessionalScheduleUseCase;
+import com.example.consulta.application.port.in.SetConsultationPriceUseCase;
+import com.example.consulta.application.port.in.UpdatePaymentSettingsUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,9 +24,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.Map;
-
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/professionals")
@@ -34,10 +33,10 @@ import java.util.List;
 @Tag(name = "Professionals", description = "Professional management endpoints")
 public class ProfessionalController {
 
-    private final ProfessionalService professionalService;
-    private final ProfessionalScheduleService professionalScheduleService;
-    private final SetConsultationPriceService setConsultationPriceService;
-    private final UpdatePaymentSettingsService updatePaymentSettingsService;
+    private final ProfessionalProfileUseCase professionalProfileUseCase;
+    private final ProfessionalScheduleUseCase professionalScheduleUseCase;
+    private final SetConsultationPriceUseCase setConsultationPriceUseCase;
+    private final UpdatePaymentSettingsUseCase updatePaymentSettingsUseCase;
 
     @GetMapping
     @Operation(summary = "List professionals", description = "Returns active professionals with optional filters")
@@ -46,15 +45,14 @@ public class ProfessionalController {
             @RequestParam(required = false) String specialty,
             @RequestParam(required = false) String name,
             Pageable pageable) {
-        return ResponseEntity.ok(professionalService.getAllProfessionals(profession, specialty, name, pageable));
+        return ResponseEntity.ok(professionalProfileUseCase.getAll(profession, specialty, name, pageable));
     }
 
     @GetMapping("/search")
     @Operation(summary = "Search professionals by specialty")
     public ResponseEntity<Page<ProfessionalResponseDTO>> searchBySpecialty(
-            @RequestParam String specialty,
-            Pageable pageable) {
-        return ResponseEntity.ok(professionalService.searchBySpecialty(specialty, pageable));
+            @RequestParam String specialty, Pageable pageable) {
+        return ResponseEntity.ok(professionalProfileUseCase.searchBySpecialty(specialty, pageable));
     }
 
     @GetMapping("/nearby")
@@ -65,7 +63,7 @@ public class ProfessionalController {
             @RequestParam(defaultValue = "50") double radiusKm,
             @RequestParam(required = false) String specialty,
             @RequestParam(required = false) String profession) {
-        return ResponseEntity.ok(professionalService.getProfessionalsNearby(lat, lng, radiusKm, specialty, profession));
+        return ResponseEntity.ok(professionalProfileUseCase.getNearby(lat, lng, radiusKm, specialty, profession));
     }
 
     @GetMapping("/me")
@@ -74,24 +72,24 @@ public class ProfessionalController {
     @Operation(summary = "Get my professional profile")
     public ResponseEntity<ProfessionalResponseDTO> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(professionalService.getProfessionalByUserId(userDetails.getUserId()));
+        return ResponseEntity.ok(professionalProfileUseCase.getByUserId(userDetails.getUserId()));
     }
 
     @GetMapping("/{professionalId}")
     @Operation(summary = "Get professional by ID")
     public ResponseEntity<ProfessionalResponseDTO> getProfessionalById(@PathVariable String professionalId) {
-        return ResponseEntity.ok(professionalService.getProfessionalById(professionalId));
+        return ResponseEntity.ok(professionalProfileUseCase.getById(professionalId));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Create professional profile", description = "Creates a professional profile for the authenticated user")
+    @Operation(summary = "Create professional profile")
     public ResponseEntity<ProfessionalResponseDTO> createProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateProfessionalDTO dto) {
-        ProfessionalResponseDTO response = professionalService.createProfessionalProfile(userDetails.getUserId(), dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(professionalProfileUseCase.createProfile(userDetails.getUserId(), dto));
     }
 
     @PutMapping("/{professionalId}")
@@ -101,8 +99,7 @@ public class ProfessionalController {
     public ResponseEntity<ProfessionalResponseDTO> updateProfessional(
             @PathVariable String professionalId,
             @Valid @RequestBody CreateProfessionalDTO dto) {
-        ProfessionalResponseDTO response = professionalService.updateProfessional(professionalId, dto);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(professionalProfileUseCase.updateProfessional(professionalId, dto));
     }
 
     @DeleteMapping("/{professionalId}")
@@ -110,7 +107,7 @@ public class ProfessionalController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete professional profile")
     public ResponseEntity<Void> deleteProfessional(@PathVariable String professionalId) {
-        professionalService.deleteProfessional(professionalId);
+        professionalProfileUseCase.deleteProfessional(professionalId);
         return ResponseEntity.noContent().build();
     }
 
@@ -119,7 +116,7 @@ public class ProfessionalController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "List pending professional applications (admin only)")
     public ResponseEntity<Page<ProfessionalResponseDTO>> getPendingApplications(Pageable pageable) {
-        return ResponseEntity.ok(professionalService.getPendingApplications(pageable));
+        return ResponseEntity.ok(professionalProfileUseCase.getPendingApplications(pageable));
     }
 
     @GetMapping("/application-status")
@@ -127,7 +124,7 @@ public class ProfessionalController {
     @Operation(summary = "Get own professional application status")
     public ResponseEntity<ProfessionalResponseDTO> getApplicationStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(professionalService.getApplicationStatus(userDetails.getUserId()));
+        return ResponseEntity.ok(professionalProfileUseCase.getApplicationStatus(userDetails.getUserId()));
     }
 
     @PutMapping("/{professionalId}/approve")
@@ -135,7 +132,7 @@ public class ProfessionalController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Approve a professional application (admin only)")
     public ResponseEntity<ProfessionalResponseDTO> approveApplication(@PathVariable String professionalId) {
-        return ResponseEntity.ok(professionalService.approveApplication(professionalId));
+        return ResponseEntity.ok(professionalProfileUseCase.approveApplication(professionalId));
     }
 
     @PutMapping("/{professionalId}/reject")
@@ -143,13 +140,13 @@ public class ProfessionalController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Reject a professional application (admin only)")
     public ResponseEntity<ProfessionalResponseDTO> rejectApplication(@PathVariable String professionalId) {
-        return ResponseEntity.ok(professionalService.rejectApplication(professionalId));
+        return ResponseEntity.ok(professionalProfileUseCase.rejectApplication(professionalId));
     }
 
     @GetMapping("/{professionalId}/schedule")
     @Operation(summary = "Get schedule for a professional")
     public ResponseEntity<List<ProfessionalScheduleResponseDTO>> getSchedule(@PathVariable String professionalId) {
-        return ResponseEntity.ok(professionalScheduleService.getScheduleByProfessionalId(professionalId));
+        return ResponseEntity.ok(professionalScheduleUseCase.getByProfessionalId(professionalId));
     }
 
     @GetMapping("/me/schedule")
@@ -158,7 +155,7 @@ public class ProfessionalController {
     @Operation(summary = "Get my schedule")
     public ResponseEntity<List<ProfessionalScheduleResponseDTO>> getMySchedule(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(professionalScheduleService.getMySchedule(userDetails.getUserId()));
+        return ResponseEntity.ok(professionalScheduleUseCase.getMySchedule(userDetails.getUserId()));
     }
 
     @PutMapping("/me/consultation-price")
@@ -168,8 +165,7 @@ public class ProfessionalController {
     public ResponseEntity<ProfessionalResponseDTO> setConsultationPrice(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody Map<String, BigDecimal> body) {
-        BigDecimal price = body.get("price");
-        return ResponseEntity.ok(setConsultationPriceService.execute(userDetails.getUserId(), price));
+        return ResponseEntity.ok(setConsultationPriceUseCase.execute(userDetails.getUserId(), body.get("price")));
     }
 
     @PutMapping("/me/payment-settings")
@@ -179,7 +175,7 @@ public class ProfessionalController {
     public ResponseEntity<ProfessionalResponseDTO> updatePaymentSettings(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdatePaymentSettingsDTO dto) {
-        return ResponseEntity.ok(updatePaymentSettingsService.execute(userDetails.getUserId(), dto));
+        return ResponseEntity.ok(updatePaymentSettingsUseCase.execute(userDetails.getUserId(), dto));
     }
 
     @PutMapping("/me/schedule")
@@ -189,6 +185,6 @@ public class ProfessionalController {
     public ResponseEntity<List<ProfessionalScheduleResponseDTO>> saveMySchedule(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody List<CreateProfessionalScheduleDTO> dtos) {
-        return ResponseEntity.ok(professionalScheduleService.saveMySchedule(userDetails.getUserId(), dtos));
+        return ResponseEntity.ok(professionalScheduleUseCase.saveMySchedule(userDetails.getUserId(), dtos));
     }
 }

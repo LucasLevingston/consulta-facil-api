@@ -8,13 +8,14 @@ import com.example.consulta.domain.enums.ProcedureRequestStatus;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.example.consulta.domain.repository.ProcedureRequestRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.application.port.in.CancelProcedureRequestUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CancelProcedureRequestService {
+public class CancelProcedureRequestService implements CancelProcedureRequestUseCase {
 
     private final ProcedureRequestRepository procedureRequestRepository;
     private final PatientProfileRepository patientProfileRepository;

@@ -1,7 +1,7 @@
 package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.user.UserResponseDTO;
-import com.example.consulta.application.service.UserService;
+import com.example.consulta.application.port.in.UserUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -20,15 +20,14 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Users", description = "User management endpoints")
 public class UserController {
 
-    private final UserService userService;
+    private final UserUseCase userUseCase;
 
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get current user")
     public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        UserResponseDTO response = userService.getUserById(userDetails.getUserId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userUseCase.getById(userDetails.getUserId()));
     }
 
     @GetMapping("/{userId}")
@@ -36,8 +35,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get user by ID")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String userId) {
-        UserResponseDTO response = userService.getUserById(userId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userUseCase.getById(userId));
     }
 
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -47,8 +45,7 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> uploadAvatar(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam MultipartFile file) {
-        UserResponseDTO response = userService.uploadAvatar(userDetails.getUserId(), file);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userUseCase.uploadAvatar(userDetails.getUserId(), file));
     }
 
     @DeleteMapping("/{userId}")
@@ -56,7 +53,7 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete user")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
-        userService.deleteUser(userId);
+        userUseCase.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 }

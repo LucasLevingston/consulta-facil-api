@@ -9,13 +9,14 @@ import com.example.consulta.domain.enums.UserRole;
 import com.example.consulta.domain.repository.ClinicReceptionistRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
 import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.application.port.in.RemoveReceptionistUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class RemoveReceptionistService {
+public class RemoveReceptionistService implements RemoveReceptionistUseCase {
 
     private final ClinicRepository clinicRepository;
     private final ClinicReceptionistRepository clinicReceptionistRepository;

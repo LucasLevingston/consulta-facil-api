@@ -4,7 +4,8 @@ import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.auth.LoginResponseDTO;
 import com.example.consulta.core.exception.UnauthorizedException;
 import com.example.consulta.domain.entity.User;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
+import com.example.consulta.application.port.in.LoginUseCase;
 import com.example.consulta.core.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,17 +14,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService implements LoginUseCase {
 
     private static final String DUMMY_HASH =
             "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
-    private final UserRepository userRepository;
+    private final UserRepositoryPort userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -32,6 +31,11 @@ public class AuthService {
 
     @Value("${auth.lockout.duration-minutes:15}")
     private int lockoutDurationMinutes;
+
+    @Override
+    public LoginResponseDTO execute(LoginRequestDTO request) {
+        return login(request);
+    }
 
     @Transactional
     public LoginResponseDTO login(LoginRequestDTO request) {
@@ -43,24 +47,21 @@ public class AuthService {
             throw new UnauthorizedException("Invalid email or password");
         }
 
-        if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
+        if (user.isCurrentlyLocked()) {
             throw new UnauthorizedException("Account temporarily locked. Try again later.");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            int attempts = user.getFailedLoginAttempts() + 1;
-            user.setFailedLoginAttempts(attempts);
-            if (attempts >= maxAttempts) {
-                user.setLockedUntil(LocalDateTime.now().plusMinutes(lockoutDurationMinutes));
-                log.warn("Account locked after {} failed attempts: userId={}", attempts, user.getId());
+            user.recordFailedLogin(maxAttempts, lockoutDurationMinutes);
+            if (user.isCurrentlyLocked()) {
+                log.warn("Account locked after {} failed attempts: userId={}", user.getFailedLoginAttempts(), user.getId());
             }
             userRepository.save(user);
             throw new UnauthorizedException("Invalid email or password");
         }
 
         if (user.getFailedLoginAttempts() > 0 || user.getLockedUntil() != null) {
-            user.setFailedLoginAttempts(0);
-            user.setLockedUntil(null);
+            user.resetLoginAttempts();
             userRepository.save(user);
         }
 

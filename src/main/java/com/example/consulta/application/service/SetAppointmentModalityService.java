@@ -2,6 +2,7 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.SetModalityDTO;
+import com.example.consulta.application.port.in.SetAppointmentModalityUseCase;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class SetAppointmentModalityService {
+public class SetAppointmentModalityService implements SetAppointmentModalityUseCase {
 
     private final AppointmentRepository appointmentRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;

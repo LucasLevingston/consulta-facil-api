@@ -7,6 +7,7 @@ import com.example.consulta.domain.entity.ExamRequest;
 import com.example.consulta.domain.enums.ExamRequestStatus;
 import com.example.consulta.domain.repository.ExamRequestRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
+import com.example.consulta.application.port.in.UploadExamUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public class UploadExamService {
+public class UploadExamService implements UploadExamUseCase {
 
     private final ExamRequestRepository examRequestRepository;
     private final PatientProfileRepository patientProfileRepository;

@@ -3,10 +3,10 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.exam.CreateExamRequestDTO;
 import com.example.consulta.api.dto.exam.ExamRequestResponseDTO;
 import com.example.consulta.api.dto.exam.ReviewExamRequestDTO;
-import com.example.consulta.application.service.GetExamsByAppointmentService;
-import com.example.consulta.application.service.RequestExamService;
-import com.example.consulta.application.service.ReviewExamService;
-import com.example.consulta.application.service.UploadExamService;
+import com.example.consulta.application.port.in.GetExamsByAppointmentUseCase;
+import com.example.consulta.application.port.in.RequestExamUseCase;
+import com.example.consulta.application.port.in.ReviewExamUseCase;
+import com.example.consulta.application.port.in.UploadExamUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,10 +29,10 @@ import java.util.List;
 @Tag(name = "Exam Requests", description = "Exam request management endpoints")
 public class ExamRequestController {
 
-    private final RequestExamService requestExamService;
-    private final UploadExamService uploadExamService;
-    private final ReviewExamService reviewExamService;
-    private final GetExamsByAppointmentService getExamsByAppointmentService;
+    private final RequestExamUseCase requestExam;
+    private final UploadExamUseCase uploadExam;
+    private final ReviewExamUseCase reviewExam;
+    private final GetExamsByAppointmentUseCase getExamsByAppointment;
 
     @PostMapping("/appointments/{appointmentId}/exams")
     @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
@@ -41,9 +41,8 @@ public class ExamRequestController {
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateExamRequestDTO dto) {
-        ExamRequestResponseDTO response = requestExamService.execute(
-                appointmentId, userDetails.getUserId(), dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(requestExam.execute(appointmentId, userDetails.getUserId(), dto));
     }
 
     @GetMapping("/appointments/{appointmentId}/exams")
@@ -51,7 +50,7 @@ public class ExamRequestController {
     @Operation(summary = "List exam requests for an appointment")
     public ResponseEntity<List<ExamRequestResponseDTO>> getExamsByAppointment(
             @PathVariable String appointmentId) {
-        return ResponseEntity.ok(getExamsByAppointmentService.execute(appointmentId));
+        return ResponseEntity.ok(getExamsByAppointment.execute(appointmentId));
     }
 
     @PutMapping(value = "/exams/{examId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -61,9 +60,7 @@ public class ExamRequestController {
             @PathVariable String examId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart("file") MultipartFile file) {
-        ExamRequestResponseDTO response = uploadExamService.execute(
-                examId, userDetails.getUserId(), file);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(uploadExam.execute(examId, userDetails.getUserId(), file));
     }
 
     @PutMapping("/exams/{examId}/review")
@@ -73,8 +70,6 @@ public class ExamRequestController {
             @PathVariable String examId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ReviewExamRequestDTO dto) {
-        ExamRequestResponseDTO response = reviewExamService.execute(
-                examId, userDetails.getUserId(), dto);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(reviewExam.execute(examId, userDetails.getUserId(), dto));
     }
 }

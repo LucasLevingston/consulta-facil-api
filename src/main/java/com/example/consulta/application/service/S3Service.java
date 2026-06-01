@@ -1,5 +1,6 @@
 package com.example.consulta.application.service;
 
+import com.example.consulta.domain.port.out.StoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class S3Service {
+public class S3Service implements StoragePort {
 
     private final S3Client s3Client;
 

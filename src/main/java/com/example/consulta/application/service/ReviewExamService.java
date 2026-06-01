@@ -8,13 +8,14 @@ import com.example.consulta.domain.entity.ExamRequest;
 import com.example.consulta.domain.enums.ExamRequestStatus;
 import com.example.consulta.domain.repository.ExamRequestRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.application.port.in.ReviewExamUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ReviewExamService {
+public class ReviewExamService implements ReviewExamUseCase {
 
     private final ExamRequestRepository examRequestRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;

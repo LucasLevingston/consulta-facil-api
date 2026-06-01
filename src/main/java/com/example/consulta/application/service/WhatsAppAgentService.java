@@ -12,6 +12,7 @@ import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
 import com.example.consulta.domain.repository.WhatsAppConversationRepository;
+import com.example.consulta.application.port.in.WhatsAppWebhookUseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +37,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WhatsAppAgentService {
+public class WhatsAppAgentService implements WhatsAppWebhookUseCase {
 
     private final AnthropicProperties anthropicProperties;
     private final WhatsAppConversationRepository conversationRepository;

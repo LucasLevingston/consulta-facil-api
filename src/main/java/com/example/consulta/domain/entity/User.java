@@ -2,6 +2,7 @@ package com.example.consulta.domain.entity;
 
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
+import com.example.consulta.domain.exception.InvalidStateException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -78,4 +79,36 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private ProfessionalProfile professionalProfile;
+
+    // --- Domain behaviour methods ---
+
+    public void recordFailedLogin(int maxAttempts, int lockoutMinutes) {
+        this.failedLoginAttempts++;
+        if (this.failedLoginAttempts >= maxAttempts) {
+            this.lockedUntil = LocalDateTime.now().plusMinutes(lockoutMinutes);
+        }
+    }
+
+    public void resetLoginAttempts() {
+        this.failedLoginAttempts = 0;
+        this.lockedUntil = null;
+    }
+
+    public boolean isCurrentlyLocked() {
+        return this.lockedUntil != null && this.lockedUntil.isAfter(LocalDateTime.now());
+    }
+
+    public void promote(UserRole newRole) {
+        this.role = newRole;
+    }
+
+    public void updateAvatar(String imageUrl, String imageId) {
+        this.imageUrl = imageUrl;
+        this.imageId = imageId;
+    }
+
+    public void clearAvatar() {
+        this.imageUrl = null;
+        this.imageId = null;
+    }
 }

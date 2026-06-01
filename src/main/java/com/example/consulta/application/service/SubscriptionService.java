@@ -16,6 +16,7 @@ import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
 import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
+import com.example.consulta.application.port.in.SubscriptionUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SubscriptionService {
+public class SubscriptionService implements SubscriptionUseCase {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;

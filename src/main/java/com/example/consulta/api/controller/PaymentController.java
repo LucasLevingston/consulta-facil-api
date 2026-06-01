@@ -1,8 +1,8 @@
 package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.appointment.PaymentResponseDTO;
-import com.example.consulta.application.service.CreateAppointmentPaymentService;
-import com.example.consulta.application.service.HandleAppointmentPaymentWebhookService;
+import com.example.consulta.application.port.in.CreateAppointmentPaymentUseCase;
+import com.example.consulta.application.port.in.HandlePaymentWebhookUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import com.example.consulta.core.security.MercadoPagoWebhookValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,8 +23,8 @@ import java.util.Map;
 @Tag(name = "Payments", description = "Appointment payment endpoints")
 public class PaymentController {
 
-    private final CreateAppointmentPaymentService createAppointmentPaymentService;
-    private final HandleAppointmentPaymentWebhookService handleAppointmentPaymentWebhookService;
+    private final CreateAppointmentPaymentUseCase createPayment;
+    private final HandlePaymentWebhookUseCase handleWebhook;
     private final MercadoPagoWebhookValidator webhookValidator;
 
     @PostMapping("/appointments/{appointmentId}/payment")
@@ -35,8 +35,7 @@ public class PaymentController {
             @PathVariable String appointmentId,
             @RequestParam(defaultValue = "0.01") BigDecimal amount,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(
-                createAppointmentPaymentService.execute(appointmentId, userDetails.getUserId(), amount));
+        return ResponseEntity.ok(createPayment.execute(appointmentId, userDetails.getUserId(), amount));
     }
 
     @PostMapping("/payments/webhook")
@@ -45,10 +44,9 @@ public class PaymentController {
             @RequestBody Map<String, Object> body,
             @RequestHeader(value = "x-signature", required = false) String xSignature,
             @RequestHeader(value = "x-request-id", required = false, defaultValue = "") String xRequestId) {
-
         String dataId = extractDataId(body);
         webhookValidator.validate(dataId, xRequestId, xSignature);
-        handleAppointmentPaymentWebhookService.execute(body);
+        handleWebhook.execute(body);
         return ResponseEntity.ok().build();
     }
 

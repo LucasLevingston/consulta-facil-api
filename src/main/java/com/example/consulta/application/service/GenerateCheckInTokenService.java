@@ -1,6 +1,7 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.QrCheckInTokenDTO;
+import com.example.consulta.application.port.in.GenerateCheckInTokenUseCase;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class GenerateCheckInTokenService {
+public class GenerateCheckInTokenService implements GenerateCheckInTokenUseCase {
 
     private final AppointmentRepository appointmentRepository;
 

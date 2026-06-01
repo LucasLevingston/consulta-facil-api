@@ -3,7 +3,7 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.subscription.CheckoutResponseDTO;
 import com.example.consulta.api.dto.subscription.CreateCheckoutDTO;
 import com.example.consulta.api.dto.subscription.SubscriptionResponseDTO;
-import com.example.consulta.application.service.SubscriptionService;
+import com.example.consulta.application.port.in.SubscriptionUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,7 +22,7 @@ import java.util.Map;
 @Tag(name = "Subscriptions", description = "Subscription management via MercadoPago")
 public class SubscriptionController {
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionUseCase subscriptionUseCase;
 
     @PostMapping("/checkout")
     @SecurityRequirement(name = "bearerAuth")
@@ -30,9 +30,7 @@ public class SubscriptionController {
     public ResponseEntity<CheckoutResponseDTO> createCheckout(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateCheckoutDTO dto) {
-        CheckoutResponseDTO response = subscriptionService.createCheckout(
-                userDetails.getUserId(), dto.getPlanId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(subscriptionUseCase.createCheckout(userDetails.getUserId(), dto.getPlanId()));
     }
 
     @GetMapping("/me")
@@ -40,7 +38,7 @@ public class SubscriptionController {
     @Operation(summary = "Get current user subscription")
     public ResponseEntity<SubscriptionResponseDTO> getMySubscription(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return subscriptionService.getMySubscription(userDetails.getUserId())
+        return subscriptionUseCase.getMySubscription(userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -54,9 +52,7 @@ public class SubscriptionController {
                 Object dataObj = payload.get("data");
                 if (dataObj instanceof Map<?, ?> data) {
                     String paymentId = String.valueOf(data.get("id"));
-                    // External reference format: "userId|planId"
-                    // We parse it in the service after fetching payment details from MP
-                    subscriptionService.handlePaymentApproved(paymentId, null);
+                    subscriptionUseCase.handlePaymentApproved(paymentId, null);
                 }
             }
         } catch (Exception e) {

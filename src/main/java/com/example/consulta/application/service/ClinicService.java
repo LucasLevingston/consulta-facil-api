@@ -14,6 +14,7 @@ import com.example.consulta.domain.repository.ClinicMemberRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.application.port.in.ClinicUseCase;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClinicService {
+public class ClinicService implements ClinicUseCase {
 
     private final ClinicRepository clinicRepository;
     private final ClinicMemberRepository clinicMemberRepository;

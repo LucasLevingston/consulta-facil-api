@@ -1,6 +1,7 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
+import com.example.consulta.application.port.in.GenerateMeetLinkUseCase;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class GenerateMeetLinkService {
+public class GenerateMeetLinkService implements GenerateMeetLinkUseCase {
 
     private final AppointmentRepository appointmentRepository;
     private final ProfessionalProfileRepository professionalProfileRepository;

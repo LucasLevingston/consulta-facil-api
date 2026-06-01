@@ -4,6 +4,7 @@ import com.example.consulta.api.dto.professional.ProfessionalResponseDTO;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.application.port.in.SetConsultationPriceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class SetConsultationPriceService {
+public class SetConsultationPriceService implements SetConsultationPriceUseCase {
 
     private final ProfessionalProfileRepository professionalProfileRepository;
     private final ProfessionalService professionalService;
@@ -22,7 +23,7 @@ public class SetConsultationPriceService {
         ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("ProfessionalProfile not found for user: " + userId));
 
-        profile.setConsultationPrice(price);
+        profile.updateConsultationPrice(price);
         professionalProfileRepository.save(profile);
         return professionalService.getProfessionalByUserId(userId);
     }

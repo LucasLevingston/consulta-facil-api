@@ -15,6 +15,7 @@ import com.mercadopago.client.preference.PreferenceClient;
 import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
 import com.mercadopago.resources.preference.Preference;
+import com.example.consulta.application.port.in.CreateAppointmentPaymentUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CreateAppointmentPaymentService {
+public class CreateAppointmentPaymentService implements CreateAppointmentPaymentUseCase {
 
     private final AppointmentRepository appointmentRepository;
     private final PatientProfileRepository patientProfileRepository;

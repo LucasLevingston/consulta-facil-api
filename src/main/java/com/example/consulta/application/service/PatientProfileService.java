@@ -7,6 +7,7 @@ import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.repository.MedicalRecordRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.application.port.in.PatientProfileUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PatientProfileService {
+public class PatientProfileService implements PatientProfileUseCase {
 
     private final PatientProfileRepository patientProfileRepository;
     private final UserRepository userRepository;

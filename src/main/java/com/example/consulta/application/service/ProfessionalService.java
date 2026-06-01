@@ -2,7 +2,6 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
 import com.example.consulta.api.dto.professional.ProfessionalResponseDTO;
-import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.DuplicateResourceException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Clinic;
@@ -11,10 +10,9 @@ import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
 import com.example.consulta.domain.enums.UserRole;
-import java.util.List;
-import java.util.OptionalDouble;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
+import com.example.consulta.application.port.in.ProfessionalProfileUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,17 +23,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.OptionalDouble;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProfessionalService {
+public class ProfessionalService implements ProfessionalProfileUseCase {
 
-    private final ProfessionalProfileRepository professionalProfileRepository;
-    private final UserRepository userRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
+    private final UserRepositoryPort userRepository;
 
     @Transactional
     public ProfessionalResponseDTO createProfessionalProfile(String userId, CreateProfessionalDTO dto) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
@@ -51,30 +51,28 @@ public class ProfessionalService {
                 .status(ProfessionalProfileStatus.PENDING_REVIEW)
                 .build();
 
-        ProfessionalProfile saved = professionalProfileRepository.save(profile);
-        return toResponseDTO(saved);
+        return toResponseDTO(professionalProfileRepository.save(profile));
     }
 
     @Cacheable(value = "professional-profile", key = "#professionalId")
     @Transactional(readOnly = true)
     public ProfessionalResponseDTO getProfessionalById(String professionalId) {
         log.debug("Fetching professional by ID: {}", professionalId);
-        ProfessionalProfile profile = professionalProfileRepository.findById(professionalId)
-                .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalId));
-        return toResponseDTO(profile);
+        return toResponseDTO(professionalProfileRepository.findById(professionalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalId)));
     }
 
     @Transactional(readOnly = true)
     public ProfessionalResponseDTO getProfessionalByUserId(String userId) {
         log.debug("Fetching professional by user ID: {}", userId);
-        ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Professional profile not found for user: " + userId));
-        return toResponseDTO(profile);
+        return toResponseDTO(professionalProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Professional profile not found for user: " + userId)));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Page<ProfessionalResponseDTO> searchBySpecialty(String specialty, Pageable pageable) {
-        log.debug("Searching professionals by specialty: {}", specialty);
         return professionalProfileRepository
                 .findBySpecialtyContainingIgnoreCaseAndStatus(specialty, ProfessionalProfileStatus.ACTIVE, pageable)
                 .map(this::toResponseDTO);
@@ -82,7 +80,6 @@ public class ProfessionalService {
 
     @Transactional(readOnly = true)
     public Page<ProfessionalResponseDTO> getAllProfessionals(String profession, String specialty, String name, Pageable pageable) {
-        log.debug("Fetching professionals with filters profession={}, specialty={}, name={}", profession, specialty, name);
         String profParam = (profession != null && !profession.isBlank()) ? profession : "";
         String specParam = (specialty != null && !specialty.isBlank()) ? specialty : "";
         String nameParam = (name != null && !name.isBlank()) ? name : "";
@@ -92,54 +89,50 @@ public class ProfessionalService {
 
     @Transactional(readOnly = true)
     public List<ProfessionalResponseDTO> getProfessionalsNearby(double lat, double lng, double radiusKm, String specialty, String profession) {
-        log.debug("Fetching professionals near ({}, {}) within {}km", lat, lng, radiusKm);
         String specParam = (specialty != null && !specialty.isBlank()) ? specialty : "";
         String profParam = (profession != null && !profession.isBlank()) ? profession : "";
         return professionalProfileRepository.findNearby(lat, lng, radiusKm, specParam, profParam)
                 .stream().map(this::toResponseDTO).toList();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Page<ProfessionalResponseDTO> getPendingApplications(Pageable pageable) {
-        log.debug("Fetching pending professional applications");
         return professionalProfileRepository.findByStatus(ProfessionalProfileStatus.PENDING_REVIEW, pageable)
                 .map(this::toResponseDTO);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public ProfessionalResponseDTO getApplicationStatus(String userId) {
-        log.debug("Fetching professional application status for user: {}", userId);
-        ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Professional application not found for user: " + userId));
-        return toResponseDTO(profile);
+        return toResponseDTO(professionalProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Professional application not found for user: " + userId)));
     }
 
+    @Override
     @Transactional
     public ProfessionalResponseDTO approveApplication(String professionalId) {
         ProfessionalProfile profile = professionalProfileRepository.findById(professionalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalId));
 
-        if (profile.getStatus() != ProfessionalProfileStatus.PENDING_REVIEW) {
-            throw new BadRequestException("Application is not pending review");
-        }
+        profile.approve(); // throws InvalidStateException if not PENDING_REVIEW
 
-        profile.setStatus(ProfessionalProfileStatus.ACTIVE);
         User user = profile.getUser();
-        user.setRole(UserRole.PROFESSIONAL);
+        user.promote(UserRole.PROFESSIONAL);
         userRepository.save(user);
+
         return toResponseDTO(professionalProfileRepository.save(profile));
     }
 
+    @Override
     @Transactional
     public ProfessionalResponseDTO rejectApplication(String professionalId) {
         ProfessionalProfile profile = professionalProfileRepository.findById(professionalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalId));
 
-        if (profile.getStatus() != ProfessionalProfileStatus.PENDING_REVIEW) {
-            throw new BadRequestException("Application is not pending review");
-        }
+        profile.reject(); // throws InvalidStateException if not PENDING_REVIEW
 
-        profile.setStatus(ProfessionalProfileStatus.REJECTED);
         return toResponseDTO(professionalProfileRepository.save(profile));
     }
 
@@ -147,9 +140,9 @@ public class ProfessionalService {
         @CacheEvict(value = "professional-profile", key = "#professionalId"),
         @CacheEvict(value = "professional-services", allEntries = true)
     })
+    @Override
     @Transactional
     public ProfessionalResponseDTO updateProfessional(String professionalId, CreateProfessionalDTO dto) {
-
         ProfessionalProfile profile = professionalProfileRepository.findById(professionalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalId));
 
@@ -162,27 +155,34 @@ public class ProfessionalService {
         profile.setSpecialty(dto.getSpecialty());
         profile.setLicenseNumber(dto.getLicenseNumber());
 
-        ProfessionalProfile updated = professionalProfileRepository.save(profile);
-        return toResponseDTO(updated);
+        return toResponseDTO(professionalProfileRepository.save(profile));
     }
 
     @Caching(evict = {
         @CacheEvict(value = "professional-profile", key = "#professionalId"),
         @CacheEvict(value = "professional-services", allEntries = true)
     })
+    @Override
     @Transactional
     public void deleteProfessional(String professionalId) {
         ProfessionalProfile profile = professionalProfileRepository.findById(professionalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalId));
 
-        User user = profile.getUser();
-        user.setRole(UserRole.PATIENT);
-        userRepository.save(user);
+        profile.getUser().promote(UserRole.PATIENT);
+        userRepository.save(profile.getUser());
 
         professionalProfileRepository.delete(profile);
     }
 
-    // Lightweight summary used for list endpoints — does NOT load appointments or clinicMemberships
+    // --- bridges ---
+    @Override public ProfessionalResponseDTO createProfile(String userId, CreateProfessionalDTO dto) { return createProfessionalProfile(userId, dto); }
+    @Override public ProfessionalResponseDTO getById(String id) { return getProfessionalById(id); }
+    @Override public ProfessionalResponseDTO getByUserId(String userId) { return getProfessionalByUserId(userId); }
+    @Override public Page<ProfessionalResponseDTO> getAll(String profession, String specialty, String name, Pageable pageable) { return getAllProfessionals(profession, specialty, name, pageable); }
+    @Override public List<ProfessionalResponseDTO> getNearby(double lat, double lng, double radiusKm, String specialty, String profession) { return getProfessionalsNearby(lat, lng, radiusKm, specialty, profession); }
+
+    // --- mappers ---
+
     private ProfessionalResponseDTO toListSummaryDTO(ProfessionalProfile profile) {
         return ProfessionalResponseDTO.builder()
                 .id(profile.getId())
@@ -218,9 +218,7 @@ public class ProfessionalService {
                 .filter(a -> a.getRating() != null)
                 .mapToInt(a -> a.getRating())
                 .average();
-        Double rating = avg.isPresent()
-                ? Math.round(avg.getAsDouble() * 10.0) / 10.0
-                : null;
+        Double rating = avg.isPresent() ? Math.round(avg.getAsDouble() * 10.0) / 10.0 : null;
 
         Clinic clinic = profile.getClinicMemberships().stream()
                 .findFirst()

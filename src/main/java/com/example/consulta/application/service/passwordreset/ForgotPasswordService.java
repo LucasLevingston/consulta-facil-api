@@ -5,6 +5,7 @@ import com.example.consulta.domain.entity.PasswordResetToken;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.repository.PasswordResetTokenRepository;
 import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.application.port.in.ForgotPasswordUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ForgotPasswordService {
+public class ForgotPasswordService implements ForgotPasswordUseCase {
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
@@ -26,6 +27,9 @@ public class ForgotPasswordService {
 
     @Value("${app.url:http://localhost:3000}")
     private String appUrl;
+
+    @Override
+    public void execute(String email) { requestReset(email); }
 
     @Transactional
     public void requestReset(String email) {

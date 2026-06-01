@@ -1,6 +1,6 @@
 package com.example.consulta.api.controller;
 
-import com.example.consulta.application.service.WhatsAppAgentService;
+import com.example.consulta.application.port.in.WhatsAppWebhookUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "WhatsApp Webhook", description = "Twilio WhatsApp incoming message webhook")
 public class WhatsAppWebhookController {
 
-    private final WhatsAppAgentService whatsAppAgentService;
+    private final WhatsAppWebhookUseCase whatsAppWebhook;
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
                  produces = MediaType.APPLICATION_XML_VALUE)
@@ -28,7 +28,7 @@ public class WhatsAppWebhookController {
             @RequestParam(value = "Body", defaultValue = "") String body) {
 
         log.info("[WhatsAppWebhook] Message from {} — body length {}", from, body.length());
-        String reply = whatsAppAgentService.processMessage(from, body);
+        String reply = whatsAppWebhook.processMessage(from, body);
         return twiml(reply);
     }
 

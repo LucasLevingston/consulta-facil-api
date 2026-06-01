@@ -1,7 +1,7 @@
 package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.notification.NotificationResponseDTO;
-import com.example.consulta.application.service.NotificationService;
+import com.example.consulta.application.port.in.NotificationUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Tag(name = "Notifications", description = "Notification management endpoints")
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private final NotificationUseCase notificationUseCase;
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
@@ -29,7 +29,7 @@ public class NotificationController {
     @Operation(summary = "Get my notifications")
     public ResponseEntity<List<NotificationResponseDTO>> getMyNotifications(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(notificationService.getMyNotifications(userDetails.getUserId()));
+        return ResponseEntity.ok(notificationUseCase.getMyNotifications(userDetails.getUserId()));
     }
 
     @GetMapping("/me/unread-count")
@@ -38,8 +38,7 @@ public class NotificationController {
     @Operation(summary = "Get unread notification count")
     public ResponseEntity<Map<String, Long>> getUnreadCount(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        long count = notificationService.countUnread(userDetails.getUserId());
-        return ResponseEntity.ok(Map.of("count", count));
+        return ResponseEntity.ok(Map.of("count", notificationUseCase.countUnread(userDetails.getUserId())));
     }
 
     @PutMapping("/{notificationId}/read")
@@ -49,16 +48,15 @@ public class NotificationController {
     public ResponseEntity<NotificationResponseDTO> markAsRead(
             @PathVariable String notificationId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(notificationService.markAsRead(notificationId, userDetails.getUserId()));
+        return ResponseEntity.ok(notificationUseCase.markAsRead(notificationId, userDetails.getUserId()));
     }
 
     @PutMapping("/read-all")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Mark all notifications as read")
-    public ResponseEntity<Void> markAllAsRead(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        notificationService.markAllAsRead(userDetails.getUserId());
+    public ResponseEntity<Void> markAllAsRead(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        notificationUseCase.markAllAsRead(userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -69,7 +67,7 @@ public class NotificationController {
     public ResponseEntity<NotificationResponseDTO> acceptInvite(
             @PathVariable String notificationId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(notificationService.acceptInvite(notificationId, userDetails.getUserId()));
+        return ResponseEntity.ok(notificationUseCase.acceptInvite(notificationId, userDetails.getUserId()));
     }
 
     @PutMapping("/{notificationId}/decline")
@@ -79,6 +77,6 @@ public class NotificationController {
     public ResponseEntity<NotificationResponseDTO> declineInvite(
             @PathVariable String notificationId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(notificationService.declineInvite(notificationId, userDetails.getUserId()));
+        return ResponseEntity.ok(notificationUseCase.declineInvite(notificationId, userDetails.getUserId()));
     }
 }

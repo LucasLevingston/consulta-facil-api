@@ -11,16 +11,26 @@ import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
 import com.example.consulta.api.dto.appointment.SetModalityDTO;
 import com.example.consulta.api.dto.appointment.SaveMedicalHistoryDTO;
 import com.example.consulta.api.dto.appointment.SaveClinicalNoteDTO;
-import com.example.consulta.application.service.MedicalHistoryService;
-import com.example.consulta.application.service.AppointmentService;
-import com.example.consulta.application.service.CallNextPatientService;
-import com.example.consulta.application.service.CheckInByQrService;
-import com.example.consulta.application.service.GenerateCheckInTokenService;
-import com.example.consulta.application.service.GenerateMeetLinkService;
-import com.example.consulta.application.service.GetQueueService;
-import com.example.consulta.application.service.ClinicalNoteService;
-import com.example.consulta.application.service.RescheduleAppointmentService;
-import com.example.consulta.application.service.SetAppointmentModalityService;
+import com.example.consulta.application.port.in.AppointmentQueryUseCase;
+import com.example.consulta.application.port.in.CallNextPatientUseCase;
+import com.example.consulta.application.port.in.CancelAppointmentUseCase;
+import com.example.consulta.application.port.in.CheckInByQrUseCase;
+import com.example.consulta.application.port.in.CompleteAppointmentUseCase;
+import com.example.consulta.application.port.in.ConfirmAppointmentUseCase;
+import com.example.consulta.application.port.in.DeleteAppointmentUseCase;
+import com.example.consulta.application.port.in.GenerateCheckInTokenUseCase;
+import com.example.consulta.application.port.in.GenerateMeetLinkUseCase;
+import com.example.consulta.application.port.in.GetQueueUseCase;
+import com.example.consulta.application.port.in.RateAppointmentUseCase;
+import com.example.consulta.application.port.in.RescheduleAppointmentUseCase;
+import com.example.consulta.application.port.in.ScheduleAppointmentUseCase;
+import com.example.consulta.application.port.in.SetAppointmentModalityUseCase;
+import com.example.consulta.application.port.in.command.CancelAppointmentCommand;
+import com.example.consulta.application.port.in.command.RateAppointmentCommand;
+import com.example.consulta.application.port.in.command.RescheduleAppointmentCommand;
+import com.example.consulta.application.port.in.command.ScheduleAppointmentCommand;
+import com.example.consulta.application.port.in.ClinicalNoteUseCase;
+import com.example.consulta.application.port.in.MedicalHistoryUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -44,25 +54,39 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Appointments", description = "Appointment management endpoints")
 public class AppointmentController {
 
-    private final AppointmentService appointmentService;
-    private final RescheduleAppointmentService rescheduleAppointmentService;
-    private final MedicalHistoryService medicalHistoryService;
-    private final ClinicalNoteService clinicalNoteService;
-    private final GenerateCheckInTokenService generateCheckInTokenService;
-    private final CheckInByQrService checkInByQrService;
-    private final GetQueueService getQueueService;
-    private final CallNextPatientService callNextPatientService;
-    private final SetAppointmentModalityService setAppointmentModalityService;
-    private final GenerateMeetLinkService generateMeetLinkService;
+    private final ScheduleAppointmentUseCase scheduleAppointment;
+    private final ConfirmAppointmentUseCase confirmAppointment;
+    private final CancelAppointmentUseCase cancelAppointment;
+    private final CompleteAppointmentUseCase completeAppointment;
+    private final RateAppointmentUseCase rateAppointment;
+    private final DeleteAppointmentUseCase deleteAppointment;
+    private final AppointmentQueryUseCase appointmentQuery;
+    private final RescheduleAppointmentUseCase rescheduleAppointment;
+    private final GenerateCheckInTokenUseCase generateCheckInToken;
+    private final CheckInByQrUseCase checkInByQr;
+    private final GetQueueUseCase getQueue;
+    private final CallNextPatientUseCase callNextPatient;
+    private final SetAppointmentModalityUseCase setModality;
+    private final GenerateMeetLinkUseCase generateMeetLink;
+    private final MedicalHistoryUseCase medicalHistoryUseCase;
+    private final ClinicalNoteUseCase clinicalNoteUseCase;
 
     @PostMapping
     @PreAuthorize("hasRole('PATIENT')")
-    @Operation(summary = "Schedule appointment", description = "Creates a new appointment for the authenticated patient")
+    @Operation(summary = "Schedule appointment")
     public ResponseEntity<AppointmentResponseDTO> scheduleAppointment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateAppointmentDTO dto) {
-        AppointmentResponseDTO response = appointmentService.scheduleAppointment(userDetails.getUserId(), dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        ScheduleAppointmentCommand command = new ScheduleAppointmentCommand(
+                userDetails.getUserId(),
+                dto.getProfessionalId(),
+                dto.getScheduledAt(),
+                dto.getReason(),
+                dto.getNotes(),
+                dto.getModality(),
+                dto.getServiceId(),
+                dto.getChosenPaymentMethod());
+        return ResponseEntity.status(HttpStatus.CREATED).body(scheduleAppointment.execute(command));
     }
 
     @GetMapping("/{appointmentId}")
@@ -71,7 +95,7 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDTO> getAppointmentById(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(appointmentService.getAppointmentById(appointmentId, userDetails.getUserId()));
+        return ResponseEntity.ok(appointmentQuery.getById(appointmentId, userDetails.getUserId()));
     }
 
     @GetMapping("/patient/{userId}")
@@ -83,7 +107,8 @@ public class AppointmentController {
             Pageable pageable) {
         boolean isAdmin = userDetails.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        return ResponseEntity.ok(appointmentService.getPatientAppointments(userId, userDetails.getUserId(), isAdmin, pageable));
+        return ResponseEntity.ok(
+                appointmentQuery.getPatientAppointments(userId, userDetails.getUserId(), isAdmin, pageable));
     }
 
     @GetMapping("/professional/{professionalId}")
@@ -92,7 +117,7 @@ public class AppointmentController {
     public ResponseEntity<Page<AppointmentResponseDTO>> getProfessionalAppointments(
             @PathVariable String professionalId,
             Pageable pageable) {
-        return ResponseEntity.ok(appointmentService.getProfessionalAppointments(professionalId, pageable));
+        return ResponseEntity.ok(appointmentQuery.getProfessionalAppointments(professionalId, pageable));
     }
 
     @PutMapping("/{appointmentId}/confirm")
@@ -101,8 +126,7 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDTO> confirmAppointment(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        AppointmentResponseDTO response = appointmentService.confirmAppointment(appointmentId, userDetails.getUserId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(confirmAppointment.confirm(appointmentId, userDetails.getUserId()));
     }
 
     @PutMapping("/{appointmentId}/reschedule")
@@ -112,7 +136,9 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody RescheduleAppointmentDTO dto) {
-        return ResponseEntity.ok(rescheduleAppointmentService.execute(appointmentId, userDetails.getUserId(), dto));
+        RescheduleAppointmentCommand command = new RescheduleAppointmentCommand(
+                appointmentId, userDetails.getUserId(), dto.getScheduledAt(), dto.getReason());
+        return ResponseEntity.ok(rescheduleAppointment.execute(command));
     }
 
     @PutMapping("/{appointmentId}/cancel")
@@ -122,8 +148,9 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CancelAppointmentDTO dto) {
-        AppointmentResponseDTO response = appointmentService.cancelAppointment(appointmentId, userDetails.getUserId(), dto);
-        return ResponseEntity.ok(response);
+        CancelAppointmentCommand command = new CancelAppointmentCommand(
+                appointmentId, userDetails.getUserId(), dto.getCancellationReason());
+        return ResponseEntity.ok(cancelAppointment.execute(command));
     }
 
     @PutMapping("/{appointmentId}/complete")
@@ -132,8 +159,7 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDTO> completeAppointment(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        AppointmentResponseDTO response = appointmentService.completeAppointment(appointmentId, userDetails.getUserId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(completeAppointment.complete(appointmentId, userDetails.getUserId()));
     }
 
     @PostMapping("/{appointmentId}/rate")
@@ -143,9 +169,9 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody RateAppointmentDTO dto) {
-        AppointmentResponseDTO response = appointmentService.rateAppointment(
-                appointmentId, userDetails.getUserId(), dto);
-        return ResponseEntity.ok(response);
+        RateAppointmentCommand command = new RateAppointmentCommand(
+                appointmentId, userDetails.getUserId(), dto.getStars(), dto.getComment());
+        return ResponseEntity.ok(rateAppointment.execute(command));
     }
 
     @GetMapping("/{appointmentId}/checkin-token")
@@ -154,14 +180,14 @@ public class AppointmentController {
     public ResponseEntity<QrCheckInTokenDTO> generateCheckInToken(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(generateCheckInTokenService.execute(appointmentId, userDetails.getUserId()));
+        return ResponseEntity.ok(generateCheckInToken.execute(appointmentId, userDetails.getUserId()));
     }
 
     @PostMapping("/checkin")
     @PreAuthorize("hasAnyRole('RECEPTIONIST', 'PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "Check in patient via QR token")
     public ResponseEntity<AppointmentResponseDTO> checkInByQr(@RequestParam String token) {
-        return ResponseEntity.ok(checkInByQrService.execute(token));
+        return ResponseEntity.ok(checkInByQr.execute(token));
     }
 
     @GetMapping("/queue")
@@ -173,7 +199,7 @@ public class AppointmentController {
                 .findFirst()
                 .map(a -> a.getAuthority())
                 .orElse("");
-        return ResponseEntity.ok(getQueueService.execute(userDetails.getUserId(), role));
+        return ResponseEntity.ok(getQueue.execute(userDetails.getUserId(), role));
     }
 
     @PutMapping("/{appointmentId}/call")
@@ -182,17 +208,17 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDTO> callNextPatient(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(callNextPatientService.execute(appointmentId, userDetails.getUserId()));
+        return ResponseEntity.ok(callNextPatient.execute(appointmentId, userDetails.getUserId()));
     }
 
     @PutMapping("/{appointmentId}/modality")
     @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
     @Operation(summary = "Set appointment modality (IN_PERSON / ONLINE)")
-    public ResponseEntity<AppointmentResponseDTO> setModality(
+    public ResponseEntity<AppointmentResponseDTO> setModalityEndpoint(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody SetModalityDTO dto) {
-        return ResponseEntity.ok(setAppointmentModalityService.execute(appointmentId, userDetails.getUserId(), dto));
+        return ResponseEntity.ok(setModality.execute(appointmentId, userDetails.getUserId(), dto));
     }
 
     @PostMapping("/{appointmentId}/meet-link")
@@ -201,14 +227,14 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDTO> generateMeetLink(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(generateMeetLinkService.execute(appointmentId, userDetails.getUserId()));
+        return ResponseEntity.ok(generateMeetLink.execute(appointmentId, userDetails.getUserId()));
     }
 
     @DeleteMapping("/{appointmentId}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete appointment")
     public ResponseEntity<Void> deleteAppointment(@PathVariable String appointmentId) {
-        appointmentService.deleteAppointment(appointmentId);
+        deleteAppointment.delete(appointmentId);
         return ResponseEntity.noContent().build();
     }
 
@@ -218,7 +244,7 @@ public class AppointmentController {
     public ResponseEntity<MedicalHistoryResponseDTO> getAnamnesis(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return medicalHistoryService.getByAppointmentId(appointmentId, userDetails.getUserId())
+        return medicalHistoryUseCase.getByAppointmentId(appointmentId, userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -230,7 +256,7 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody SaveMedicalHistoryDTO dto) {
-        return ResponseEntity.ok(medicalHistoryService.save(appointmentId, userDetails.getUserId(), dto));
+        return ResponseEntity.ok(medicalHistoryUseCase.save(appointmentId, userDetails.getUserId(), dto));
     }
 
     @GetMapping("/{appointmentId}/clinicalNote")
@@ -239,7 +265,7 @@ public class AppointmentController {
     public ResponseEntity<ClinicalNoteResponseDTO> getClinicalNote(
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return clinicalNoteService.getByAppointmentId(appointmentId, userDetails.getUserId())
+        return clinicalNoteUseCase.getByAppointmentId(appointmentId, userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -251,6 +277,6 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody SaveClinicalNoteDTO dto) {
-        return ResponseEntity.ok(clinicalNoteService.save(appointmentId, userDetails.getUserId(), dto));
+        return ResponseEntity.ok(clinicalNoteUseCase.save(appointmentId, userDetails.getUserId(), dto));
     }
 }

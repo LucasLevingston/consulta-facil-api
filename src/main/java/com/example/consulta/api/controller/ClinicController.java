@@ -7,13 +7,13 @@ import com.example.consulta.api.dto.receptionist.InviteReceptionistDTO;
 import com.example.consulta.api.dto.receptionist.ReceptionistResponseDTO;
 import com.example.consulta.api.dto.schedule.ClinicWorkingHoursResponseDTO;
 import com.example.consulta.api.dto.schedule.CreateClinicWorkingHoursDTO;
-import com.example.consulta.application.service.ClinicService;
-import com.example.consulta.application.service.ClinicWorkingHoursService;
-import com.example.consulta.application.service.GetClinicQueueService;
-import com.example.consulta.application.service.GetClinicReceptionistsService;
-import com.example.consulta.application.service.InviteReceptionistService;
-import com.example.consulta.application.service.NotificationService;
-import com.example.consulta.application.service.RemoveReceptionistService;
+import com.example.consulta.application.port.in.ClinicUseCase;
+import com.example.consulta.application.port.in.ClinicWorkingHoursUseCase;
+import com.example.consulta.application.port.in.GetClinicQueueUseCase;
+import com.example.consulta.application.port.in.GetClinicReceptionistsUseCase;
+import com.example.consulta.application.port.in.InviteReceptionistUseCase;
+import com.example.consulta.application.port.in.NotificationUseCase;
+import com.example.consulta.application.port.in.RemoveReceptionistUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -34,18 +34,18 @@ import java.util.List;
 @Tag(name = "Clinics", description = "Clinic management endpoints")
 public class ClinicController {
 
-    private final ClinicService clinicService;
-    private final ClinicWorkingHoursService clinicWorkingHoursService;
-    private final NotificationService notificationService;
-    private final InviteReceptionistService inviteReceptionistService;
-    private final RemoveReceptionistService removeReceptionistService;
-    private final GetClinicReceptionistsService getClinicReceptionistsService;
-    private final GetClinicQueueService getClinicQueueService;
+    private final ClinicUseCase clinicUseCase;
+    private final ClinicWorkingHoursUseCase clinicWorkingHoursUseCase;
+    private final NotificationUseCase notificationUseCase;
+    private final InviteReceptionistUseCase inviteReceptionistUseCase;
+    private final RemoveReceptionistUseCase removeReceptionistUseCase;
+    private final GetClinicReceptionistsUseCase getClinicReceptionistsUseCase;
+    private final GetClinicQueueUseCase getClinicQueueUseCase;
 
     @GetMapping
     @Operation(summary = "List all active clinics")
     public ResponseEntity<List<ClinicResponseDTO>> getAllClinics() {
-        return ResponseEntity.ok(clinicService.getAllClinics());
+        return ResponseEntity.ok(clinicUseCase.getAllClinics());
     }
 
     @GetMapping("/nearby")
@@ -54,7 +54,7 @@ public class ClinicController {
             @RequestParam double lat,
             @RequestParam double lng,
             @RequestParam(defaultValue = "50") double radiusKm) {
-        return ResponseEntity.ok(clinicService.getClinicsNearby(lat, lng, radiusKm));
+        return ResponseEntity.ok(clinicUseCase.getClinicsNearby(lat, lng, radiusKm));
     }
 
     @GetMapping("/my")
@@ -63,13 +63,13 @@ public class ClinicController {
     @Operation(summary = "Get my clinic")
     public ResponseEntity<List<ClinicResponseDTO>> getMyClinic(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(clinicService.getMyClinic(userDetails.getUserId()));
+        return ResponseEntity.ok(clinicUseCase.getMyClinic(userDetails.getUserId()));
     }
 
     @GetMapping("/{clinicId}")
     @Operation(summary = "Get clinic by ID")
     public ResponseEntity<ClinicResponseDTO> getClinicById(@PathVariable String clinicId) {
-        return ResponseEntity.ok(clinicService.getClinicById(clinicId));
+        return ResponseEntity.ok(clinicUseCase.getClinicById(clinicId));
     }
 
     @PostMapping
@@ -80,7 +80,7 @@ public class ClinicController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateClinicDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(clinicService.createClinic(userDetails.getUserId(), dto));
+                .body(clinicUseCase.createClinic(userDetails.getUserId(), dto));
     }
 
     @PutMapping("/{clinicId}")
@@ -91,7 +91,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateClinicDTO dto) {
-        return ResponseEntity.ok(clinicService.updateClinic(clinicId, userDetails.getUserId(), dto));
+        return ResponseEntity.ok(clinicUseCase.updateClinic(clinicId, userDetails.getUserId(), dto));
     }
 
     @PostMapping("/{clinicId}/members/{professionalProfileId}")
@@ -102,7 +102,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clinicService.addMember(clinicId, professionalProfileId, userDetails.getUserId());
+        clinicUseCase.addMember(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -114,7 +114,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clinicService.removeMember(clinicId, professionalProfileId, userDetails.getUserId());
+        clinicUseCase.removeMember(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -126,7 +126,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        notificationService.sendClinicInvite(clinicId, professionalProfileId, userDetails.getUserId());
+        notificationUseCase.sendClinicInvite(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -139,7 +139,7 @@ public class ClinicController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody InviteReceptionistDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(inviteReceptionistService.execute(clinicId, userDetails.getUserId(), dto));
+                .body(inviteReceptionistUseCase.execute(clinicId, userDetails.getUserId(), dto));
     }
 
     @DeleteMapping("/{clinicId}/receptionists/{receptionistId}")
@@ -150,7 +150,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @PathVariable String receptionistId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        removeReceptionistService.execute(clinicId, receptionistId, userDetails.getUserId());
+        removeReceptionistUseCase.execute(clinicId, receptionistId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -161,19 +161,19 @@ public class ClinicController {
     public ResponseEntity<List<ReceptionistResponseDTO>> getReceptionists(
             @PathVariable String clinicId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(getClinicReceptionistsService.execute(clinicId, userDetails.getUserId()));
+        return ResponseEntity.ok(getClinicReceptionistsUseCase.execute(clinicId, userDetails.getUserId()));
     }
 
     @GetMapping("/{clinicId}/queue")
     @Operation(summary = "Get today's waiting room queue for a clinic")
     public ResponseEntity<List<AppointmentResponseDTO>> getClinicQueue(@PathVariable String clinicId) {
-        return ResponseEntity.ok(getClinicQueueService.execute(clinicId));
+        return ResponseEntity.ok(getClinicQueueUseCase.execute(clinicId));
     }
 
     @GetMapping("/{clinicId}/working-hours")
     @Operation(summary = "Get working hours for a clinic")
     public ResponseEntity<List<ClinicWorkingHoursResponseDTO>> getWorkingHours(@PathVariable String clinicId) {
-        return ResponseEntity.ok(clinicWorkingHoursService.getClinicWorkingHours(clinicId));
+        return ResponseEntity.ok(clinicWorkingHoursUseCase.getWorkingHours(clinicId));
     }
 
     @PutMapping("/{clinicId}/working-hours")
@@ -184,7 +184,6 @@ public class ClinicController {
             @PathVariable String clinicId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody List<CreateClinicWorkingHoursDTO> dtos) {
-        return ResponseEntity.ok(clinicWorkingHoursService.saveClinicWorkingHours(
-                clinicId, userDetails.getUserId(), dtos));
+        return ResponseEntity.ok(clinicWorkingHoursUseCase.saveWorkingHours(clinicId, userDetails.getUserId(), dtos));
     }
 }

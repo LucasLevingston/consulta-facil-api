@@ -6,6 +6,7 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.repository.ClinicReceptionistRepository;
 import com.example.consulta.domain.repository.ClinicRepository;
+import com.example.consulta.application.port.in.GetClinicReceptionistsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetClinicReceptionistsService {
+public class GetClinicReceptionistsService implements GetClinicReceptionistsUseCase {
 
     private final ClinicRepository clinicRepository;
     private final ClinicReceptionistRepository clinicReceptionistRepository;

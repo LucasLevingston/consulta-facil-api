@@ -8,6 +8,7 @@ import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.entity.ClinicWorkingHours;
 import com.example.consulta.domain.repository.ClinicRepository;
 import com.example.consulta.domain.repository.ClinicWorkingHoursRepository;
+import com.example.consulta.application.port.in.ClinicWorkingHoursUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClinicWorkingHoursService {
+public class ClinicWorkingHoursService implements ClinicWorkingHoursUseCase {
 
     private final ClinicWorkingHoursRepository workingHoursRepository;
     private final ClinicRepository clinicRepository;
@@ -59,6 +60,12 @@ public class ClinicWorkingHoursService {
 
         return saved.stream().map(this::toDTO).toList();
     }
+
+    @Override
+    public List<ClinicWorkingHoursResponseDTO> getWorkingHours(String clinicId) { return getClinicWorkingHours(clinicId); }
+
+    @Override
+    public List<ClinicWorkingHoursResponseDTO> saveWorkingHours(String clinicId, String userId, List<CreateClinicWorkingHoursDTO> dtos) { return saveClinicWorkingHours(clinicId, userId, dtos); }
 
     private ClinicWorkingHoursResponseDTO toDTO(ClinicWorkingHours wh) {
         return ClinicWorkingHoursResponseDTO.builder()

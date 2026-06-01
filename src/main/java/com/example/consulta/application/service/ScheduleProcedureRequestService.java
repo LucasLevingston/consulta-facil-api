@@ -14,13 +14,14 @@ import com.example.consulta.domain.enums.ProcedureRequestStatus;
 import com.example.consulta.domain.repository.AppointmentRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
 import com.example.consulta.domain.repository.ProcedureRequestRepository;
+import com.example.consulta.application.port.in.ScheduleProcedureRequestUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ScheduleProcedureRequestService {
+public class ScheduleProcedureRequestService implements ScheduleProcedureRequestUseCase {
 
     private final ProcedureRequestRepository procedureRequestRepository;
     private final AppointmentRepository appointmentRepository;
