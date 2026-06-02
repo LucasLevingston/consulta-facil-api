@@ -2,6 +2,8 @@ package com.example.consulta.domain.port.out;
 
 import com.example.consulta.domain.entity.Subscription;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface SubscriptionRepositoryPort {
@@ -13,4 +15,6 @@ public interface SubscriptionRepositoryPort {
     Optional<Subscription> findByMpPreferenceId(String preferenceId);
 
     Optional<Subscription> findByMpPaymentId(String paymentId);
+
+    List<Subscription> findActiveExpiredBefore(LocalDateTime now);
 }

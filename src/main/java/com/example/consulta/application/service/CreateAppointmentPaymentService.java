@@ -59,7 +59,13 @@ public class CreateAppointmentPaymentService implements CreateAppointmentPayment
             throw new BadRequestException("Este profissional não aceita pagamento via MercadoPago");
         }
 
-        BigDecimal paymentAmount = amount != null ? amount : new BigDecimal("0.01");
+        // Derive amount: caller-supplied → appointment (set at scheduling) → professional price
+        BigDecimal paymentAmount = amount;
+        if (paymentAmount == null) paymentAmount = appointment.getPaymentAmount();
+        if (paymentAmount == null) paymentAmount = appointment.getProfessional().getConsultationPrice();
+        if (paymentAmount == null || paymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Valor do pagamento inválido. Configure o preço de consulta do profissional.");
+        }
 
         try {
             PreferenceItemRequest item = PreferenceItemRequest.builder()

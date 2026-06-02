@@ -33,7 +33,7 @@ public class PaymentController {
     @Operation(summary = "Create payment preference for an appointment")
     public ResponseEntity<PaymentResponseDTO> createPayment(
             @PathVariable String appointmentId,
-            @RequestParam(defaultValue = "0.01") BigDecimal amount,
+            @RequestParam(required = false) BigDecimal amount,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(createPayment.execute(appointmentId, userDetails.getUserId(), amount));
     }

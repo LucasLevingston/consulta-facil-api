@@ -6,6 +6,8 @@ import com.example.consulta.domain.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -32,5 +34,10 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepositoryPort
     @Override
     public Optional<Subscription> findByMpPaymentId(String paymentId) {
         return subscriptionRepository.findByMpPaymentId(paymentId);
+    }
+
+    @Override
+    public List<Subscription> findActiveExpiredBefore(LocalDateTime now) {
+        return subscriptionRepository.findActiveExpiredBefore(now);
     }
 }
