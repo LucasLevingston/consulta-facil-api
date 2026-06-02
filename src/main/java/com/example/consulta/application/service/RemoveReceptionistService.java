@@ -6,9 +6,9 @@ import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.entity.ClinicReceptionist;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.UserRole;
-import com.example.consulta.domain.repository.ClinicReceptionistRepository;
-import com.example.consulta.domain.repository.ClinicRepository;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.ClinicReceptionistRepositoryPort;
+import com.example.consulta.domain.port.out.ClinicRepositoryPort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
 import com.example.consulta.application.port.in.RemoveReceptionistUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RemoveReceptionistService implements RemoveReceptionistUseCase {
 
-    private final ClinicRepository clinicRepository;
-    private final ClinicReceptionistRepository clinicReceptionistRepository;
-    private final UserRepository userRepository;
+    private final ClinicRepositoryPort clinicRepository;
+    private final ClinicReceptionistRepositoryPort clinicReceptionistRepository;
+    private final UserRepositoryPort userRepository;
 
     @Transactional
     public void execute(String clinicId, String receptionistId, String ownerUserId) {

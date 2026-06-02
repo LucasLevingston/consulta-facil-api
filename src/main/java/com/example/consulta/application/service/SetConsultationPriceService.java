@@ -3,7 +3,7 @@ package com.example.consulta.application.service;
 import com.example.consulta.api.dto.professional.ProfessionalResponseDTO;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalProfile;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.example.consulta.application.port.in.SetConsultationPriceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class SetConsultationPriceService implements SetConsultationPriceUseCase {
 
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
     private final ProfessionalService professionalService;
 
     @Transactional

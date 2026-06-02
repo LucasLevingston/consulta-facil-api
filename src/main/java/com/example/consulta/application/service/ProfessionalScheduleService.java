@@ -5,9 +5,9 @@ import com.example.consulta.api.dto.schedule.ProfessionalScheduleResponseDTO;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.ProfessionalSchedule;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.example.consulta.application.port.in.ProfessionalScheduleUseCase;
-import com.example.consulta.domain.repository.ProfessionalScheduleRepository;
+import com.example.consulta.domain.port.out.ProfessionalScheduleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,8 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfessionalScheduleService implements ProfessionalScheduleUseCase {
 
-    private final ProfessionalScheduleRepository scheduleRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ProfessionalScheduleRepositoryPort scheduleRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @Cacheable(value = "professional-schedule", key = "#professionalId")
     @Transactional(readOnly = true)

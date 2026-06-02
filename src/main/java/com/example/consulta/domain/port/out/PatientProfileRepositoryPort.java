@@ -8,5 +8,7 @@ public interface PatientProfileRepositoryPort {
 
     PatientProfile save(PatientProfile profile);
 
+    Optional<PatientProfile> findById(String id);
+
     Optional<PatientProfile> findByUserId(String userId);
 }

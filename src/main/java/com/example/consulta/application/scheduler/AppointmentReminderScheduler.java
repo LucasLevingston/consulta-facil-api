@@ -1,9 +1,9 @@
 package com.example.consulta.application.scheduler;
 
-import com.example.consulta.application.service.EmailService;
+import com.example.consulta.domain.port.out.EmailPort;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,8 +20,8 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class AppointmentReminderScheduler {
 
-    private final AppointmentRepository appointmentRepository;
-    private final EmailService emailService;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final EmailPort emailService;
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("HH:mm", Locale.forLanguageTag("pt-BR"));

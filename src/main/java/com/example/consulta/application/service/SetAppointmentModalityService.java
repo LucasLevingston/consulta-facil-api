@@ -8,8 +8,8 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SetAppointmentModalityService implements SetAppointmentModalityUseCase {
 
-    private final AppointmentRepository appointmentRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @Transactional
     public AppointmentResponseDTO execute(String appointmentId, String professionalUserId, SetModalityDTO dto) {

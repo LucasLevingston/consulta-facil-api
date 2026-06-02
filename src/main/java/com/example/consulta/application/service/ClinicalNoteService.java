@@ -6,8 +6,8 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.ClinicalNote;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.ClinicalNoteRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.ClinicalNoteRepositoryPort;
 import com.example.consulta.application.port.in.ClinicalNoteUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ClinicalNoteService implements ClinicalNoteUseCase {
 
-    private final ClinicalNoteRepository clinicalNoteRepository;
-    private final AppointmentRepository appointmentRepository;
+    private final ClinicalNoteRepositoryPort clinicalNoteRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
     private final OwnershipValidator ownershipValidator;
 
     @Transactional(readOnly = true)

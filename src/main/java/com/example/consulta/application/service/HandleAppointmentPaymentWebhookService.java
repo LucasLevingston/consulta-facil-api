@@ -2,7 +2,7 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.application.observability.BusinessMetrics;
 import com.example.consulta.domain.enums.AppointmentPaymentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.resources.payment.Payment;
 import com.example.consulta.application.port.in.HandlePaymentWebhookUseCase;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class HandleAppointmentPaymentWebhookService implements HandlePaymentWebhookUseCase {
 
-    private final AppointmentRepository appointmentRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
     private final BusinessMetrics businessMetrics;
 
     @Transactional

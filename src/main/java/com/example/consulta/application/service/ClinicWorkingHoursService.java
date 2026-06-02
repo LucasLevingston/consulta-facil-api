@@ -6,8 +6,8 @@ import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.entity.ClinicWorkingHours;
-import com.example.consulta.domain.repository.ClinicRepository;
-import com.example.consulta.domain.repository.ClinicWorkingHoursRepository;
+import com.example.consulta.domain.port.out.ClinicRepositoryPort;
+import com.example.consulta.domain.port.out.ClinicWorkingHoursRepositoryPort;
 import com.example.consulta.application.port.in.ClinicWorkingHoursUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClinicWorkingHoursService implements ClinicWorkingHoursUseCase {
 
-    private final ClinicWorkingHoursRepository workingHoursRepository;
-    private final ClinicRepository clinicRepository;
+    private final ClinicWorkingHoursRepositoryPort workingHoursRepository;
+    private final ClinicRepositoryPort clinicRepository;
 
     @Transactional(readOnly = true)
     public List<ClinicWorkingHoursResponseDTO> getClinicWorkingHours(String clinicId) {

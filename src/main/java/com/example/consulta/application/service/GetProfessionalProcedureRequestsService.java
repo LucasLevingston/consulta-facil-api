@@ -2,8 +2,8 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.procedurerequest.ProcedureRequestResponseDTO;
 import com.example.consulta.core.exception.ResourceNotFoundException;
-import com.example.consulta.domain.repository.ProcedureRequestRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.ProcedureRequestRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.example.consulta.application.port.in.GetProfessionalProcedureRequestsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GetProfessionalProcedureRequestsService implements GetProfessionalProcedureRequestsUseCase {
 
-    private final ProcedureRequestRepository procedureRequestRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ProcedureRequestRepositoryPort procedureRequestRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @Transactional(readOnly = true)
     public List<ProcedureRequestResponseDTO> execute(String professionalUserId) {

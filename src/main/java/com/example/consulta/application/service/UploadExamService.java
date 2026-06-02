@@ -5,8 +5,9 @@ import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ExamRequest;
 import com.example.consulta.domain.enums.ExamRequestStatus;
-import com.example.consulta.domain.repository.ExamRequestRepository;
-import com.example.consulta.domain.repository.PatientProfileRepository;
+import com.example.consulta.domain.port.out.ExamRequestRepositoryPort;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.StoragePort;
 import com.example.consulta.application.port.in.UploadExamUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UploadExamService implements UploadExamUseCase {
 
-    private final ExamRequestRepository examRequestRepository;
-    private final PatientProfileRepository patientProfileRepository;
-    private final S3Service s3Service;
+    private final ExamRequestRepositoryPort examRequestRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
+    private final StoragePort storagePort;
 
     @Transactional
     public ExamRequestResponseDTO execute(String examId, String patientUserId, MultipartFile file) {
@@ -37,7 +38,12 @@ public class UploadExamService implements UploadExamUseCase {
             throw new BadRequestException("Cannot upload file for an already reviewed exam request");
         }
 
-        String fileUrl = s3Service.upload(file, "exams");
+        String fileUrl;
+        try {
+            fileUrl = storagePort.upload(file.getBytes(), file.getOriginalFilename(), file.getContentType(), "exams");
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to upload exam file", e);
+        }
 
         examRequest.setFileUrl(fileUrl);
         examRequest.setFileName(file.getOriginalFilename());

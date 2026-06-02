@@ -6,7 +6,7 @@ import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GenerateCheckInTokenService implements GenerateCheckInTokenUseCase {
 
-    private final AppointmentRepository appointmentRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
 
     @Value("${jwt.secret}")
     private String jwtSecret;

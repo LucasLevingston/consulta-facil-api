@@ -4,9 +4,9 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.MedicalRecord;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.entity.User;
-import com.example.consulta.domain.repository.MedicalRecordRepository;
-import com.example.consulta.domain.repository.PatientProfileRepository;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.MedicalRecordRepositoryPort;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
 import com.example.consulta.application.port.in.PatientProfileUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PatientProfileService implements PatientProfileUseCase {
 
-    private final PatientProfileRepository patientProfileRepository;
-    private final UserRepository userRepository;
-    private final MedicalRecordRepository medicalRecordRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
+    private final UserRepositoryPort userRepository;
+    private final MedicalRecordRepositoryPort medicalRecordRepository;
 
     @Transactional(readOnly = true)
     public Map<String, Object> getPatientProfile(String userId) {

@@ -6,8 +6,8 @@ import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ExamRequest;
 import com.example.consulta.domain.enums.ExamRequestStatus;
-import com.example.consulta.domain.repository.ExamRequestRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.ExamRequestRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.example.consulta.application.port.in.ReviewExamUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ReviewExamService implements ReviewExamUseCase {
 
-    private final ExamRequestRepository examRequestRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ExamRequestRepositoryPort examRequestRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @Transactional
     public ExamRequestResponseDTO execute(String examId, String professionalUserId, ReviewExamRequestDTO dto) {

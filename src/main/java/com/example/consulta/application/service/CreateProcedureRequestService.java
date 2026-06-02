@@ -9,10 +9,10 @@ import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.entity.ProcedureRequest;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.ProfessionalService;
-import com.example.consulta.domain.repository.PatientProfileRepository;
-import com.example.consulta.domain.repository.ProcedureRequestRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
-import com.example.consulta.domain.repository.ProfessionalServiceRepository;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProcedureRequestRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalServiceRepositoryPort;
 import com.example.consulta.application.port.in.CreateProcedureRequestUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreateProcedureRequestService implements CreateProcedureRequestUseCase {
 
-    private final ProcedureRequestRepository procedureRequestRepository;
-    private final ProfessionalServiceRepository professionalServiceRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
-    private final PatientProfileRepository patientProfileRepository;
+    private final ProcedureRequestRepositoryPort procedureRequestRepository;
+    private final ProfessionalServiceRepositoryPort professionalServiceRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
     private final BusinessMetrics businessMetrics;
 
     @Transactional

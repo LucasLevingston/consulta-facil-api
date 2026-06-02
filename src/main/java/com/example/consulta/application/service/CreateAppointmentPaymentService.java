@@ -8,8 +8,8 @@ import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.PaymentMethod;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.PatientProfileRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
 import com.mercadopago.client.preference.PreferenceClient;
 import com.mercadopago.client.preference.PreferenceItemRequest;
@@ -29,8 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CreateAppointmentPaymentService implements CreateAppointmentPaymentUseCase {
 
-    private final AppointmentRepository appointmentRepository;
-    private final PatientProfileRepository patientProfileRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
     private final MercadoPagoConfig mpConfig;
 
     @Transactional

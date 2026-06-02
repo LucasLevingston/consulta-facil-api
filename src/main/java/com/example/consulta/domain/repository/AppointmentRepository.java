@@ -1,6 +1,6 @@
 package com.example.consulta.domain.repository;
 
-import com.example.consulta.api.dto.appointment.PatientSummaryDTO;
+import com.example.consulta.domain.PatientSummary;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import org.springframework.data.domain.Page;
@@ -58,7 +58,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             @Param("end") LocalDateTime end);
 
     @Query(value = """
-            SELECT new com.example.consulta.api.dto.appointment.PatientSummaryDTO(
+            SELECT new com.example.consulta.domain.PatientSummary(
                 u.id, u.name, MAX(a.scheduledAt), COUNT(a.id))
             FROM Appointment a
             JOIN a.patient p
@@ -74,13 +74,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             WHERE a.professional.id = :professionalId
             AND (:search = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')))
             """)
-    Page<PatientSummaryDTO> findProfessionalPatientsByName(
+    Page<PatientSummary> findProfessionalPatientsByName(
             @Param("professionalId") String professionalId,
             @Param("search") String search,
             Pageable pageable);
 
     @Query(value = """
-            SELECT new com.example.consulta.api.dto.appointment.PatientSummaryDTO(
+            SELECT new com.example.consulta.domain.PatientSummary(
                 u.id, u.name, MAX(a.scheduledAt), COUNT(a.id))
             FROM Appointment a
             JOIN a.patient p
@@ -96,7 +96,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             WHERE a.professional.id = :professionalId
             AND (:search = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')))
             """)
-    Page<PatientSummaryDTO> findProfessionalPatientsByRecent(
+    Page<PatientSummary> findProfessionalPatientsByRecent(
             @Param("professionalId") String professionalId,
             @Param("search") String search,
             Pageable pageable);

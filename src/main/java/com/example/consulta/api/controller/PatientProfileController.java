@@ -5,7 +5,7 @@ import com.example.consulta.application.port.in.AppointmentQueryUseCase;
 import com.example.consulta.application.port.in.PatientProfileUseCase;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.core.security.SecurityUtils;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +26,7 @@ public class PatientProfileController {
 
     private final PatientProfileUseCase patientProfileUseCase;
     private final AppointmentQueryUseCase appointmentQueryUseCase;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @GetMapping("/professional/{userId}")
     @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")

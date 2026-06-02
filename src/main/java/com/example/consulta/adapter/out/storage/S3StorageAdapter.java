@@ -1,24 +1,22 @@
-package com.example.consulta.application.service;
+package com.example.consulta.adapter.out.storage;
 
 import com.example.consulta.domain.port.out.StoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class S3Service implements StoragePort {
+public class S3StorageAdapter implements StoragePort {
 
     private final S3Client s3Client;
 
@@ -28,28 +26,24 @@ public class S3Service implements StoragePort {
     @Value("${aws.region}")
     private String region;
 
-    public String upload(MultipartFile file, String folder) {
-        String extension = getExtension(file.getOriginalFilename());
+    @Override
+    public String upload(byte[] content, String filename, String contentType, String folder) {
+        String extension = getExtension(filename);
         String key = folder + "/" + UUID.randomUUID() + extension;
 
-        try {
-            s3Client.putObject(
-                    PutObjectRequest.builder()
-                            .bucket(bucketName)
-                            .key(key)
-                            .contentType(file.getContentType())
-                            .acl(ObjectCannedACL.PUBLIC_READ)
-                            .build(),
-                    RequestBody.fromBytes(file.getBytes()));
-        } catch (IOException e) {
-            log.error("Falha ao fazer upload para S3: {}", e.getMessage());
-            throw new RuntimeException("Falha ao fazer upload da imagem", e);
-        }
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .contentType(contentType)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build(),
+                RequestBody.fromBytes(content));
 
-        String url = "https://%s.s3.%s.amazonaws.com/%s".formatted(bucketName, region, key);
-        return url;
+        return "https://%s.s3.%s.amazonaws.com/%s".formatted(bucketName, region, key);
     }
 
+    @Override
     public void delete(String key) {
         try {
             s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());

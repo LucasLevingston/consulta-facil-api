@@ -1,18 +1,18 @@
-package com.example.consulta.application.service;
+package com.example.consulta.adapter.out.notification;
 
 import com.example.consulta.core.messaging.EventPublisher;
-import com.example.consulta.core.messaging.event.AppointmentCanceledEvent;
-import com.example.consulta.core.messaging.event.AppointmentConfirmedEvent;
-import com.example.consulta.core.messaging.event.AppointmentCreatedEvent;
+import com.example.consulta.domain.event.AppointmentCanceledEvent;
+import com.example.consulta.domain.event.AppointmentConfirmedEvent;
+import com.example.consulta.domain.event.AppointmentCreatedEvent;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.Notification;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.NotificationType;
 import com.example.consulta.domain.port.out.AppointmentNotificationPort;
-import com.example.consulta.domain.repository.NotificationRepository;
+import com.example.consulta.domain.port.out.NotificationRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,16 +20,17 @@ import java.util.Locale;
 import java.util.UUID;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class AppointmentNotificationService implements AppointmentNotificationPort {
+public class AppointmentNotificationAdapter implements AppointmentNotificationPort {
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationRepositoryPort notificationRepository;
     private final EventPublisher eventPublisher;
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm", Locale.forLanguageTag("pt-BR"));
 
+    @Override
     public void notifyScheduled(Appointment appointment) {
         String patientName = appointment.getPatient().getUser().getName();
         String professionalName = appointment.getProfessional().getUser().getName();
@@ -60,6 +61,7 @@ public class AppointmentNotificationService implements AppointmentNotificationPo
         ));
     }
 
+    @Override
     public void notifyConfirmed(Appointment appointment) {
         String professionalName = appointment.getProfessional().getUser().getName();
         String dateStr = appointment.getScheduledAt().format(FMT);
@@ -83,6 +85,7 @@ public class AppointmentNotificationService implements AppointmentNotificationPo
         ));
     }
 
+    @Override
     public void notifyCanceled(Appointment appointment) {
         String patientName = appointment.getPatient().getUser().getName();
         String professionalName = appointment.getProfessional().getUser().getName();

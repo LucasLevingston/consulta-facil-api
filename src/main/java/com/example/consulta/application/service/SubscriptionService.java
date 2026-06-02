@@ -7,8 +7,8 @@ import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Subscription;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.SubscriptionStatus;
-import com.example.consulta.domain.repository.SubscriptionRepository;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.SubscriptionRepositoryPort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
 import com.mercadopago.client.preference.PreferenceClient;
@@ -33,8 +33,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubscriptionService implements SubscriptionUseCase {
 
-    private final SubscriptionRepository subscriptionRepository;
-    private final UserRepository userRepository;
+    private final SubscriptionRepositoryPort subscriptionRepository;
+    private final UserRepositoryPort userRepository;
     private final MercadoPagoConfig mpConfig;
 
     private static final Map<String, PlanInfo> PLANS = Map.of(

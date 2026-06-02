@@ -1,8 +1,8 @@
 package com.example.consulta.application.consumer;
 
 import com.example.consulta.core.messaging.RabbitMQConfig;
-import com.example.consulta.core.messaging.event.PaymentFailedEvent;
-import com.example.consulta.core.messaging.event.PaymentSucceededEvent;
+import com.example.consulta.domain.event.PaymentFailedEvent;
+import com.example.consulta.domain.event.PaymentSucceededEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

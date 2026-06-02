@@ -16,5 +16,7 @@ public interface UserRepositoryPort {
 
     boolean existsByCpf(String cpf);
 
+    Optional<User> findByPhone(String phone);
+
     void delete(User user);
 }

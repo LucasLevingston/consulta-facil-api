@@ -80,11 +80,13 @@ public class UserService implements UserUseCase, RegisterUserUseCase {
         if (user.getImageId() != null) {
             storagePort.delete(user.getImageId());
         }
-
-        String imageUrl = storagePort.upload(file, "avatars");
-        String imageId = imageUrl.substring(imageUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
-
-        user.updateAvatar(imageUrl, imageId);
+        try {
+            String imageUrl = storagePort.upload(file.getBytes(), file.getOriginalFilename(), file.getContentType(), "avatars");
+            String imageId = imageUrl.substring(imageUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
+            user.updateAvatar(imageUrl, imageId);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to upload avatar", e);
+        }
         return toResponseDTO(userRepository.save(user));
     }
 

@@ -5,7 +5,7 @@ import com.example.consulta.api.dto.professionalservice.UpdateProfessionalServic
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalService;
-import com.example.consulta.domain.repository.ProfessionalServiceRepository;
+import com.example.consulta.domain.port.out.ProfessionalServiceRepositoryPort;
 import com.example.consulta.application.port.in.UpdateProfessionalServiceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UpdateProfessionalServiceService implements UpdateProfessionalServiceUseCase {
 
-    private final ProfessionalServiceRepository professionalServiceRepository;
+    private final ProfessionalServiceRepositoryPort professionalServiceRepository;
 
     @CacheEvict(value = "professional-services", allEntries = true)
     @Transactional

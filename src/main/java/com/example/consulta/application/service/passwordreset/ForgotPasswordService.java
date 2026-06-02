@@ -1,10 +1,10 @@
 package com.example.consulta.application.service.passwordreset;
 
-import com.example.consulta.application.service.EmailService;
+import com.example.consulta.domain.port.out.EmailPort;
 import com.example.consulta.domain.entity.PasswordResetToken;
 import com.example.consulta.domain.entity.User;
-import com.example.consulta.domain.repository.PasswordResetTokenRepository;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.PasswordResetTokenRepositoryPort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
 import com.example.consulta.application.port.in.ForgotPasswordUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ForgotPasswordService implements ForgotPasswordUseCase {
 
-    private final UserRepository userRepository;
-    private final PasswordResetTokenRepository tokenRepository;
-    private final EmailService emailService;
+    private final UserRepositoryPort userRepository;
+    private final PasswordResetTokenRepositoryPort tokenRepository;
+    private final EmailPort emailService;
 
     @Value("${app.url:http://localhost:3000}")
     private String appUrl;

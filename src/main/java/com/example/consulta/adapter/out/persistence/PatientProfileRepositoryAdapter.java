@@ -20,6 +20,11 @@ public class PatientProfileRepositoryAdapter implements PatientProfileRepository
     }
 
     @Override
+    public Optional<PatientProfile> findById(String id) {
+        return patientProfileRepository.findById(id);
+    }
+
+    @Override
     public Optional<PatientProfile> findByUserId(String userId) {
         return patientProfileRepository.findByUserId(userId);
     }

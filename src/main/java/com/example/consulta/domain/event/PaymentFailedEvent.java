@@ -1,4 +1,4 @@
-package com.example.consulta.core.messaging.event;
+package com.example.consulta.domain.event;
 
 import java.math.BigDecimal;
 

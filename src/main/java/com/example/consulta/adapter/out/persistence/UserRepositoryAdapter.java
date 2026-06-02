@@ -40,6 +40,11 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public Optional<User> findByPhone(String phone) {
+        return userRepository.findByPhone(phone);
+    }
+
+    @Override
     public void delete(User user) {
         userRepository.delete(user);
     }

@@ -5,9 +5,9 @@ import com.example.consulta.api.dto.exam.ExamRequestResponseDTO;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.entity.ExamRequest;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.ExamRequestRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.ExamRequestRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.example.consulta.application.port.in.RequestExamUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RequestExamService implements RequestExamUseCase {
 
-    private final AppointmentRepository appointmentRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
-    private final ExamRequestRepository examRequestRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
+    private final ExamRequestRepositoryPort examRequestRepository;
 
     @Transactional
     public ExamRequestResponseDTO execute(String appointmentId, String professionalUserId, CreateExamRequestDTO dto) {

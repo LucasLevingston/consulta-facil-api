@@ -1,10 +1,10 @@
 package com.example.consulta.core.messaging;
 
-import com.example.consulta.core.messaging.event.AppointmentCanceledEvent;
-import com.example.consulta.core.messaging.event.AppointmentConfirmedEvent;
-import com.example.consulta.core.messaging.event.AppointmentCreatedEvent;
-import com.example.consulta.core.messaging.event.PaymentFailedEvent;
-import com.example.consulta.core.messaging.event.PaymentSucceededEvent;
+import com.example.consulta.domain.event.AppointmentCanceledEvent;
+import com.example.consulta.domain.event.AppointmentConfirmedEvent;
+import com.example.consulta.domain.event.AppointmentCreatedEvent;
+import com.example.consulta.domain.event.PaymentFailedEvent;
+import com.example.consulta.domain.event.PaymentSucceededEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;

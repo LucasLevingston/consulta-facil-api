@@ -1,10 +1,8 @@
 package com.example.consulta.domain.port.out;
 
-import org.springframework.web.multipart.MultipartFile;
-
 public interface StoragePort {
 
-    String upload(MultipartFile file, String folder);
+    String upload(byte[] content, String filename, String contentType, String folder);
 
     void delete(String key);
 }

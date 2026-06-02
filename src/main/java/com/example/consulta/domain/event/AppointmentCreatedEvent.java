@@ -1,10 +1,10 @@
-package com.example.consulta.core.messaging.event;
+package com.example.consulta.domain.event;
 
 import com.example.consulta.domain.enums.AppointmentModality;
 
 import java.time.LocalDateTime;
 
-public record AppointmentCanceledEvent(
+public record AppointmentCreatedEvent(
         String eventId,
         String appointmentId,
         String patientId,
@@ -17,6 +17,5 @@ public record AppointmentCanceledEvent(
         String professionalPhone,
         LocalDateTime scheduledAt,
         AppointmentModality modality,
-        String cancellationReason,
         String occurredAt
 ) {}

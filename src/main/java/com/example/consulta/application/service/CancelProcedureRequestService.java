@@ -5,9 +5,9 @@ import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProcedureRequest;
 import com.example.consulta.domain.enums.ProcedureRequestStatus;
-import com.example.consulta.domain.repository.PatientProfileRepository;
-import com.example.consulta.domain.repository.ProcedureRequestRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProcedureRequestRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.example.consulta.application.port.in.CancelProcedureRequestUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CancelProcedureRequestService implements CancelProcedureRequestUseCase {
 
-    private final ProcedureRequestRepository procedureRequestRepository;
-    private final PatientProfileRepository patientProfileRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ProcedureRequestRepositoryPort procedureRequestRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @Transactional
     public ProcedureRequestResponseDTO execute(String requestId, String userId) {

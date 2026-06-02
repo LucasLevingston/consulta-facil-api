@@ -24,10 +24,11 @@ import com.example.consulta.domain.port.out.AppointmentNotificationPort;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.core.security.OwnershipValidator;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.PatientProfileRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
-import com.example.consulta.domain.repository.ProfessionalServiceRepository;
+import com.example.consulta.domain.PatientSummary;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalServiceRepositoryPort;
 import com.example.consulta.application.observability.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,10 +52,10 @@ public class AppointmentService implements
         DeleteAppointmentUseCase,
         AppointmentQueryUseCase {
 
-    private final AppointmentRepository appointmentRepository;
-    private final PatientProfileRepository patientProfileRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
-    private final ProfessionalServiceRepository professionalServiceRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
+    private final ProfessionalServiceRepositoryPort professionalServiceRepository;
     private final AppointmentNotificationPort appointmentNotification;
     private final CreateAppointmentPaymentService createAppointmentPaymentService;
     private final BusinessMetrics businessMetrics;
@@ -169,9 +170,10 @@ public class AppointmentService implements
                 professionalId, search, sort);
         String term = search == null ? "" : search.trim();
         Pageable pageable = PageRequest.of(page, size);
-        return "name".equals(sort)
+        Page<com.example.consulta.domain.PatientSummary> summaries = "name".equals(sort)
                 ? appointmentRepository.findProfessionalPatientsByName(professionalId, term, pageable)
                 : appointmentRepository.findProfessionalPatientsByRecent(professionalId, term, pageable);
+        return summaries.map(ps -> new PatientSummaryDTO(ps.id(), ps.name(), ps.lastAppointment(), ps.totalAppointments()));
     }
 
     @Override
