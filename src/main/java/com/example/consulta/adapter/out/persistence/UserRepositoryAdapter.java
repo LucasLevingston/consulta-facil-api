@@ -45,6 +45,11 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public Optional<User> findByGoogleId(String googleId) {
+        return userRepository.findByGoogleId(googleId);
+    }
+
+    @Override
     public void delete(User user) {
         userRepository.delete(user);
     }

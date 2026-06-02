@@ -51,6 +51,12 @@ public class AuthService implements LoginUseCase {
             throw new UnauthorizedException("Account temporarily locked. Try again later.");
         }
 
+        if (user.getPassword() == null) {
+            // Google-only account — prevent timing oracle via dummy hash
+            passwordEncoder.matches(request.getPassword(), DUMMY_HASH);
+            throw new UnauthorizedException("Esta conta usa o login com Google. Use 'Entrar com Google'.");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             user.recordFailedLogin(maxAttempts, lockoutDurationMinutes);
             if (user.isCurrentlyLocked()) {

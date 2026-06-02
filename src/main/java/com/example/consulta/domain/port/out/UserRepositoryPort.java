@@ -18,5 +18,7 @@ public interface UserRepositoryPort {
 
     Optional<User> findByPhone(String phone);
 
+    Optional<User> findByGoogleId(String googleId);
+
     void delete(User user);
 }

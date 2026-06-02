@@ -133,4 +133,19 @@ public class SesEmailAdapter implements EmailPort {
         String text = "Falha no pagamento da consulta %s. Tente novamente.".formatted(appointmentId);
         sendEmail(to, "Falha no pagamento — Consulta Fácil", html, text);
     }
+
+    @Override
+    public void sendMagicLink(String to, String name, String magicUrl) {
+        String html = """
+                <h2>Seu link de acesso</h2>
+                <p>Olá, %s!</p>
+                <p>Clique no botão abaixo para entrar na sua conta. O link expira em 15 minutos e só pode ser usado uma vez.</p>
+                <a href="%s" style="background:#2563eb;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
+                  Entrar na conta
+                </a>
+                <p>Se você não solicitou este link, ignore este e-mail.</p>
+                """.formatted(name, magicUrl);
+        String text = "Olá, %s! Acesse sua conta pelo link (válido por 15 min): %s".formatted(name, magicUrl);
+        sendEmail(to, "Seu link de acesso — Consulta Fácil", html, text);
+    }
 }

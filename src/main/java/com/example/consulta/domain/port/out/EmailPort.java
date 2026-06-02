@@ -22,4 +22,6 @@ public interface EmailPort {
                             String amount, String paymentMethod);
 
     void sendPaymentFailure(String to, String patientName, String appointmentId);
+
+    void sendMagicLink(String to, String name, String magicUrl);
 }
