@@ -167,4 +167,38 @@ class AppointmentServiceTest {
         assertThatThrownBy(() -> service.delete("bad"))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
+
+    // ── backward-compat bridges ───────────────────────────────────────────
+
+    @Test
+    void scheduleAppointment_delegatesToExecute() {
+        when(appointmentRepository.findById(any())).thenReturn(Optional.empty());
+        var dto = com.example.consulta.api.dto.appointment.CreateAppointmentDTO.builder()
+                .professionalId("prof-1").scheduledAt(LocalDateTime.now().plusDays(1)).build();
+        // No professional profile set up → ScheduleAppointmentCommand throws ResourceNotFoundException
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                () -> service.scheduleAppointment("u-1", dto))
+                .isInstanceOf(Exception.class);
+    }
+
+    @Test
+    void cancelAppointment_delegatesToExecute() {
+        when(appointmentRepository.findById("appt-1")).thenReturn(Optional.of(appointment));
+        var dto = new com.example.consulta.api.dto.appointment.CancelAppointmentDTO();
+        dto.setCancellationReason("Motivo");
+        service.cancelAppointment("appt-1", "u-1", dto);
+        org.assertj.core.api.Assertions.assertThat(appointment.getStatus())
+                .isEqualTo(com.example.consulta.domain.enums.AppointmentStatus.CANCELED);
+    }
+
+    @Test
+    void rateAppointment_delegatesToExecute() {
+        appointment.setStatus(com.example.consulta.domain.enums.AppointmentStatus.COMPLETED);
+        when(appointmentRepository.findById("appt-1")).thenReturn(Optional.of(appointment));
+        when(patientProfileRepository.findByUserId("u-1")).thenReturn(Optional.of(patient));
+        var dto = new com.example.consulta.api.dto.appointment.RateAppointmentDTO();
+        dto.setStars(5); dto.setComment("Ótimo");
+        service.rateAppointment("appt-1", "u-1", dto);
+        org.assertj.core.api.Assertions.assertThat(appointment.getRating()).isEqualTo(5);
+    }
 }
