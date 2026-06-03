@@ -1,5 +1,6 @@
 package com.example.consulta.core.config;
 
+import com.example.consulta.core.security.AuthRateLimitFilter;
 import com.example.consulta.core.security.CustomUserDetailsService;
 import com.example.consulta.core.security.JwtAuthenticationFilter;
 import com.example.consulta.core.security.JwtTokenProvider;
@@ -33,6 +34,7 @@ public class SecurityConfiguration {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthRateLimitFilter authRateLimitFilter;
 
     @Value("${cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
@@ -70,6 +72,7 @@ public class SecurityConfiguration {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/professionals/**").permitAll()
@@ -87,6 +90,7 @@ public class SecurityConfiguration {
                 .accessDeniedHandler((request, response, accessDeniedException) ->
                     response.sendError(HttpStatus.FORBIDDEN.value(), accessDeniedException.getMessage()))
             )
+            .addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

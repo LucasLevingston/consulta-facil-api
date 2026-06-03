@@ -5,19 +5,22 @@ import com.example.consulta.api.dto.professionalservice.ProfessionalServiceRespo
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.ProfessionalProfile;
 import com.example.consulta.domain.entity.ProfessionalService;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
-import com.example.consulta.domain.repository.ProfessionalServiceRepository;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalServiceRepositoryPort;
+import com.example.consulta.application.port.in.CreateProfessionalServiceUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CreateProfessionalServiceService {
+public class CreateProfessionalServiceService implements CreateProfessionalServiceUseCase {
 
-    private final ProfessionalServiceRepository professionalServiceRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final ProfessionalServiceRepositoryPort professionalServiceRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
+    @CacheEvict(value = "professional-services", allEntries = true)
     @Transactional
     public ProfessionalServiceResponseDTO execute(String userId, CreateProfessionalServiceDTO dto) {
         ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)

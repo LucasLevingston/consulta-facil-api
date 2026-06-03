@@ -11,10 +11,11 @@ import com.example.consulta.domain.entity.Notification;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.NotificationStatus;
 import com.example.consulta.domain.enums.NotificationType;
-import com.example.consulta.domain.repository.ClinicMemberRepository;
-import com.example.consulta.domain.repository.ClinicRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
-import com.example.consulta.domain.repository.NotificationRepository;
+import com.example.consulta.domain.port.out.ClinicMemberRepositoryPort;
+import com.example.consulta.domain.port.out.ClinicRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.example.consulta.domain.port.out.NotificationRepositoryPort;
+import com.example.consulta.application.port.in.NotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +24,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService {
+public class NotificationService implements NotificationUseCase {
 
-    private final NotificationRepository notificationRepository;
-    private final ClinicRepository clinicRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
-    private final ClinicMemberRepository clinicMemberRepository;
+    private final NotificationRepositoryPort notificationRepository;
+    private final ClinicRepositoryPort clinicRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
+    private final ClinicMemberRepositoryPort clinicMemberRepository;
 
     @Transactional
     public void sendClinicInvite(String clinicId, String professionalProfileId, String requesterId) {

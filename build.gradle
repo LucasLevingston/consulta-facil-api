@@ -26,7 +26,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	// Rate limiting
+	implementation 'com.bucket4j:bucket4j-core:8.10.1'
+
 	// Database
 	runtimeOnly 'org.postgresql:postgresql'
 	implementation 'org.flywaydb:flyway-core:10.0.1'
@@ -70,9 +74,14 @@ dependencies {
 	// Observability — Structured JSON logging (stdout → CloudWatch on ECS)
 	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
-	// AWS S3
+	// Cache — Redis
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// AWS SDK
 	implementation platform('software.amazon.awssdk:bom:2.21.0')
 	implementation 'software.amazon.awssdk:s3'
+	implementation 'software.amazon.awssdk:sesv2'
 
 	// MercadoPago
 	implementation('com.mercadopago:sdk-java:2.1.7') {
@@ -90,6 +99,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:postgresql:1.19.7'
+	testImplementation 'org.testcontainers:rabbitmq:1.19.7'
+	testImplementation 'org.springframework.amqp:spring-rabbit-test'
 }
 
 // ─── JaCoCo: cobertura de testes ─────────────────────────────────────────────

@@ -2,23 +2,24 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.api.dto.appointment.SetModalityDTO;
+import com.example.consulta.application.port.in.SetAppointmentModalityUseCase;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class SetAppointmentModalityService {
+public class SetAppointmentModalityService implements SetAppointmentModalityUseCase {
 
-    private final AppointmentRepository appointmentRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @Transactional
     public AppointmentResponseDTO execute(String appointmentId, String professionalUserId, SetModalityDTO dto) {

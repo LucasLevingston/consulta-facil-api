@@ -3,7 +3,8 @@ package com.example.consulta.application.service;
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
 import com.example.consulta.domain.entity.Appointment;
 import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.application.port.in.GetClinicQueueUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +15,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetClinicQueueService {
+public class GetClinicQueueService implements GetClinicQueueUseCase {
 
-    private final AppointmentRepository appointmentRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
 
     @Transactional(readOnly = true)
     public List<AppointmentResponseDTO> execute(String clinicId) {

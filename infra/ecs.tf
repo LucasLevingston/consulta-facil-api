@@ -1,9 +1,17 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  account_id  = data.aws_caller_identity.current.account_id
-  app_url     = var.acm_certificate_arn != "" ? "https://${var.domain_name}" : "http://${aws_lb.main.dns_name}"
-  api_url     = "${local.app_url}/v1"
+  account_id = data.aws_caller_identity.current.account_id
+
+  # Resolve cert ARN: BYO > Terraform-created > none
+  certificate_arn = (
+    var.acm_certificate_arn != "" ? var.acm_certificate_arn :
+    (var.domain_name != "" ? aws_acm_certificate_validation.main[0].certificate_arn : "")
+  )
+
+  https_enabled = local.certificate_arn != ""
+  app_url       = local.https_enabled ? "https://${var.domain_name}" : "http://${aws_lb.main.dns_name}"
+  api_url       = "${local.app_url}/v1"
 }
 
 # ─── ECS Cluster ──────────────────────────────────────────────────────────────
@@ -64,21 +72,26 @@ resource "aws_ecs_task_definition" "api" {
       protocol      = "tcp"
     }]
 
-    environment = [
+    environment = concat([
       { name = "SPRING_PROFILES_ACTIVE", value = "prod" },
       { name = "AWS_REGION",             value = var.aws_region },
       { name = "AWS_S3_BUCKET",          value = "${var.app_name}-images" },
       { name = "APP_URL",                value = local.app_url },
       { name = "CORS_ALLOWED_ORIGINS",   value = local.app_url },
-    ]
+      { name = "AWS_SES_FROM_EMAIL",     value = aws_ssm_parameter.ses_from_email.value },
+    ], var.enable_elasticache ? [
+      { name = "REDIS_HOST", value = local.redis_host },
+      { name = "REDIS_PORT", value = local.redis_port },
+    ] : [])
 
     secrets = [
       { name = "JWT_SECRET",                valueFrom = aws_ssm_parameter.jwt_secret.arn },
       { name = "DB_URL",                    valueFrom = aws_ssm_parameter.db_url.arn },
       { name = "DB_USERNAME",               valueFrom = aws_ssm_parameter.db_username.arn },
       { name = "DB_PASSWORD",               valueFrom = aws_ssm_parameter.db_password.arn },
-      { name = "MERCADOPAGO_ACCESS_TOKEN",  valueFrom = aws_ssm_parameter.mercadopago_token.arn },
-      { name = "GRAFANA_OTLP_ENDPOINT",     valueFrom = aws_ssm_parameter.grafana_otlp_endpoint.arn },
+      { name = "MERCADOPAGO_ACCESS_TOKEN",   valueFrom = aws_ssm_parameter.mercadopago_token.arn },
+      { name = "MERCADOPAGO_WEBHOOK_SECRET", valueFrom = aws_ssm_parameter.mercadopago_webhook_secret.arn },
+      { name = "GRAFANA_OTLP_ENDPOINT",      valueFrom = aws_ssm_parameter.grafana_otlp_endpoint.arn },
       { name = "GRAFANA_OTLP_TOKEN",        valueFrom = aws_ssm_parameter.grafana_otlp_token.arn },
       { name = "ANTHROPIC_API_KEY",         valueFrom = aws_ssm_parameter.anthropic_api_key.arn },
       { name = "TWILIO_ACCOUNT_SID",        valueFrom = aws_ssm_parameter.twilio_account_sid.arn },

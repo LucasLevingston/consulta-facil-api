@@ -11,20 +11,21 @@ import com.example.consulta.domain.entity.ProcedureRequest;
 import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.ProcedureRequestStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.PatientProfileRepository;
-import com.example.consulta.domain.repository.ProcedureRequestRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProcedureRequestRepositoryPort;
+import com.example.consulta.application.port.in.ScheduleProcedureRequestUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ScheduleProcedureRequestService {
+public class ScheduleProcedureRequestService implements ScheduleProcedureRequestUseCase {
 
-    private final ProcedureRequestRepository procedureRequestRepository;
-    private final AppointmentRepository appointmentRepository;
-    private final PatientProfileRepository patientProfileRepository;
+    private final ProcedureRequestRepositoryPort procedureRequestRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
     private final BusinessMetrics businessMetrics;
 
     @Transactional

@@ -39,6 +39,13 @@ resource "aws_ssm_parameter" "mercadopago_token" {
   tags  = { Name = "mercadopago-token" }
 }
 
+resource "aws_ssm_parameter" "mercadopago_webhook_secret" {
+  name  = "${local.ssm_prefix}/mercadopago-webhook-secret"
+  type  = "SecureString"
+  value = var.mercadopago_webhook_secret
+  tags  = { Name = "mercadopago-webhook-secret" }
+}
+
 resource "aws_ssm_parameter" "grafana_otlp_endpoint" {
   name  = "${local.ssm_prefix}/grafana-otlp-endpoint"
   type  = "SecureString"
@@ -79,4 +86,12 @@ resource "aws_ssm_parameter" "grafana_faro_url" {
   type  = "SecureString"
   value = var.grafana_faro_url != "" ? var.grafana_faro_url : "disabled"
   tags  = { Name = "grafana-faro-url" }
+}
+
+resource "aws_ssm_parameter" "redis_host" {
+  count = var.enable_elasticache ? 1 : 0
+  name  = "${local.ssm_prefix}/redis-host"
+  type  = "String"
+  value = local.redis_host
+  tags  = { Name = "redis-host" }
 }

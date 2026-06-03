@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: consulta-facil
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: api
+          # Replace with your registry image, e.g.:
+          # <ecr-registry>/consulta-facil/api:latest
+          image: consulta-facil/api:v2
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: AWS_S3_BUCKET
+              value: "consulta-facil-images"
+            - name: APP_URL
+              value: "https://consulta-facil.com"
+            - name: CORS_ALLOWED_ORIGINS
+              value: "https://consulta-facil.com"
+            - name: AWS_SES_FROM_EMAIL
+              value: "noreply@consulta-facil.com"
+            - name: MANAGEMENT_HEALTH_REDIS_ENABLED
+              value: "false"
+            - name: MANAGEMENT_HEALTH_RABBIT_ENABLED
+              value: "false"
+          envFrom:
+            - secretRef:
+                name: consulta-facil-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /v1/actuator/health
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000

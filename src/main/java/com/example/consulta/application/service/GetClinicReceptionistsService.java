@@ -4,8 +4,9 @@ import com.example.consulta.api.dto.receptionist.ReceptionistResponseDTO;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Clinic;
-import com.example.consulta.domain.repository.ClinicReceptionistRepository;
-import com.example.consulta.domain.repository.ClinicRepository;
+import com.example.consulta.domain.port.out.ClinicReceptionistRepositoryPort;
+import com.example.consulta.domain.port.out.ClinicRepositoryPort;
+import com.example.consulta.application.port.in.GetClinicReceptionistsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,10 +15,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetClinicReceptionistsService {
+public class GetClinicReceptionistsService implements GetClinicReceptionistsUseCase {
 
-    private final ClinicRepository clinicRepository;
-    private final ClinicReceptionistRepository clinicReceptionistRepository;
+    private final ClinicRepositoryPort clinicRepository;
+    private final ClinicReceptionistRepositoryPort clinicReceptionistRepository;
 
     @Transactional(readOnly = true)
     public List<ReceptionistResponseDTO> execute(String clinicId, String requestingUserId) {

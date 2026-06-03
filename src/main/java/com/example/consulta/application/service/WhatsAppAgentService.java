@@ -7,11 +7,12 @@ import com.example.consulta.domain.entity.WhatsAppConversation;
 import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentStatus;
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.PatientProfileRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
-import com.example.consulta.domain.repository.UserRepository;
-import com.example.consulta.domain.repository.WhatsAppConversationRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.PatientProfileRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
+import com.example.consulta.domain.port.out.WhatsAppConversationRepositoryPort;
+import com.example.consulta.application.port.in.WhatsAppWebhookUseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,14 +37,14 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WhatsAppAgentService {
+public class WhatsAppAgentService implements WhatsAppWebhookUseCase {
 
     private final AnthropicProperties anthropicProperties;
-    private final WhatsAppConversationRepository conversationRepository;
-    private final UserRepository userRepository;
-    private final PatientProfileRepository patientProfileRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
-    private final AppointmentRepository appointmentRepository;
+    private final WhatsAppConversationRepositoryPort conversationRepository;
+    private final UserRepositoryPort userRepository;
+    private final PatientProfileRepositoryPort patientProfileRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
     private final AppointmentService appointmentService;
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -207,7 +208,7 @@ public class WhatsAppAgentService {
                     if (userId == null) yield "Usuário não cadastrado.";
                     String appointmentId = input.path("appointment_id").asText();
                     String reason = input.path("reason").asText("Cancelado pelo paciente via WhatsApp");
-                    appointmentService.cancelAppointment(appointmentId,
+                    appointmentService.cancelAppointment(appointmentId, userId,
                             new CancelAppointmentDTO(reason));
                     yield "Consulta cancelada com sucesso.";
                 }

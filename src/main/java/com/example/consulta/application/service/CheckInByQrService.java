@@ -1,11 +1,11 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
+import com.example.consulta.application.port.in.CheckInByQrUseCase;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
-import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class CheckInByQrService {
+public class CheckInByQrService implements CheckInByQrUseCase {
 
-    private final AppointmentRepository appointmentRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -46,13 +46,7 @@ public class CheckInByQrService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
 
-        if (appointment.getStatus() != AppointmentStatus.CONFIRMED
-                && appointment.getStatus() != AppointmentStatus.PENDING) {
-            throw new BadRequestException("Appointment is not in a check-in eligible status");
-        }
-
-        appointment.setStatus(AppointmentStatus.CHECKED_IN);
-        appointment.setCheckedInAt(LocalDateTime.now());
+        appointment.checkIn();
         Appointment saved = appointmentRepository.save(appointment);
 
         return toResponseDTO(saved);

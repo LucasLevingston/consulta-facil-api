@@ -2,7 +2,7 @@ package com.example.consulta.api.controller;
 
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
-import com.example.consulta.application.service.S3Service;
+import com.example.consulta.domain.port.out.StoragePort;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
@@ -46,7 +46,7 @@ class UserControllerIntegrationTest {
     private UserRepository userRepository;
 
     @MockBean
-    private S3Service s3Service;
+    private StoragePort storagePort;
 
     private String userToken;
     private String userId;
@@ -144,7 +144,7 @@ class UserControllerIntegrationTest {
     @Test
     void testUploadAvatar() throws Exception {
         String fakeUrl = "https://consulta-facil-images.s3.us-east-1.amazonaws.com/avatars/test-uuid.jpg";
-        when(s3Service.upload(any(), eq("avatars"))).thenReturn(fakeUrl);
+        when(storagePort.upload(any(), any(), any(), eq("avatars"))).thenReturn(fakeUrl);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file", "avatar.jpg", MediaType.IMAGE_JPEG_VALUE, "fake-image-data".getBytes());

@@ -8,9 +8,10 @@ import com.example.consulta.domain.entity.Clinic;
 import com.example.consulta.domain.entity.ClinicReceptionist;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.UserRole;
-import com.example.consulta.domain.repository.ClinicReceptionistRepository;
-import com.example.consulta.domain.repository.ClinicRepository;
-import com.example.consulta.domain.repository.UserRepository;
+import com.example.consulta.domain.port.out.ClinicReceptionistRepositoryPort;
+import com.example.consulta.domain.port.out.ClinicRepositoryPort;
+import com.example.consulta.domain.port.out.UserRepositoryPort;
+import com.example.consulta.application.port.in.InviteReceptionistUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +20,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class InviteReceptionistService {
+public class InviteReceptionistService implements InviteReceptionistUseCase {
 
-    private final ClinicRepository clinicRepository;
-    private final UserRepository userRepository;
-    private final ClinicReceptionistRepository clinicReceptionistRepository;
+    private final ClinicRepositoryPort clinicRepository;
+    private final UserRepositoryPort userRepository;
+    private final ClinicReceptionistRepositoryPort clinicReceptionistRepository;
 
     @Transactional
     public ReceptionistResponseDTO execute(String clinicId, String ownerUserId, InviteReceptionistDTO dto) {

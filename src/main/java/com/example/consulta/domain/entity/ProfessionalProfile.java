@@ -1,13 +1,19 @@
 package com.example.consulta.domain.entity;
 
+import com.example.consulta.domain.enums.PaymentMethod;
+import com.example.consulta.domain.enums.PaymentTiming;
 import com.example.consulta.domain.enums.ProfessionalProfileStatus;
+import com.example.consulta.domain.exception.InvalidStateException;
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "professional_profiles", indexes = {
@@ -53,13 +59,55 @@ public class ProfessionalProfile {
     @Column(precision = 10, scale = 2)
     private BigDecimal consultationPrice;
 
+    @ElementCollection(targetClass = PaymentMethod.class, fetch = FetchType.LAZY)
+    @CollectionTable(name = "professional_payment_methods", joinColumns = @JoinColumn(name = "professional_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    @BatchSize(size = 20)
+    @Builder.Default
+    private Set<PaymentMethod> acceptedPaymentMethods = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private PaymentTiming paymentTiming = PaymentTiming.AT_CONSULTATION;
+
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     @Builder.Default
     @ToString.Exclude
     private List<Appointment> appointments = new ArrayList<>();
 
     @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     @Builder.Default
     @ToString.Exclude
     private List<ClinicMember> clinicMemberships = new ArrayList<>();
+
+    // --- Domain behaviour methods ---
+
+    public void approve() {
+        if (this.status != ProfessionalProfileStatus.PENDING_REVIEW) {
+            throw new InvalidStateException(
+                    "Application is not pending review. Current: " + status);
+        }
+        this.status = ProfessionalProfileStatus.ACTIVE;
+    }
+
+    public void reject() {
+        if (this.status != ProfessionalProfileStatus.PENDING_REVIEW) {
+            throw new InvalidStateException(
+                    "Application is not pending review. Current: " + status);
+        }
+        this.status = ProfessionalProfileStatus.REJECTED;
+    }
+
+    public void updateConsultationPrice(java.math.BigDecimal price) {
+        this.consultationPrice = price;
+    }
+
+    public void setPaymentConfiguration(Set<PaymentMethod> methods, PaymentTiming timing) {
+        this.acceptedPaymentMethods = methods != null ? methods : new HashSet<>();
+        if (timing != null) this.paymentTiming = timing;
+    }
 }

@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users", indexes = {
-    @Index(name = "idx_email", columnList = "email", unique = true),
-    @Index(name = "idx_cpf", columnList = "cpf")
+        @Index(name = "idx_email", columnList = "email", unique = true),
+        @Index(name = "idx_cpf", columnList = "cpf")
 })
 @Data
 @NoArgsConstructor
@@ -32,8 +32,10 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
+
+    @Column(name = "google_id", unique = true)
+    private String googleId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -54,6 +56,11 @@ public class User {
 
     private String imageId;
 
+    @Builder.Default
+    private int failedLoginAttempts = 0;
+
+    private LocalDateTime lockedUntil;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -73,4 +80,36 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private ProfessionalProfile professionalProfile;
+
+    // --- Domain behaviour methods ---
+
+    public void recordFailedLogin(int maxAttempts, int lockoutMinutes) {
+        this.failedLoginAttempts++;
+        if (this.failedLoginAttempts >= maxAttempts) {
+            this.lockedUntil = LocalDateTime.now().plusMinutes(lockoutMinutes);
+        }
+    }
+
+    public void resetLoginAttempts() {
+        this.failedLoginAttempts = 0;
+        this.lockedUntil = null;
+    }
+
+    public boolean isCurrentlyLocked() {
+        return this.lockedUntil != null && this.lockedUntil.isAfter(LocalDateTime.now());
+    }
+
+    public void promote(UserRole newRole) {
+        this.role = newRole;
+    }
+
+    public void updateAvatar(String imageUrl, String imageId) {
+        this.imageUrl = imageUrl;
+        this.imageId = imageId;
+    }
+
+    public void clearAvatar() {
+        this.imageUrl = null;
+        this.imageId = null;
+    }
 }

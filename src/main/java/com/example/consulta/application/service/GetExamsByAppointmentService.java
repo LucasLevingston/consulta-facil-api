@@ -1,7 +1,8 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.exam.ExamRequestResponseDTO;
-import com.example.consulta.domain.repository.ExamRequestRepository;
+import com.example.consulta.domain.port.out.ExamRequestRepositoryPort;
+import com.example.consulta.application.port.in.GetExamsByAppointmentUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,9 +11,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetExamsByAppointmentService {
+public class GetExamsByAppointmentService implements GetExamsByAppointmentUseCase {
 
-    private final ExamRequestRepository examRequestRepository;
+    private final ExamRequestRepositoryPort examRequestRepository;
 
     @Transactional(readOnly = true)
     public List<ExamRequestResponseDTO> execute(String appointmentId) {

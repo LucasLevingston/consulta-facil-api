@@ -1,47 +1,48 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
-import com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO;
+import com.example.consulta.application.port.in.RescheduleAppointmentUseCase;
+import com.example.consulta.application.port.in.command.RescheduleAppointmentCommand;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
+import com.example.consulta.core.security.OwnershipValidator;
 import com.example.consulta.domain.entity.Appointment;
-import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class RescheduleAppointmentService {
+public class RescheduleAppointmentService implements RescheduleAppointmentUseCase {
 
-    private final AppointmentRepository appointmentRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final OwnershipValidator ownershipValidator;
 
+    @Override
     @Transactional
-    public AppointmentResponseDTO execute(String appointmentId, RescheduleAppointmentDTO dto) {
-        Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment", appointmentId));
+    public AppointmentResponseDTO execute(RescheduleAppointmentCommand command) {
+        Appointment appointment = appointmentRepository.findById(command.appointmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", command.appointmentId()));
 
-        if (appointment.getStatus() != AppointmentStatus.PENDING
-                && appointment.getStatus() != AppointmentStatus.CONFIRMED) {
-            throw new BadRequestException(
-                    "Only PENDING or CONFIRMED appointments can be rescheduled. Current status: "
-                            + appointment.getStatus());
-        }
+        ownershipValidator.verifyAppointmentAccess(appointment, command.authenticatedUserId());
 
         if (appointmentRepository.existsByProfessionalIdAndScheduledAt(
-                appointment.getProfessional().getId(), dto.getScheduledAt())) {
+                appointment.getProfessional().getId(), command.newScheduledAt())) {
             throw new BadRequestException("Professional already has an appointment scheduled at this time");
         }
 
-        appointment.setPreviousScheduledAt(appointment.getScheduledAt());
-        appointment.setScheduledAt(dto.getScheduledAt());
-        if (dto.getReason() != null) {
-            appointment.setReason(dto.getReason());
-        }
+        appointment.reschedule(command.newScheduledAt(), command.newReason());
 
-        Appointment saved = appointmentRepository.save(appointment);
-        return toResponseDTO(saved);
+        return toResponseDTO(appointmentRepository.save(appointment));
+    }
+
+    // --- backward-compat bridge used by tests that still build the old DTO ---
+    @Transactional
+    public AppointmentResponseDTO execute(String appointmentId, String authenticatedUserId,
+                                          com.example.consulta.api.dto.appointment.RescheduleAppointmentDTO dto) {
+        return execute(new RescheduleAppointmentCommand(
+                appointmentId, authenticatedUserId, dto.getScheduledAt(), dto.getReason()));
     }
 
     private AppointmentResponseDTO toResponseDTO(Appointment appointment) {

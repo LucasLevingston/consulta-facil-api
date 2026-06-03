@@ -48,3 +48,13 @@ output "web_log_group" {
   description = "CloudWatch log group for Web"
   value       = aws_cloudwatch_log_group.web.name
 }
+
+output "route53_nameservers" {
+  description = "Route53 nameservers — update your registrar to these (only when domain_name is set)"
+  value       = var.domain_name != "" ? aws_route53_zone.main[0].name_servers : []
+}
+
+output "acm_certificate_arn" {
+  description = "ACM certificate ARN in use (Terraform-created or BYO)"
+  value       = local.certificate_arn
+}

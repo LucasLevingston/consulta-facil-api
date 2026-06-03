@@ -1,24 +1,22 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.appointment.AppointmentResponseDTO;
+import com.example.consulta.application.port.in.CallNextPatientUseCase;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
 import com.example.consulta.domain.entity.Appointment;
-import com.example.consulta.domain.enums.AppointmentStatus;
-import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.port.out.AppointmentRepositoryPort;
+import com.example.consulta.domain.port.out.ProfessionalProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
-public class CallNextPatientService {
+public class CallNextPatientService implements CallNextPatientUseCase {
 
-    private final AppointmentRepository appointmentRepository;
-    private final ProfessionalProfileRepository professionalProfileRepository;
+    private final AppointmentRepositoryPort appointmentRepository;
+    private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @Transactional
     public AppointmentResponseDTO execute(String appointmentId, String professionalUserId) {
@@ -32,12 +30,7 @@ public class CallNextPatientService {
             throw new BadRequestException("Appointment does not belong to this professional");
         }
 
-        if (appointment.getStatus() != AppointmentStatus.CHECKED_IN) {
-            throw new BadRequestException("Patient has not checked in yet");
-        }
-
-        appointment.setStatus(AppointmentStatus.IN_PROGRESS);
-        appointment.setCalledAt(LocalDateTime.now());
+        appointment.callNext(); // validates CHECKED_IN status, sets IN_PROGRESS + calledAt
         Appointment saved = appointmentRepository.save(appointment);
 
         return toResponseDTO(saved);

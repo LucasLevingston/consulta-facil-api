@@ -1,0 +1,42 @@
+# Requires nginx ingress controller:
+#   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
+#
+# For TLS: replace with your cert-manager ClusterIssuer or provide the secret manually.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: consulta-facil
+  namespace: consulta-facil
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    # Uncomment to enable TLS via cert-manager:
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  # Uncomment and fill in for TLS:
+  # tls:
+  #   - hosts:
+  #       - consulta-facil.com
+  #     secretName: consulta-facil-tls
+  rules:
+    - host: consulta-facil.com
+      http:
+        paths:
+          # API — all /v1/* traffic routes to the Spring Boot service
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 80
+          # Web — everything else routes to the Next.js service
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 80

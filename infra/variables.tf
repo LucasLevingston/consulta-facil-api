@@ -109,6 +109,26 @@ variable "acm_certificate_arn" {
   default     = ""
 }
 
+variable "enable_cloudfront" {
+  description = "Put CloudFront in front of the ALB (requires domain_name to be set)"
+  type        = bool
+  default     = false
+}
+
+# ─── ElastiCache ─────────────────────────────────────────────────────────────
+
+variable "enable_elasticache" {
+  description = "Create ElastiCache Redis cluster for application caching"
+  type        = bool
+  default     = false
+}
+
+variable "redis_node_type" {
+  description = "ElastiCache node type"
+  type        = string
+  default     = "cache.t3.micro"
+}
+
 # ─── Secrets (set via terraform.tfvars or -var flags — never commit actual values) ───
 
 variable "jwt_secret" {
@@ -125,6 +145,12 @@ variable "db_password" {
 
 variable "mercadopago_access_token" {
   description = "MercadoPago API access token"
+  type        = string
+  sensitive   = true
+}
+
+variable "mercadopago_webhook_secret" {
+  description = "MercadoPago webhook secret for HMAC signature validation"
   type        = string
   sensitive   = true
 }

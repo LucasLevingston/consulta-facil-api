@@ -3,26 +3,30 @@ package com.example.consulta.api.controller;
 import com.example.consulta.api.dto.subscription.CheckoutResponseDTO;
 import com.example.consulta.api.dto.subscription.CreateCheckoutDTO;
 import com.example.consulta.api.dto.subscription.SubscriptionResponseDTO;
-import com.example.consulta.application.service.SubscriptionService;
+import com.example.consulta.application.port.in.SubscriptionUseCase;
 import com.example.consulta.core.security.CustomUserDetails;
+import com.example.consulta.core.security.MercadoPagoWebhookValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/subscriptions")
 @RequiredArgsConstructor
 @Tag(name = "Subscriptions", description = "Subscription management via MercadoPago")
 public class SubscriptionController {
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionUseCase subscriptionUseCase;
+    private final MercadoPagoWebhookValidator webhookValidator;
 
     @PostMapping("/checkout")
     @SecurityRequirement(name = "bearerAuth")
@@ -30,9 +34,7 @@ public class SubscriptionController {
     public ResponseEntity<CheckoutResponseDTO> createCheckout(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateCheckoutDTO dto) {
-        CheckoutResponseDTO response = subscriptionService.createCheckout(
-                userDetails.getUserId(), dto.getPlanId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(subscriptionUseCase.createCheckout(userDetails.getUserId(), dto.getPlanId()));
     }
 
     @GetMapping("/me")
@@ -40,28 +42,53 @@ public class SubscriptionController {
     @Operation(summary = "Get current user subscription")
     public ResponseEntity<SubscriptionResponseDTO> getMySubscription(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return subscriptionService.getMySubscription(userDetails.getUserId())
+        return subscriptionUseCase.getMySubscription(userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
 
     @PostMapping("/webhook")
-    @Operation(summary = "MercadoPago webhook — no auth required")
-    public ResponseEntity<Void> webhook(@RequestBody Map<String, Object> payload) {
+    @Operation(summary = "MercadoPago subscription webhook (public)")
+    public ResponseEntity<Void> webhook(
+            @RequestBody Map<String, Object> payload,
+            @RequestHeader(value = "x-signature", required = false) String xSignature,
+            @RequestHeader(value = "x-request-id", required = false, defaultValue = "") String xRequestId) {
         try {
             String type = (String) payload.get("type");
+            Object dataObj = payload.get("data");
+            if (!(dataObj instanceof Map<?, ?> data)) return ResponseEntity.ok().build();
+
+            String resourceId = String.valueOf(data.get("id"));
+
             if ("payment".equals(type)) {
-                Object dataObj = payload.get("data");
-                if (dataObj instanceof Map<?, ?> data) {
-                    String paymentId = String.valueOf(data.get("id"));
-                    // External reference format: "userId|planId"
-                    // We parse it in the service after fetching payment details from MP
-                    subscriptionService.handlePaymentApproved(paymentId, null);
-                }
+                webhookValidator.validate(resourceId, xRequestId, xSignature);
+                String externalReference = extractExternalReference(payload);
+                subscriptionUseCase.handlePaymentApproved(resourceId, externalReference);
+            } else if ("subscription_preapproval".equals(type)) {
+                webhookValidator.validate(resourceId, xRequestId, xSignature);
+                subscriptionUseCase.handlePreapprovalWebhook(resourceId);
+            } else {
+                return ResponseEntity.ok().build();
             }
+
+        } catch (com.example.consulta.core.exception.WebhookAuthenticationException e) {
+            log.warn("[SubscriptionWebhook] Invalid signature: {}", e.getMessage());
+            return ResponseEntity.status(401).build();
         } catch (Exception e) {
-            // Webhooks must always return 200
+            log.error("[SubscriptionWebhook] Processing error: {}", e.getMessage());
+            // Webhooks must always return 200 for non-auth errors
         }
         return ResponseEntity.ok().build();
+    }
+
+    private String extractExternalReference(Map<String, Object> payload) {
+        try {
+            Object additionalInfo = payload.get("additional_info");
+            if (additionalInfo instanceof Map<?, ?> info) {
+                Object ref = info.get("external_reference");
+                if (ref != null) return String.valueOf(ref);
+            }
+        } catch (Exception ignored) {}
+        return null;
     }
 }
