@@ -40,6 +40,9 @@ public class Subscription {
     @Column(name = "mp_payment_id")
     private String mpPaymentId;
 
+    @Column(name = "mp_preapproval_id", unique = true)
+    private String mpPreapprovalId;
+
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 

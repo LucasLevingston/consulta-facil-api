@@ -55,17 +55,21 @@ public class SubscriptionController {
             @RequestHeader(value = "x-request-id", required = false, defaultValue = "") String xRequestId) {
         try {
             String type = (String) payload.get("type");
-            if (!"payment".equals(type)) return ResponseEntity.ok().build();
-
             Object dataObj = payload.get("data");
             if (!(dataObj instanceof Map<?, ?> data)) return ResponseEntity.ok().build();
 
-            String paymentId = String.valueOf(data.get("id"));
-            webhookValidator.validate(paymentId, xRequestId, xSignature);
+            String resourceId = String.valueOf(data.get("id"));
 
-            // Extract externalReference from payload if present (avoids redundant MP API call)
-            String externalReference = extractExternalReference(payload);
-            subscriptionUseCase.handlePaymentApproved(paymentId, externalReference);
+            if ("payment".equals(type)) {
+                webhookValidator.validate(resourceId, xRequestId, xSignature);
+                String externalReference = extractExternalReference(payload);
+                subscriptionUseCase.handlePaymentApproved(resourceId, externalReference);
+            } else if ("subscription_preapproval".equals(type)) {
+                webhookValidator.validate(resourceId, xRequestId, xSignature);
+                subscriptionUseCase.handlePreapprovalWebhook(resourceId);
+            } else {
+                return ResponseEntity.ok().build();
+            }
 
         } catch (com.example.consulta.core.exception.WebhookAuthenticationException e) {
             log.warn("[SubscriptionWebhook] Invalid signature: {}", e.getMessage());

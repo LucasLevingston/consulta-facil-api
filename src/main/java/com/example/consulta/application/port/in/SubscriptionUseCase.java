@@ -12,4 +12,6 @@ public interface SubscriptionUseCase {
     void handlePaymentApproved(String paymentId, String externalReference);
 
     Optional<SubscriptionResponseDTO> getMySubscription(String userId);
+
+    void handlePreapprovalWebhook(String preapprovalId);
 }

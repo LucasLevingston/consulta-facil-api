@@ -24,4 +24,10 @@ public interface EmailPort {
     void sendPaymentFailure(String to, String patientName, String appointmentId);
 
     void sendMagicLink(String to, String name, String magicUrl);
+
+    void sendSubscriptionExpired(String to, String name, String planLabel, String renewUrl);
+
+    void sendSubscriptionRenewalReminder(String to, String name, String planLabel, int daysLeft, String renewUrl);
+
+    void sendSubscriptionRenewed(String to, String name, String planLabel, String amount, String nextBillingDate);
 }

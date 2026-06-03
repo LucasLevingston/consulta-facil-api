@@ -16,5 +16,9 @@ public interface SubscriptionRepositoryPort {
 
     Optional<Subscription> findByMpPaymentId(String paymentId);
 
+    Optional<Subscription> findByMpPreapprovalId(String mpPreapprovalId);
+
     List<Subscription> findActiveExpiredBefore(LocalDateTime now);
+
+    List<Subscription> findActiveExpiringBetween(LocalDateTime from, LocalDateTime to);
 }

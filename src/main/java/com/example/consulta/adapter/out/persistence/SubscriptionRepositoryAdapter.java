@@ -37,7 +37,17 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepositoryPort
     }
 
     @Override
+    public Optional<Subscription> findByMpPreapprovalId(String mpPreapprovalId) {
+        return subscriptionRepository.findByMpPreapprovalId(mpPreapprovalId);
+    }
+
+    @Override
     public List<Subscription> findActiveExpiredBefore(LocalDateTime now) {
         return subscriptionRepository.findActiveExpiredBefore(now);
+    }
+
+    @Override
+    public List<Subscription> findActiveExpiringBetween(LocalDateTime from, LocalDateTime to) {
+        return subscriptionRepository.findActiveExpiringBetween(from, to);
     }
 }

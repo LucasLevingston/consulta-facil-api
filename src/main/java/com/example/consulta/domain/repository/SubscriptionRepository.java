@@ -15,7 +15,13 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Stri
     Optional<Subscription> findByUserId(String userId);
     Optional<Subscription> findByMpPreferenceId(String preferenceId);
     Optional<Subscription> findByMpPaymentId(String paymentId);
+    Optional<Subscription> findByMpPreapprovalId(String mpPreapprovalId);
 
     @Query("SELECT s FROM Subscription s WHERE s.status = 'ACTIVE' AND s.expiresAt < :now")
     List<Subscription> findActiveExpiredBefore(@Param("now") LocalDateTime now);
+
+    @Query("SELECT s FROM Subscription s WHERE s.status = 'ACTIVE' AND s.expiresAt BETWEEN :from AND :to")
+    List<Subscription> findActiveExpiringBetween(
+        @Param("from") LocalDateTime from,
+        @Param("to") LocalDateTime to);
 }

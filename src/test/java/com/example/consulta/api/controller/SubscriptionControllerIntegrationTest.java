@@ -151,11 +151,24 @@ class SubscriptionControllerIntegrationTest {
 
     @Test
     void testWebhookIgnoresUnknownEventType() throws Exception {
-        Map<String, Object> payload = Map.of("type", "unknown_event");
+        Map<String, Object> payload = Map.of("type", "unknown_event", "data", Map.of("id", "x"));
 
         mockMvc.perform(post("/subscriptions/webhook")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testWebhookSubscriptionPreapprovalRoutesToUseCase() throws Exception {
+        Map<String, Object> payload = Map.of("type", "subscription_preapproval",
+                "data", Map.of("id", "pre-abc123"));
+
+        mockMvc.perform(post("/subscriptions/webhook")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isOk());
+
+        org.mockito.Mockito.verify(subscriptionService).handlePreapprovalWebhook("pre-abc123");
     }
 }

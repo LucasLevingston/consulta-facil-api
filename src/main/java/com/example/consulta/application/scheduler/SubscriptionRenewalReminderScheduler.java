@@ -1,7 +1,6 @@
 package com.example.consulta.application.scheduler;
 
 import com.example.consulta.domain.entity.Subscription;
-import com.example.consulta.domain.enums.SubscriptionStatus;
 import com.example.consulta.domain.port.out.EmailPort;
 import com.example.consulta.domain.port.out.SubscriptionRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SubscriptionExpiryScheduler {
+public class SubscriptionRenewalReminderScheduler {
 
     private final SubscriptionRepositoryPort subscriptionRepository;
     private final EmailPort emailPort;
@@ -32,31 +31,31 @@ public class SubscriptionExpiryScheduler {
             "clinic-monthly", "Plano Clínica Mensal",
             "clinic-yearly",  "Plano Clínica Anual");
 
-    @Scheduled(cron = "0 0 * * * *")
-    @Transactional
-    public void expireSubscriptions() {
-        List<Subscription> expired = subscriptionRepository.findActiveExpiredBefore(LocalDateTime.now());
-        if (expired.isEmpty()) return;
+    /** Daily at 09:00 — notify users whose subscription expires in ~7 days. */
+    @Scheduled(cron = "0 0 9 * * *")
+    @Transactional(readOnly = true)
+    public void sendRenewalReminders() {
+        LocalDateTime from = LocalDateTime.now().plusDays(6);
+        LocalDateTime to   = LocalDateTime.now().plusDays(8);
+        List<Subscription> expiringSoon = subscriptionRepository.findActiveExpiringBetween(from, to);
+        if (expiringSoon.isEmpty()) return;
 
-        log.info("[SubscriptionExpiry] Expiring {} subscription(s)", expired.size());
-        for (Subscription subscription : expired) {
-            subscription.setStatus(SubscriptionStatus.EXPIRED);
-            subscriptionRepository.save(subscription);
-            log.info("[SubscriptionExpiry] Subscription {} expired for userId={}",
-                subscription.getId(), subscription.getUser().getId());
-            sendExpiryEmail(subscription);
+        log.info("[RenewalReminder] Sending reminder for {} subscription(s)", expiringSoon.size());
+        for (Subscription subscription : expiringSoon) {
+            sendReminder(subscription);
         }
     }
 
-    private void sendExpiryEmail(Subscription subscription) {
+    private void sendReminder(Subscription subscription) {
         try {
             String email = subscription.getUser().getEmail();
             String name  = subscription.getUser().getName();
             String label = PLAN_LABELS.getOrDefault(subscription.getPlanId(), subscription.getPlanId());
-            String renewUrl = appUrl + "/planos";
-            emailPort.sendSubscriptionExpired(email, name, label, renewUrl);
+            String manageUrl = appUrl + "/planos";
+            emailPort.sendSubscriptionRenewalReminder(email, name, label, 7, manageUrl);
+            log.info("[RenewalReminder] Reminder sent for userId={}", subscription.getUser().getId());
         } catch (Exception e) {
-            log.error("[SubscriptionExpiry] Failed to send expiry email for subscription {}: {}",
+            log.error("[RenewalReminder] Failed to send reminder for subscription {}: {}",
                 subscription.getId(), e.getMessage());
         }
     }

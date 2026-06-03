@@ -148,4 +148,54 @@ public class SesEmailAdapter implements EmailPort {
         String text = "Olá, %s! Acesse sua conta pelo link (válido por 15 min): %s".formatted(name, magicUrl);
         sendEmail(to, "Seu link de acesso — Consulta Fácil", html, text);
     }
+
+    @Override
+    public void sendSubscriptionExpired(String to, String name, String planLabel, String renewUrl) {
+        String html = """
+                <h2>Sua assinatura expirou</h2>
+                <p>Olá, %s!</p>
+                <p>Sua assinatura <strong>%s</strong> expirou. Renove agora para continuar usando a plataforma sem interrupções.</p>
+                <a href="%s" style="background:#2563eb;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
+                  Renovar assinatura
+                </a>
+                """.formatted(name, planLabel, renewUrl);
+        String text = "Olá, %s! Sua assinatura %s expirou. Renove em: %s".formatted(name, planLabel, renewUrl);
+        sendEmail(to, "Assinatura expirada — Consulta Fácil", html, text);
+    }
+
+    @Override
+    public void sendSubscriptionRenewalReminder(String to, String name, String planLabel, int daysLeft, String renewUrl) {
+        String daysText = daysLeft == 1 ? "1 dia" : daysLeft + " dias";
+        String html = """
+                <h2>Sua assinatura expira em %s</h2>
+                <p>Olá, %s!</p>
+                <p>Seu plano <strong>%s</strong> expira em <strong>%s</strong>. A renovação será processada automaticamente — nenhuma ação necessária.</p>
+                <p>Se desejar cancelar ou alterar seu plano, acesse as configurações antes da renovação.</p>
+                <a href="%s" style="background:#2563eb;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
+                  Gerenciar assinatura
+                </a>
+                """.formatted(daysText, name, planLabel, daysText, renewUrl);
+        String text = "Olá, %s! Seu plano %s expira em %s. A renovação é automática. Gerencie em: %s"
+                .formatted(name, planLabel, daysText, renewUrl);
+        sendEmail(to, "Lembrete: assinatura renova em " + daysText + " — Consulta Fácil", html, text);
+    }
+
+    @Override
+    public void sendSubscriptionRenewed(String to, String name, String planLabel, String amount, String nextBillingDate) {
+        String html = """
+                <h2>Assinatura renovada com sucesso</h2>
+                <p>Olá, %s!</p>
+                <p>Sua assinatura <strong>%s</strong> foi renovada automaticamente.</p>
+                <table style="border-collapse:collapse;margin-top:16px;">
+                  <tr><td style="padding:6px 16px 6px 0;color:#6b7280;">Valor cobrado</td><td style="padding:6px 0;font-weight:600;">R$ %s</td></tr>
+                  <tr><td style="padding:6px 16px 6px 0;color:#6b7280;">Próxima renovação</td><td style="padding:6px 0;">%s</td></tr>
+                </table>
+                <p style="margin-top:16px;font-size:0.85em;color:#6b7280;">
+                  Este e-mail serve como comprovante de pagamento (nota fiscal eletrônica será emitida separadamente).
+                </p>
+                """.formatted(name, planLabel, amount, nextBillingDate);
+        String text = "Olá, %s! Assinatura %s renovada. Valor: R$ %s. Próxima renovação: %s."
+                .formatted(name, planLabel, amount, nextBillingDate);
+        sendEmail(to, "Assinatura renovada — Consulta Fácil", html, text);
+    }
 }
