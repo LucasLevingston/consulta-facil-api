@@ -17,14 +17,34 @@ import com.example.consulta.api.dto.professional.CreateProfessionalDTO;
 import com.example.consulta.api.dto.professionalservice.CreateProfessionalServiceDTO;
 import com.example.consulta.api.dto.receptionist.InviteReceptionistDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
+import com.example.consulta.domain.entity.ClinicalNote;
+import com.example.consulta.domain.entity.Clinic;
+import com.example.consulta.domain.entity.ClinicWorkingHours;
+import com.example.consulta.domain.entity.ExamRequest;
+import com.example.consulta.domain.entity.MedicalRecord;
+import com.example.consulta.domain.entity.Notification;
 import com.example.consulta.domain.entity.PatientProfile;
+import com.example.consulta.domain.entity.Subscription;
+import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
+import com.example.consulta.domain.enums.ExamRequestStatus;
 import com.example.consulta.domain.enums.Gender;
+import com.example.consulta.domain.enums.NotificationStatus;
+import com.example.consulta.domain.enums.NotificationType;
+import com.example.consulta.domain.enums.SubscriptionStatus;
 import com.example.consulta.domain.repository.AppointmentRepository;
-import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.repository.ClinicalNoteRepository;
+import com.example.consulta.domain.repository.ClinicRepository;
+import com.example.consulta.domain.repository.ClinicWorkingHoursRepository;
+import com.example.consulta.domain.repository.ExamRequestRepository;
+import com.example.consulta.domain.repository.MedicalRecordRepository;
+import com.example.consulta.domain.repository.NotificationRepository;
 import com.example.consulta.domain.repository.PatientProfileRepository;
+import com.example.consulta.domain.repository.ProfessionalProfileRepository;
+import com.example.consulta.domain.repository.SubscriptionRepository;
+import com.example.consulta.domain.repository.UserRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +81,14 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final SetConsultationPriceService setConsultationPriceService;
     private final CreateProcedureRequestService createProcedureRequestService;
     private final ProfessionalScheduleUseCase professionalScheduleUseCase;
+    private final ClinicalNoteRepository clinicalNoteRepository;
+    private final ClinicWorkingHoursRepository clinicWorkingHoursRepository;
+    private final ExamRequestRepository examRequestRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
+    private final NotificationRepository notificationRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final UserRepository userRepository;
+    private final ClinicRepository clinicRepository;
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -194,6 +222,12 @@ public class DatabaseSeeder implements CommandLineRunner {
                     professionalProfileId,
                     patientUserIds);
 
+            seedMedicalRecords(patientUserIds);
+            seedSubscriptions(professionalUserId, professionalProfileIds);
+            seedClinicalNotesAndExamRequests();
+            seedNotifications(patientUserIds, professionalProfileIds);
+            seedClinicWorkingHours();
+
         } catch (Exception e) {
             log.error("Erro durante o seed:", e);
         }
@@ -243,8 +277,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Afonso Pena, 1000",
                         cities.get(2),
                         "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=600",
-                        extraProfessionalProfileIds.size() > 0 ? extraProfessionalProfileIds.get(0)
-                                : testProfessionalProfileId),
+                        pickOrFallback(extraProfessionalProfileIds, 0, testProfessionalProfileId)),
                 new ClinicDef(
                         "Clínica Curitibana",
                         "Medicina preventiva e diagnóstico avançado",
@@ -252,8 +285,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua XV de Novembro, 700",
                         cities.get(3),
                         "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600",
-                        extraProfessionalProfileIds.size() > 2 ? extraProfessionalProfileIds.get(2)
-                                : testProfessionalProfileId),
+                        pickOrFallback(extraProfessionalProfileIds, 2, testProfessionalProfileId)),
                 new ClinicDef(
                         "Saúde Sul Clínica",
                         "Atendimento humanizado em Porto Alegre",
@@ -261,8 +293,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Independência, 500",
                         cities.get(4),
                         "https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=600",
-                        extraProfessionalProfileIds.size() > 4 ? extraProfessionalProfileIds.get(4)
-                                : testProfessionalProfileId),
+                        pickOrFallback(extraProfessionalProfileIds, 4, testProfessionalProfileId)),
                 new ClinicDef(
                         "Clínica Capital Federal",
                         "Excelência em saúde no coração do Brasil",
@@ -270,8 +301,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "SCS Quadra 2, Bloco C",
                         cities.get(5),
                         "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=600",
-                        extraProfessionalProfileIds.size() > 6 ? extraProfessionalProfileIds.get(6)
-                                : testProfessionalProfileId),
+                        pickOrFallback(extraProfessionalProfileIds, 6, testProfessionalProfileId)),
                 new ClinicDef(
                         "Clínica Saúde João Pessoa",
                         "Atendimento completo em cardiologia, pediatria e clínica geral",
@@ -279,8 +309,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Epitácio Pessoa, 1234",
                         cities.get(6),
                         "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600",
-                        extraProfessionalProfileIds.size() > 8 ? extraProfessionalProfileIds.get(8)
-                                : testProfessionalProfileId),
+                        pickOrFallback(extraProfessionalProfileIds, 8, testProfessionalProfileId)),
                 new ClinicDef(
                         "Centro de Saúde Paraibano",
                         "Medicina preventiva e especialidades para toda a família em João Pessoa",
@@ -288,8 +317,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Cardoso Vieira, 200 — Miramar",
                         cities.get(6),
                         "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600",
-                        extraProfessionalProfileIds.size() > 10 ? extraProfessionalProfileIds.get(10)
-                                : testProfessionalProfileId),
+                        pickOrFallback(extraProfessionalProfileIds, 10, testProfessionalProfileId)),
                 new ClinicDef(
                         "Clínica Campina Grande Saúde",
                         "Referência em saúde no Agreste paraibano",
@@ -297,8 +325,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Assis Chateaubriand, 500",
                         cities.get(7),
                         "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=600",
-                        extraProfessionalProfileIds.size() > 12 ? extraProfessionalProfileIds.get(12)
-                                : testProfessionalProfileId),
+                        pickOrFallback(extraProfessionalProfileIds, 12, testProfessionalProfileId)),
                 new ClinicDef(
                         "NutriVida João Pessoa",
                         "Nutrição e fisioterapia integradas para melhor qualidade de vida",
@@ -306,8 +333,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Padre Meira, 89 — Tambauzinho",
                         cities.get(6),
                         "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600",
-                        extraProfessionalProfileIds.size() > 14 ? extraProfessionalProfileIds.get(14)
-                                : testProfessionalProfileId));
+                        pickOrFallback(extraProfessionalProfileIds, 14, testProfessionalProfileId)));
 
         String firstClinicId = null;
 
@@ -415,25 +441,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 String professionalId = professionalProfileIds
                         .get(faker.random().nextInt(professionalProfileIds.size()));
                 AppointmentStatus status = statusPool.get(faker.random().nextInt(statusPool.size()));
-                LocalDateTime scheduledAt;
-                switch (status) {
-                    case COMPLETED -> scheduledAt = LocalDateTime.now().minusDays(faker.random().nextInt(1, 180))
-                            .withHour(faker.random().nextInt(8, 18))
-                            .withMinute(List.of(0, 30).get(faker.random().nextInt(2))).withSecond(0).withNano(0);
-                    case CANCELED -> {
-                        boolean futureCanceled = faker.bool().bool();
-                        scheduledAt = futureCanceled ? LocalDateTime.now().plusDays(faker.random().nextInt(1, 30))
-                                : LocalDateTime.now().minusDays(faker.random().nextInt(1, 60));
-                        scheduledAt = scheduledAt.withHour(faker.random().nextInt(8, 18))
-                                .withMinute(List.of(0, 30).get(faker.random().nextInt(2))).withSecond(0).withNano(0);
-                    }
-                    case CONFIRMED -> scheduledAt = LocalDateTime.now().plusDays(faker.random().nextInt(1, 15))
-                            .withHour(faker.random().nextInt(8, 18))
-                            .withMinute(List.of(0, 30).get(faker.random().nextInt(2))).withSecond(0).withNano(0);
-                    default -> scheduledAt = LocalDateTime.now().plusDays(faker.random().nextInt(5, 90))
-                            .withHour(faker.random().nextInt(8, 18))
-                            .withMinute(List.of(0, 30).get(faker.random().nextInt(2))).withSecond(0).withNano(0);
-                }
+                LocalDateTime scheduledAt = resolveScheduledAt(status);
                 try {
                     LocalDateTime safeDate = LocalDateTime.now().plusDays(faker.random().nextInt(1, 20)).withHour(10)
                             .withMinute(0).withSecond(0).withNano(0);
@@ -447,19 +455,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         appointment.setStatus(finalStatus);
                         appointment.setScheduledAt(finalScheduledAt);
                         if (finalStatus == AppointmentStatus.COMPLETED) {
-                            appointment.setNotes(faker.lorem().paragraph());
-                            if (faker.bool().bool()) {
-                                appointment.setRating(3 + faker.random().nextInt(3));
-                                appointment.setRatingComment(faker.lorem().sentence());
-                            }
-                            int roll = faker.random().nextInt(100);
-                            if (roll < 70) {
-                                appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
-                                appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
-                            } else if (roll < 90) {
-                                appointment.setPaymentStatus(AppointmentPaymentStatus.PENDING_PAYMENT);
-                                appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
-                            }
+                            enrichCompletedAppointment(appointment);
                         }
                         appointmentRepository.save(appointment);
                     });
@@ -709,38 +705,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 AppointmentStatus status = statuses.get(
                         faker.random().nextInt(statuses.size()));
 
-                LocalDateTime scheduledAt;
-
-                switch (status) {
-
-                    case COMPLETED -> scheduledAt = LocalDateTime.now()
-                            .minusDays(faker.random().nextInt(1, 180))
-                            .withHour(faker.random().nextInt(8, 18))
-                            .withMinute(List.of(0, 30).get(faker.random().nextInt(2)))
-                            .withSecond(0)
-                            .withNano(0);
-
-                    case CONFIRMED -> scheduledAt = LocalDateTime.now()
-                            .plusDays(faker.random().nextInt(1, 15))
-                            .withHour(faker.random().nextInt(8, 18))
-                            .withMinute(List.of(0, 30).get(faker.random().nextInt(2)))
-                            .withSecond(0)
-                            .withNano(0);
-
-                    case CANCELED -> scheduledAt = LocalDateTime.now()
-                            .minusDays(faker.random().nextInt(1, 30))
-                            .withHour(faker.random().nextInt(8, 18))
-                            .withMinute(List.of(0, 30).get(faker.random().nextInt(2)))
-                            .withSecond(0)
-                            .withNano(0);
-
-                    default -> scheduledAt = LocalDateTime.now()
-                            .plusDays(faker.random().nextInt(5, 60))
-                            .withHour(faker.random().nextInt(8, 18))
-                            .withMinute(List.of(0, 30).get(faker.random().nextInt(2)))
-                            .withSecond(0)
-                            .withNano(0);
-                }
+                LocalDateTime scheduledAt = resolveScheduledAt(status);
 
                 LocalDateTime safeDate = LocalDateTime.now()
                         .plusDays(1)
@@ -769,19 +734,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     appointment.setScheduledAt(finalScheduledAt);
 
                     if (finalStatus == AppointmentStatus.COMPLETED) {
-                        appointment.setNotes(faker.lorem().paragraph());
-                        if (faker.bool().bool()) {
-                            appointment.setRating(3 + faker.random().nextInt(3));
-                            appointment.setRatingComment(faker.lorem().sentence());
-                        }
-                        int roll = faker.random().nextInt(100);
-                        if (roll < 70) {
-                            appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
-                            appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
-                        } else if (roll < 90) {
-                            appointment.setPaymentStatus(AppointmentPaymentStatus.PENDING_PAYMENT);
-                            appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
-                        }
+                        enrichCompletedAppointment(appointment);
                     }
 
                     appointmentRepository.save(appointment);
@@ -998,5 +951,263 @@ public class DatabaseSeeder implements CommandLineRunner {
         for (int i = 0; i < 11; i++)
             cpf.append(faker.random().nextInt(0, 9));
         return cpf.toString();
+    }
+
+    private LocalDateTime resolveScheduledAt(AppointmentStatus status) {
+        int hour = faker.random().nextInt(8, 18);
+        int minute = List.of(0, 30).get(faker.random().nextInt(2));
+        return switch (status) {
+            case COMPLETED -> LocalDateTime.now()
+                    .minusDays(faker.random().nextInt(1, 180))
+                    .withHour(hour).withMinute(minute).withSecond(0).withNano(0);
+            case CONFIRMED -> LocalDateTime.now()
+                    .plusDays(faker.random().nextInt(1, 15))
+                    .withHour(hour).withMinute(minute).withSecond(0).withNano(0);
+            case CANCELED -> LocalDateTime.now()
+                    .minusDays(faker.random().nextInt(1, 60))
+                    .withHour(hour).withMinute(minute).withSecond(0).withNano(0);
+            default -> LocalDateTime.now()
+                    .plusDays(faker.random().nextInt(5, 90))
+                    .withHour(hour).withMinute(minute).withSecond(0).withNano(0);
+        };
+    }
+
+    private void enrichCompletedAppointment(com.example.consulta.domain.entity.Appointment appointment) {
+        appointment.setNotes(faker.lorem().paragraph());
+        if (faker.bool().bool()) {
+            appointment.setRating(3 + faker.random().nextInt(3));
+            appointment.setRatingComment(faker.lorem().sentence());
+        }
+        int roll = faker.random().nextInt(100);
+        if (roll < 70) {
+            appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
+            appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
+        } else if (roll < 90) {
+            appointment.setPaymentStatus(AppointmentPaymentStatus.PENDING_PAYMENT);
+            appointment.setPaymentAmount(BigDecimal.valueOf(150 + faker.random().nextInt(351)));
+        }
+    }
+
+    private String pickOrFallback(List<String> list, int index, String fallback) {
+        return list.size() > index ? list.get(index) : fallback;
+    }
+
+    private void seedMedicalRecords(List<String> patientUserIds) {
+        List<String> allergies = List.of("Penicilina", "Dipirona", "Látex", "Frutos do mar", "Nenhuma");
+        List<String> medications = List.of("Losartana 50mg", "Metformina 850mg", "Omeprazol 20mg", "Nenhum");
+        List<String> familyHistory = List.of(
+                "Hipertensão arterial, diabetes tipo 2",
+                "Cardiopatia isquêmica",
+                "Sem histórico relevante",
+                "Câncer de mama na mãe");
+        List<String> pastHistory = List.of(
+                "Apendicectomia em 2015",
+                "Fratura de fêmur em 2018",
+                "Sem cirurgias anteriores",
+                "Pneumonia em 2020");
+
+        int created = 0;
+        for (String userId : patientUserIds) {
+            try {
+                patientProfileRepository.findByUserId(userId).ifPresent(profile -> {
+                    if (medicalRecordRepository.findByPatientProfileId(profile.getId()).isPresent()) return;
+                    medicalRecordRepository.save(MedicalRecord.builder()
+                            .patientProfile(profile)
+                            .allergies(allergies.get(faker.random().nextInt(allergies.size())))
+                            .currentMedication(medications.get(faker.random().nextInt(medications.size())))
+                            .familyMedicalHistory(familyHistory.get(faker.random().nextInt(familyHistory.size())))
+                            .pastMedicalHistory(pastHistory.get(faker.random().nextInt(pastHistory.size())))
+                            .privacyConsent(true)
+                            .treatmentConsent(true)
+                            .disclosureConsent(faker.bool().bool())
+                            .build());
+                });
+                created++;
+            } catch (Exception e) {
+                log.debug("Erro ao criar medical record: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] MedicalRecords criados: {}", created);
+    }
+
+    private void seedSubscriptions(String testProfessionalUserId, List<String> professionalProfileIds) {
+        List<String> planIds = List.of("plan_basic", "plan_pro", "plan_premium");
+        List<SubscriptionStatus> statuses = List.of(
+                SubscriptionStatus.ACTIVE, SubscriptionStatus.ACTIVE, SubscriptionStatus.ACTIVE,
+                SubscriptionStatus.PENDING, SubscriptionStatus.CANCELLED);
+
+        // Subscription for test professional
+        try {
+            userRepository.findById(testProfessionalUserId).ifPresent(user -> {
+                if (subscriptionRepository.findByUserId(user.getId()).isPresent()) return;
+                subscriptionRepository.save(Subscription.builder()
+                        .user(user)
+                        .planId("plan_pro")
+                        .status(SubscriptionStatus.ACTIVE)
+                        .expiresAt(LocalDateTime.now().plusMonths(6))
+                        .build());
+            });
+        } catch (Exception e) {
+            log.debug("Erro ao criar subscription teste: {}", e.getMessage());
+        }
+
+        int created = 0;
+        for (int i = 0; i < Math.min(professionalProfileIds.size(), 20); i++) {
+            final String profId = professionalProfileIds.get(i);
+            try {
+                professionalProfileRepository.findById(profId).ifPresent(prof -> {
+                    String userId = prof.getUser().getId();
+                    if (subscriptionRepository.findByUserId(userId).isPresent()) return;
+                    SubscriptionStatus status = statuses.get(faker.random().nextInt(statuses.size()));
+                    subscriptionRepository.save(Subscription.builder()
+                            .user(prof.getUser())
+                            .planId(planIds.get(faker.random().nextInt(planIds.size())))
+                            .status(status)
+                            .expiresAt(status == SubscriptionStatus.ACTIVE
+                                    ? LocalDateTime.now().plusMonths(faker.random().nextInt(1, 12))
+                                    : null)
+                            .build());
+                });
+                created++;
+            } catch (Exception e) {
+                log.debug("Erro ao criar subscription: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] Subscriptions criadas: {}", created);
+    }
+
+    private void seedClinicalNotesAndExamRequests() {
+        List<String> diagnoses = List.of("Hipertensão arterial", "Diabetes mellitus tipo 2",
+                "Lombalgia crônica", "Ansiedade generalizada", "Gastrite crônica");
+        List<String> cids = List.of("I10", "E11", "M54.5", "F41.1", "K29.5");
+        List<String> exams = List.of("Hemograma completo", "Glicemia em jejum", "ECG",
+                "Raio-X de tórax", "Ultrassom abdominal", "TSH", "Colesterol total");
+        List<String> prescriptions = List.of(
+                "Losartana 50mg 1x/dia", "Metformina 850mg 2x/dia",
+                "Omeprazol 20mg em jejum", "Paracetamol 750mg se necessário");
+
+        int notes = 0, examsCreated = 0;
+        var completedAppointments = appointmentRepository.findAll().stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                .toList();
+
+        for (var appointment : completedAppointments) {
+            try {
+                if (clinicalNoteRepository.findByAppointmentId(appointment.getId()).isEmpty()) {
+                    int idx = faker.random().nextInt(diagnoses.size());
+                    clinicalNoteRepository.save(ClinicalNote.builder()
+                            .appointment(appointment)
+                            .clinicalNotes(faker.lorem().paragraph(2))
+                            .diagnosis(diagnoses.get(idx))
+                            .diagnosisCid(cids.get(idx))
+                            .prescription(prescriptions.get(faker.random().nextInt(prescriptions.size())))
+                            .treatmentPlan(faker.lorem().sentence(10))
+                            .followUpInstructions("Retornar em " + faker.random().nextInt(1, 6) + " meses.")
+                            .build());
+                    notes++;
+                }
+            } catch (Exception e) {
+                log.debug("Erro ao criar clinical note: {}", e.getMessage());
+            }
+
+            if (faker.random().nextInt(100) < 40) {
+                int count = faker.random().nextInt(1, 4);
+                for (int i = 0; i < count; i++) {
+                    try {
+                        ExamRequestStatus examStatus = faker.random().nextInt(100) < 60
+                                ? ExamRequestStatus.UPLOADED : ExamRequestStatus.PENDING;
+                        examRequestRepository.save(ExamRequest.builder()
+                                .appointment(appointment)
+                                .professional(appointment.getProfessional())
+                                .patient(appointment.getPatient())
+                                .examName(exams.get(faker.random().nextInt(exams.size())))
+                                .instructions("Realizar em jejum de 8 horas.")
+                                .status(examStatus)
+                                .professionalNotes(faker.lorem().sentence())
+                                .build());
+                        examsCreated++;
+                    } catch (Exception e) {
+                        log.debug("Erro ao criar exam request: {}", e.getMessage());
+                    }
+                }
+            }
+        }
+        log.info("[Seed] ClinicalNotes: {}, ExamRequests: {}", notes, examsCreated);
+    }
+
+    private void seedNotifications(List<String> patientUserIds, List<String> professionalProfileIds) {
+        record NotifTemplate(NotificationType type, String title, String message) {}
+
+        List<NotifTemplate> templates = List.of(
+                new NotifTemplate(NotificationType.APPOINTMENT_SCHEDULED,
+                        "Consulta agendada", "Sua consulta foi agendada com sucesso."),
+                new NotifTemplate(NotificationType.APPOINTMENT_CONFIRMED,
+                        "Consulta confirmada", "Sua consulta foi confirmada pelo profissional."),
+                new NotifTemplate(NotificationType.APPOINTMENT_CANCELED,
+                        "Consulta cancelada", "Sua consulta foi cancelada."),
+                new NotifTemplate(NotificationType.GENERAL,
+                        "Resultado disponível", "O resultado do seu exame está disponível.")
+        );
+
+        List<NotificationStatus> statuses = List.of(
+                NotificationStatus.READ, NotificationStatus.READ,
+                NotificationStatus.PENDING, NotificationStatus.PENDING);
+
+        int created = 0;
+        for (String userId : patientUserIds) {
+            int count = faker.random().nextInt(2, 6);
+            for (int i = 0; i < count; i++) {
+                try {
+                    userRepository.findById(userId).ifPresent(user -> {
+                        NotifTemplate t = templates.get(faker.random().nextInt(templates.size()));
+                        notificationRepository.save(Notification.builder()
+                                .targetUser(user)
+                                .type(t.type())
+                                .title(t.title())
+                                .message(t.message())
+                                .status(statuses.get(faker.random().nextInt(statuses.size())))
+                                .build());
+                    });
+                    created++;
+                } catch (Exception e) {
+                    log.debug("Erro ao criar notification: {}", e.getMessage());
+                }
+            }
+        }
+        log.info("[Seed] Notifications criadas: {}", created);
+    }
+
+    private void seedClinicWorkingHours() {
+        record DaySlot(String day, LocalTime open, LocalTime close, boolean isOpen) {}
+        List<DaySlot> slots = List.of(
+                new DaySlot("MONDAY",    LocalTime.of(8,  0), LocalTime.of(18, 0), true),
+                new DaySlot("TUESDAY",   LocalTime.of(8,  0), LocalTime.of(18, 0), true),
+                new DaySlot("WEDNESDAY", LocalTime.of(8,  0), LocalTime.of(18, 0), true),
+                new DaySlot("THURSDAY",  LocalTime.of(8,  0), LocalTime.of(18, 0), true),
+                new DaySlot("FRIDAY",    LocalTime.of(8,  0), LocalTime.of(17, 0), true),
+                new DaySlot("SATURDAY",  LocalTime.of(8,  0), LocalTime.of(12, 0), false),
+                new DaySlot("SUNDAY",    LocalTime.of(8,  0), LocalTime.of(12, 0), false)
+        );
+
+        int created = 0;
+        for (Clinic clinic : clinicRepository.findAll()) {
+            for (DaySlot slot : slots) {
+                try {
+                    if (clinicWorkingHoursRepository.findByClinicIdAndDayOfWeek(clinic.getId(), slot.day()).isEmpty()) {
+                        clinicWorkingHoursRepository.save(ClinicWorkingHours.builder()
+                                .clinic(clinic)
+                                .dayOfWeek(slot.day())
+                                .openTime(slot.open())
+                                .closeTime(slot.close())
+                                .isOpen(slot.isOpen())
+                                .build());
+                        created++;
+                    }
+                } catch (Exception e) {
+                    log.debug("Erro ao criar working hours: {}", e.getMessage());
+                }
+            }
+        }
+        log.info("[Seed] ClinicWorkingHours criados: {}", created);
     }
 }
