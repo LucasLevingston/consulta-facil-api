@@ -2,7 +2,6 @@ package com.example.consulta.domain.entity;
 
 import com.example.consulta.domain.enums.Gender;
 import com.example.consulta.domain.enums.UserRole;
-import com.example.consulta.domain.exception.InvalidStateException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users", indexes = {
-    @Index(name = "idx_email", columnList = "email", unique = true),
-    @Index(name = "idx_cpf", columnList = "cpf")
+        @Index(name = "idx_email", columnList = "email", unique = true),
+        @Index(name = "idx_cpf", columnList = "cpf")
 })
 @Data
 @NoArgsConstructor
