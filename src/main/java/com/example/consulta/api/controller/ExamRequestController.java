@@ -35,7 +35,7 @@ public class ExamRequestController {
     private final GetExamsByAppointmentUseCase getExamsByAppointment;
 
     @PostMapping("/appointments/{appointmentId}/exams")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageExamRequest(authentication)")
     @Operation(summary = "Request an exam for an appointment")
     public ResponseEntity<ExamRequestResponseDTO> requestExam(
             @PathVariable String appointmentId,
@@ -46,7 +46,7 @@ public class ExamRequestController {
     }
 
     @GetMapping("/appointments/{appointmentId}/exams")
-    @PreAuthorize("hasAnyRole('PATIENT', 'PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canViewExamRequests(authentication)")
     @Operation(summary = "List exam requests for an appointment")
     public ResponseEntity<List<ExamRequestResponseDTO>> getExamsByAppointment(
             @PathVariable String appointmentId) {
@@ -54,7 +54,7 @@ public class ExamRequestController {
     }
 
     @PutMapping(value = "/exams/{examId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("@policy.canReviewExamRequestAsPatient(authentication)")
     @Operation(summary = "Upload exam result file")
     public ResponseEntity<ExamRequestResponseDTO> uploadExam(
             @PathVariable String examId,
@@ -64,7 +64,7 @@ public class ExamRequestController {
     }
 
     @PutMapping("/exams/{examId}/review")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canReviewExamRequestAsProfessional(authentication)")
     @Operation(summary = "Review an uploaded exam and add professional notes")
     public ResponseEntity<ExamRequestResponseDTO> reviewExam(
             @PathVariable String examId,

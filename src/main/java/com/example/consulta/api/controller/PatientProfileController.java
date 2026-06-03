@@ -29,7 +29,7 @@ public class PatientProfileController {
     private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @GetMapping("/professional/{userId}")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canViewPatientProfile(authentication)")
     @Operation(summary = "List professional's patients")
     public ResponseEntity<Page<PatientSummaryDTO>> getProfessionalPatients(
             @PathVariable String userId,
@@ -45,7 +45,7 @@ public class PatientProfileController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("@policy.canManagePatientProfile(authentication)")
     @Operation(summary = "Get my patient profile")
     public ResponseEntity<?> getMyProfile() {
         return ResponseEntity.ok(patientProfileUseCase.getPatientProfile(SecurityUtils.getCurrentUserId()));
@@ -58,7 +58,7 @@ public class PatientProfileController {
     }
 
     @PutMapping("/me")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("@policy.canManagePatientProfile(authentication)")
     @Operation(summary = "Update my patient profile")
     public ResponseEntity<?> updateMyProfile(@RequestBody Map<String, Object> updates) {
         return ResponseEntity.ok(
@@ -72,7 +72,7 @@ public class PatientProfileController {
     }
 
     @PutMapping("/{userId}/medical-records")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("@policy.canManagePatientProfile(authentication)")
     @Operation(summary = "Update patient medical records")
     public ResponseEntity<?> updatePatientMedicalRecords(
             @PathVariable String userId, @RequestBody Map<String, Object> updates) {

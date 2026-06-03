@@ -24,7 +24,7 @@ public class UserController {
 
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@policy.canViewUserProfile(authentication)")
     @Operation(summary = "Get current user")
     public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(userUseCase.getById(userDetails.getUserId()));
@@ -32,7 +32,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@policy.canAdminListUsers(authentication)")
     @Operation(summary = "Get user by ID")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String userId) {
         return ResponseEntity.ok(userUseCase.getById(userId));
@@ -40,7 +40,7 @@ public class UserController {
 
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@policy.canUpdateUserProfile(authentication)")
     @Operation(summary = "Upload avatar do usuário autenticado")
     public ResponseEntity<UserResponseDTO> uploadAvatar(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@policy.canAdminUpdateUser(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete user")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {

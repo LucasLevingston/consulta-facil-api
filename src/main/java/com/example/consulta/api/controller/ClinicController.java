@@ -58,7 +58,7 @@ public class ClinicController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get my clinic")
     public ResponseEntity<List<ClinicResponseDTO>> getMyClinic(
@@ -73,7 +73,7 @@ public class ClinicController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create a clinic")
     public ResponseEntity<ClinicResponseDTO> createClinic(
@@ -84,7 +84,7 @@ public class ClinicController {
     }
 
     @PutMapping("/{clinicId}")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update a clinic")
     public ResponseEntity<ClinicResponseDTO> updateClinic(
@@ -95,7 +95,7 @@ public class ClinicController {
     }
 
     @PostMapping("/{clinicId}/members/{professionalProfileId}")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Add a professional to clinic")
     public ResponseEntity<Void> addMember(
@@ -107,7 +107,7 @@ public class ClinicController {
     }
 
     @DeleteMapping("/{clinicId}/members/{professionalProfileId}")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Remove a professional from clinic")
     public ResponseEntity<Void> removeMember(
@@ -119,7 +119,7 @@ public class ClinicController {
     }
 
     @PostMapping("/{clinicId}/invites/{professionalProfileId}")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Send a clinic invite to a professional")
     public ResponseEntity<Void> inviteProfessional(
@@ -131,7 +131,7 @@ public class ClinicController {
     }
 
     @PostMapping("/{clinicId}/receptionists")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Invite a receptionist to a clinic")
     public ResponseEntity<ReceptionistResponseDTO> inviteReceptionist(
@@ -143,7 +143,7 @@ public class ClinicController {
     }
 
     @DeleteMapping("/{clinicId}/receptionists/{receptionistId}")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Remove a receptionist from a clinic")
     public ResponseEntity<Void> removeReceptionist(
@@ -155,7 +155,7 @@ public class ClinicController {
     }
 
     @GetMapping("/{clinicId}/receptionists")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get receptionists of a clinic")
     public ResponseEntity<List<ReceptionistResponseDTO>> getReceptionists(
@@ -177,7 +177,7 @@ public class ClinicController {
     }
 
     @PutMapping("/{clinicId}/working-hours")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageClinic(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Save working hours for a clinic (upsert, owner only)")
     public ResponseEntity<List<ClinicWorkingHoursResponseDTO>> saveWorkingHours(

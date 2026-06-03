@@ -28,7 +28,7 @@ public class PaymentController {
     private final MercadoPagoWebhookValidator webhookValidator;
 
     @PostMapping("/appointments/{appointmentId}/payment")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("@policy.canCreatePaymentCheckout(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create payment preference for an appointment")
     public ResponseEntity<PaymentResponseDTO> createPayment(

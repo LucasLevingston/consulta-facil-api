@@ -67,7 +67,7 @@ public class ProfessionalController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageProfessionalSchedule(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get my professional profile")
     public ResponseEntity<ProfessionalResponseDTO> getMyProfile(
@@ -82,7 +82,7 @@ public class ProfessionalController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
+    @PreAuthorize("@policy.canCreateProfessionalProfile(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create professional profile")
     public ResponseEntity<ProfessionalResponseDTO> createProfile(
@@ -93,7 +93,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/{professionalId}")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canViewOwnProfessionalProfile(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update professional profile")
     public ResponseEntity<ProfessionalResponseDTO> updateProfessional(
@@ -103,7 +103,7 @@ public class ProfessionalController {
     }
 
     @DeleteMapping("/{professionalId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@policy.canAdminManageProfessional(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete professional profile")
     public ResponseEntity<Void> deleteProfessional(@PathVariable String professionalId) {
@@ -112,7 +112,7 @@ public class ProfessionalController {
     }
 
     @GetMapping("/applications")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@policy.canAdminManageProfessional(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "List pending professional applications (admin only)")
     public ResponseEntity<Page<ProfessionalResponseDTO>> getPendingApplications(Pageable pageable) {
@@ -128,7 +128,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/{professionalId}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@policy.canAdminManageProfessional(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Approve a professional application (admin only)")
     public ResponseEntity<ProfessionalResponseDTO> approveApplication(@PathVariable String professionalId) {
@@ -136,7 +136,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/{professionalId}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@policy.canAdminManageProfessional(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Reject a professional application (admin only)")
     public ResponseEntity<ProfessionalResponseDTO> rejectApplication(@PathVariable String professionalId) {
@@ -150,7 +150,7 @@ public class ProfessionalController {
     }
 
     @GetMapping("/me/schedule")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageProfessionalSchedule(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get my schedule")
     public ResponseEntity<List<ProfessionalScheduleResponseDTO>> getMySchedule(
@@ -159,7 +159,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/me/consultation-price")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageProfessionalSchedule(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Set my consultation price")
     public ResponseEntity<ProfessionalResponseDTO> setConsultationPrice(
@@ -169,7 +169,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/me/payment-settings")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageProfessionalSchedule(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update my payment settings (accepted methods and timing)")
     public ResponseEntity<ProfessionalResponseDTO> updatePaymentSettings(
@@ -179,7 +179,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/me/schedule")
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageProfessionalSchedule(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Save my weekly schedule (upsert)")
     public ResponseEntity<List<ProfessionalScheduleResponseDTO>> saveMySchedule(

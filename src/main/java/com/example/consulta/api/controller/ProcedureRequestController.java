@@ -35,7 +35,7 @@ public class ProcedureRequestController {
     private final CancelProcedureRequestUseCase cancelProcedureRequest;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('PROFESSIONAL', 'ADMIN')")
+    @PreAuthorize("@policy.canManageProcedureRequest(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Professional opens a procedure request for a patient")
     public ResponseEntity<ProcedureRequestResponseDTO> create(
@@ -46,7 +46,7 @@ public class ProcedureRequestController {
     }
 
     @GetMapping("/mine")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@policy.canViewProcedureRequests(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "List procedure requests for the authenticated user")
     public ResponseEntity<List<ProcedureRequestResponseDTO>> getMine(
@@ -61,7 +61,7 @@ public class ProcedureRequestController {
     }
 
     @PostMapping("/{requestId}/schedule")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("@policy.canReviewProcedureRequestAsPatient(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Patient schedules a time slot for an approved procedure request")
     public ResponseEntity<ProcedureRequestResponseDTO> schedule(
@@ -72,7 +72,7 @@ public class ProcedureRequestController {
     }
 
     @PutMapping("/{requestId}/cancel")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@policy.canViewProcedureRequest(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cancel a procedure request (patient or professional)")
     public ResponseEntity<ProcedureRequestResponseDTO> cancel(
