@@ -4,6 +4,7 @@ import com.example.consulta.domain.entity.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,15 @@ public class JwtTokenProvider {
 
     @Value("${jwt.expiration:86400000}")
     private long jwtExpirationMs;
+
+    @PostConstruct
+    public void validateSecret() {
+        if (jwtSecret == null || jwtSecret.getBytes(StandardCharsets.UTF_8).length < 64) {
+            throw new IllegalStateException(
+                    "jwt.secret must be at least 64 bytes for HS512. Current length: " +
+                    (jwtSecret == null ? 0 : jwtSecret.getBytes(StandardCharsets.UTF_8).length));
+        }
+    }
 
     public String generateToken(User user) {
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));

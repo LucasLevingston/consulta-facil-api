@@ -1,0 +1,1 @@
+ALTER TABLE prontuarios ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;

@@ -3,6 +3,7 @@ package com.example.consulta.application.service;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.core.exception.UnauthorizedException;
 import com.example.consulta.core.security.JwtTokenProvider;
+import com.example.consulta.domain.entity.RefreshToken;
 import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.UserRole;
 import com.example.consulta.domain.port.out.UserRepositoryPort;
@@ -31,6 +32,7 @@ class AuthServiceTest {
     @Mock UserRepositoryPort userRepository;
     @Mock PasswordEncoder passwordEncoder;
     @Mock JwtTokenProvider jwtTokenProvider;
+    @Mock RefreshTokenService refreshTokenService;
 
     @InjectMocks AuthService service;
 
@@ -47,6 +49,8 @@ class AuthServiceTest {
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(jwtTokenProvider.generateToken(any())).thenReturn("jwt-token");
         when(jwtTokenProvider.getExpiresIn()).thenReturn(86400L);
+        when(refreshTokenService.createFor(any())).thenReturn(
+                RefreshToken.builder().token("refresh-token").build());
     }
 
     private LoginRequestDTO req(String email, String password) {

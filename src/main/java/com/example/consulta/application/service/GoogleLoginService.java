@@ -25,6 +25,7 @@ public class GoogleLoginService implements GoogleLoginUseCase {
     private final UserRepositoryPort userRepository;
     private final PatientProfileRepositoryPort patientProfileRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     @Transactional
@@ -41,8 +42,9 @@ public class GoogleLoginService implements GoogleLoginUseCase {
         }
 
         String jwt = jwtTokenProvider.generateToken(user);
+        String refreshToken = refreshTokenService.createFor(user).getToken();
         log.info("[GoogleOAuth] Login userId={} email={}", user.getId(), PiiMask.maskEmail(user.getEmail()));
-        return LoginResponseDTO.of(jwt, jwtTokenProvider.getExpiresIn(),
+        return LoginResponseDTO.of(jwt, refreshToken, jwtTokenProvider.getExpiresIn(),
                 user.getId(), user.getEmail(), user.getRole());
     }
 

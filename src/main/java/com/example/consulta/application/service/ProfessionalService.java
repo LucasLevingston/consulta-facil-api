@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.OptionalDouble;
 
 @Slf4j
 @Service
@@ -184,6 +183,7 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
     // --- mappers ---
 
     private ProfessionalResponseDTO toListSummaryDTO(ProfessionalProfile profile) {
+        Double rating = computeRating(profile);
         return ProfessionalResponseDTO.builder()
                 .id(profile.getId())
                 .userId(profile.getUser().getId())
@@ -194,8 +194,8 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .licenseNumber(profile.getLicenseNumber())
                 .phone(profile.getUser().getPhone())
                 .imageUrl(profile.getUser().getImageUrl())
-                .rating(null)
-                .consultationCount(0)
+                .rating(rating)
+                .consultationCount(computeConsultationCount(profile))
                 .status(profile.getStatus())
                 .city(profile.getCity())
                 .state(profile.getState())
@@ -211,14 +211,7 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
     }
 
     public ProfessionalResponseDTO toResponseDTO(ProfessionalProfile profile) {
-        int consultationCount = (int) profile.getAppointments().stream()
-                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
-                .count();
-        OptionalDouble avg = profile.getAppointments().stream()
-                .filter(a -> a.getRating() != null)
-                .mapToInt(a -> a.getRating())
-                .average();
-        Double rating = avg.isPresent() ? Math.round(avg.getAsDouble() * 10.0) / 10.0 : null;
+        Double rating = computeRating(profile);
 
         Clinic clinic = profile.getClinicMemberships().stream()
                 .findFirst()
@@ -236,7 +229,7 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .phone(profile.getUser().getPhone())
                 .imageUrl(profile.getUser().getImageUrl())
                 .rating(rating)
-                .consultationCount(consultationCount)
+                .consultationCount(computeConsultationCount(profile))
                 .status(profile.getStatus())
                 .city(profile.getCity())
                 .state(profile.getState())
@@ -249,5 +242,23 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .acceptedPaymentMethods(profile.getAcceptedPaymentMethods())
                 .paymentTiming(profile.getPaymentTiming())
                 .build();
+    }
+
+    private Double computeRating(ProfessionalProfile profile) {
+        return profile.getAppointments().stream()
+                .filter(a -> a.getRating() != null)
+                .mapToInt(a -> a.getRating())
+                .average()
+                .stream()
+                .boxed()
+                .map(avg -> Math.round(avg * 10.0) / 10.0)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private int computeConsultationCount(ProfessionalProfile profile) {
+        return (int) profile.getAppointments().stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                .count();
     }
 }

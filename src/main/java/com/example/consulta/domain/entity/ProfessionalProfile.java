@@ -84,6 +84,7 @@ public class ProfessionalProfile {
     @ToString.Exclude
     private List<ClinicMember> clinicMemberships = new ArrayList<>();
 
+
     // --- Domain behaviour methods ---
 
     public void approve() {

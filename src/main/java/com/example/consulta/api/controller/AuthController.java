@@ -5,6 +5,7 @@ import com.example.consulta.api.dto.auth.GoogleLoginRequestDTO;
 import com.example.consulta.api.dto.auth.LoginRequestDTO;
 import com.example.consulta.api.dto.auth.LoginResponseDTO;
 import com.example.consulta.api.dto.auth.MagicLinkRequestDTO;
+import com.example.consulta.api.dto.auth.RefreshTokenRequestDTO;
 import com.example.consulta.api.dto.auth.ResetPasswordDTO;
 import com.example.consulta.api.dto.user.CreateUserDTO;
 import com.example.consulta.api.dto.user.UserResponseDTO;
@@ -15,6 +16,7 @@ import com.example.consulta.application.port.in.RegisterUserUseCase;
 import com.example.consulta.application.port.in.RequestMagicLinkUseCase;
 import com.example.consulta.application.port.in.ResetPasswordUseCase;
 import com.example.consulta.application.port.in.VerifyMagicLinkUseCase;
+import com.example.consulta.application.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,6 +38,7 @@ public class AuthController {
     private final RequestMagicLinkUseCase requestMagicLink;
     private final VerifyMagicLinkUseCase verifyMagicLink;
     private final GoogleLoginUseCase googleLogin;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Authenticates the user and returns a JWT token")
@@ -80,5 +83,11 @@ public class AuthController {
     @Operation(summary = "Google login", description = "Validates a Google id_token and returns a JWT")
     public ResponseEntity<LoginResponseDTO> googleLogin(@Valid @RequestBody GoogleLoginRequestDTO request) {
         return ResponseEntity.ok(googleLogin.execute(request.idToken()));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh token", description = "Rotates a refresh token and issues new access + refresh tokens")
+    public ResponseEntity<LoginResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
+        return ResponseEntity.ok(refreshTokenService.rotate(request.refreshToken()));
     }
 }
