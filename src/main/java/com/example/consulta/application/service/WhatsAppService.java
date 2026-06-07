@@ -1,6 +1,7 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.core.config.TwilioProperties;
+import com.example.consulta.core.util.PiiMask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -26,7 +27,7 @@ public class WhatsAppService {
         String authToken = twilioProperties.getAuthToken();
 
         if (accountSid == null || accountSid.isBlank() || authToken == null || authToken.isBlank()) {
-            log.info("[WhatsApp] Credenciais Twilio não configuradas. Mensagem não enviada para {}. Conteúdo: {}", toPhone, body);
+            log.info("[WhatsApp] Credenciais Twilio não configuradas. Mensagem não enviada para {}", PiiMask.maskPhone(toPhone));
             return;
         }
 
@@ -50,9 +51,9 @@ public class WhatsAppService {
 
         try {
             restTemplate.postForObject(url, new HttpEntity<>(params, headers), String.class);
-            log.info("[WhatsApp] Mensagem enviada para {}", normalizedPhone);
+            log.info("[WhatsApp] Mensagem enviada para {}", PiiMask.maskPhone(normalizedPhone));
         } catch (Exception e) {
-            log.error("[WhatsApp] Falha ao enviar mensagem para {}: {}", normalizedPhone, e.getMessage());
+            log.error("[WhatsApp] Falha ao enviar mensagem para {}: {}", PiiMask.maskPhone(normalizedPhone), e.getMessage());
         }
     }
 }

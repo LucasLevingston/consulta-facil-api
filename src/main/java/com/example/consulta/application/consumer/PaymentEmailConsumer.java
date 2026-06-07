@@ -1,6 +1,7 @@
 package com.example.consulta.application.consumer;
 
 import com.example.consulta.core.messaging.RabbitMQConfig;
+import com.example.consulta.core.util.PiiMask;
 import com.example.consulta.domain.event.PaymentFailedEvent;
 import com.example.consulta.domain.event.PaymentSucceededEvent;
 import com.example.consulta.domain.port.out.EmailPort;
@@ -22,7 +23,7 @@ public class PaymentEmailConsumer {
     @RabbitListener(queues = RabbitMQConfig.Q_PAYMENTS_SUCCEEDED_EMAIL)
     public void onPaymentSucceeded(PaymentSucceededEvent event) {
         log.info("[Email] payments.succeeded → to={} appointment={} amount={}",
-                event.patientEmail(), event.appointmentId(), event.amount());
+                PiiMask.maskEmail(event.patientEmail()), event.appointmentId(), event.amount());
         try {
             emailPort.sendPaymentReceipt(
                 event.patientEmail(),
@@ -39,7 +40,7 @@ public class PaymentEmailConsumer {
     @RabbitListener(queues = RabbitMQConfig.Q_PAYMENTS_FAILED_EMAIL)
     public void onPaymentFailed(PaymentFailedEvent event) {
         log.info("[Email] payments.failed → to={} appointment={}",
-                event.patientEmail(), event.appointmentId());
+                PiiMask.maskEmail(event.patientEmail()), event.appointmentId());
         try {
             emailPort.sendPaymentFailure(
                 event.patientEmail(),

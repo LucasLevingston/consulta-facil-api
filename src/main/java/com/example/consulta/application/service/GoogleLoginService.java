@@ -2,6 +2,7 @@ package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.auth.LoginResponseDTO;
 import com.example.consulta.application.port.in.GoogleLoginUseCase;
+import com.example.consulta.core.util.PiiMask;
 import com.example.consulta.core.security.JwtTokenProvider;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.entity.User;
@@ -40,7 +41,7 @@ public class GoogleLoginService implements GoogleLoginUseCase {
         }
 
         String jwt = jwtTokenProvider.generateToken(user);
-        log.info("[GoogleOAuth] Login userId={} email={}", user.getId(), user.getEmail());
+        log.info("[GoogleOAuth] Login userId={} email={}", user.getId(), PiiMask.maskEmail(user.getEmail()));
         return LoginResponseDTO.of(jwt, jwtTokenProvider.getExpiresIn(),
                 user.getId(), user.getEmail(), user.getRole());
     }

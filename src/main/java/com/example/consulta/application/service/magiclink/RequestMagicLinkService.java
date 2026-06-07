@@ -1,6 +1,7 @@
 package com.example.consulta.application.service.magiclink;
 
 import com.example.consulta.application.port.in.RequestMagicLinkUseCase;
+import com.example.consulta.core.util.PiiMask;
 import com.example.consulta.core.exception.BadRequestException;
 import com.example.consulta.domain.entity.MagicLinkToken;
 import com.example.consulta.domain.entity.User;
@@ -38,7 +39,7 @@ public class RequestMagicLinkService implements RequestMagicLinkUseCase {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
             // don't reveal whether email exists
-            log.debug("[MagicLink] Requested for unknown email: {}", email);
+            log.debug("[MagicLink] Requested for unknown email: {}", PiiMask.maskEmail(email));
             return;
         }
 

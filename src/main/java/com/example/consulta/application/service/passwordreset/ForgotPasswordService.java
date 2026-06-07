@@ -6,6 +6,7 @@ import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.port.out.PasswordResetTokenRepositoryPort;
 import com.example.consulta.domain.port.out.UserRepositoryPort;
 import com.example.consulta.application.port.in.ForgotPasswordUseCase;
+import com.example.consulta.core.util.PiiMask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class ForgotPasswordService implements ForgotPasswordUseCase {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
             // Don't reveal whether email exists
-            log.debug("[PasswordReset] Reset requested for unknown email: {}", email);
+            log.debug("[PasswordReset] Reset requested for unknown email: {}", PiiMask.maskEmail(email));
             return;
         }
 

@@ -1,6 +1,7 @@
 package com.example.consulta.application.service;
 
 import com.example.consulta.api.dto.user.CreateUserDTO;
+import com.example.consulta.core.util.PiiMask;
 import com.example.consulta.api.dto.user.UserResponseDTO;
 import com.example.consulta.core.exception.DuplicateResourceException;
 import com.example.consulta.core.exception.ResourceNotFoundException;
@@ -66,7 +67,7 @@ public class UserService implements UserUseCase, RegisterUserUseCase {
 
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByEmail(String email) {
-        log.debug("Fetching user by email: {}", email);
+        log.debug("Fetching user by email: {}", PiiMask.maskEmail(email));
         return toResponseDTO(userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found")));
     }

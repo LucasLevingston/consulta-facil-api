@@ -1,6 +1,7 @@
 package com.example.consulta.adapter.out.email;
 
 import com.example.consulta.domain.port.out.EmailPort;
+import com.example.consulta.core.util.PiiMask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -37,9 +38,9 @@ public class SesEmailAdapter implements EmailPort {
                                     .build())
                             .build())
                     .build());
-            log.info("[Email] Sent '{}' to {}", subject, to);
+            log.info("[Email] Sent '{}' to {}", subject, PiiMask.maskEmail(to));
         } catch (Exception e) {
-            log.error("[Email] Failed to send '{}' to {}: {}", subject, to, e.getMessage());
+            log.error("[Email] Failed to send '{}' to {}: {}", subject, PiiMask.maskEmail(to), e.getMessage());
         }
     }
 
