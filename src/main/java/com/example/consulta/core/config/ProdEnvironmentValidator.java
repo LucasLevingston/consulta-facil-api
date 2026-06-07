@@ -18,6 +18,8 @@ public class ProdEnvironmentValidator {
             "DB_URL",
             "DB_USERNAME",
             "DB_PASSWORD",
+            "FLYWAY_DB_USERNAME",
+            "FLYWAY_DB_PASSWORD",
             "AWS_S3_BUCKET",
             "AWS_REGION",
             "MERCADOPAGO_ACCESS_TOKEN",

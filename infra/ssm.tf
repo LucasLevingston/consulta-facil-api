@@ -32,6 +32,20 @@ resource "aws_ssm_parameter" "db_password" {
   tags  = { Name = "db-password" }
 }
 
+resource "aws_ssm_parameter" "app_db_username" {
+  name  = "${local.ssm_prefix}/app-db-username"
+  type  = "SecureString"
+  value = var.app_db_username
+  tags  = { Name = "app-db-username" }
+}
+
+resource "aws_ssm_parameter" "app_db_password" {
+  name  = "${local.ssm_prefix}/app-db-password"
+  type  = "SecureString"
+  value = var.app_db_password
+  tags  = { Name = "app-db-password" }
+}
+
 resource "aws_ssm_parameter" "mercadopago_token" {
   name  = "${local.ssm_prefix}/mercadopago-token"
   type  = "SecureString"
