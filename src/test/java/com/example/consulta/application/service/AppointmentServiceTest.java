@@ -18,6 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import com.example.consulta.application.port.in.command.ScheduleAppointmentCommand;
+import com.example.consulta.domain.entity.ProfessionalService;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -71,6 +75,66 @@ class AppointmentServiceTest {
         doNothing().when(ownershipValidator).verifyAppointmentAccess(any(), any());
         doNothing().when(appointmentNotification).notifyCanceled(any());
         doNothing().when(businessMetrics).recordAppointmentCanceled();
+    }
+
+    // ── schedule ──────────────────────────────────────────────────────────
+
+    ScheduleAppointmentCommand scheduleCmd(String serviceId) {
+        return new ScheduleAppointmentCommand(
+                "u-1", "prof-1", LocalDateTime.now().plusDays(1),
+                "Dor de cabeça", null, AppointmentModality.IN_PERSON,
+                serviceId, null);
+    }
+
+    @Test
+    void schedule_serviceRequiresConsultation_throwsBadRequest() {
+        ProfessionalService consultationService = ProfessionalService.builder()
+                .id("svc-1").name("Limpeza de pele").price(BigDecimal.valueOf(200))
+                .durationMinutes(60).requiresConsultation(true).active(true).build();
+
+        when(patientProfileRepository.findByUserId("u-1")).thenReturn(Optional.of(patient));
+        when(professionalProfileRepository.findById("prof-1")).thenReturn(Optional.of(professional));
+        when(appointmentRepository.existsByProfessionalIdAndScheduledAt(any(), any())).thenReturn(false);
+        when(professionalServiceRepository.findById("svc-1")).thenReturn(Optional.of(consultationService));
+
+        assertThatThrownBy(() -> service.execute(scheduleCmd("svc-1")))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("consulta prévia");
+    }
+
+    @Test
+    void schedule_directService_doesNotThrow() {
+        ProfessionalService directService = ProfessionalService.builder()
+                .id("svc-2").name("Retorno").price(BigDecimal.valueOf(100))
+                .durationMinutes(30).requiresConsultation(false).active(true).build();
+
+        when(patientProfileRepository.findByUserId("u-1")).thenReturn(Optional.of(patient));
+        when(professionalProfileRepository.findById("prof-1")).thenReturn(Optional.of(professional));
+        when(appointmentRepository.existsByProfessionalIdAndScheduledAt(any(), any())).thenReturn(false);
+        when(professionalServiceRepository.findById("svc-2")).thenReturn(Optional.of(directService));
+        when(appointmentRepository.save(any())).thenAnswer(inv -> {
+            Appointment a = inv.getArgument(0);
+            a.setId("appt-new");
+            return a;
+        });
+        doNothing().when(appointmentNotification).notifyScheduled(any());
+        doNothing().when(businessMetrics).recordAppointmentCreated();
+
+        var result = service.execute(scheduleCmd("svc-2"));
+
+        assertThat(result).isNotNull();
+        assertThat(result.getServiceId()).isEqualTo("svc-2");
+    }
+
+    @Test
+    void schedule_serviceNotFound_throwsNotFound() {
+        when(patientProfileRepository.findByUserId("u-1")).thenReturn(Optional.of(patient));
+        when(professionalProfileRepository.findById("prof-1")).thenReturn(Optional.of(professional));
+        when(appointmentRepository.existsByProfessionalIdAndScheduledAt(any(), any())).thenReturn(false);
+        when(professionalServiceRepository.findById("svc-bad")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.execute(scheduleCmd("svc-bad")))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     // ── cancel ────────────────────────────────────────────────────────────

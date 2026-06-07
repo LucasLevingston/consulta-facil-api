@@ -83,6 +83,10 @@ public class AppointmentService implements
             service = professionalServiceRepository.findById(command.serviceId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "ProfessionalService", command.serviceId()));
+            if (service.isRequiresConsultation()) {
+                throw new BadRequestException(
+                        "Este serviço requer uma consulta prévia e não pode ser agendado diretamente.");
+            }
         }
 
         PaymentMethod chosenMethod = command.chosenPaymentMethod();
