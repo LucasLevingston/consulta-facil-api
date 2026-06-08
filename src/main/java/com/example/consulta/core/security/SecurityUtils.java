@@ -17,7 +17,7 @@ public class SecurityUtils {
             return userDetails.getUserId();
         }
         
-        throw new IllegalStateException("Usuário não autenticado ou contexto inválido");
+        throw new IllegalStateException("Unauthenticated user or invalid security context");
     }
 
     public static String getCurrentUserEmail() {
@@ -28,7 +28,7 @@ public class SecurityUtils {
             return userDetails.getUsername();
         }
         
-        throw new IllegalStateException("Usuário não autenticado ou contexto inválido");
+        throw new IllegalStateException("Unauthenticated user or invalid security context");
     }
 
     public static boolean isAuthenticated() {

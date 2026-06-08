@@ -55,7 +55,7 @@ public class AuthService implements LoginUseCase {
         if (user.getPassword() == null) {
             // Google-only account — prevent timing oracle via dummy hash
             passwordEncoder.matches(request.getPassword(), DUMMY_HASH);
-            throw new UnauthorizedException("Esta conta usa o login com Google. Use 'Entrar com Google'.");
+            throw new UnauthorizedException("This account uses Google login. Please use 'Sign in with Google'.");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {

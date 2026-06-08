@@ -58,3 +58,8 @@ output "acm_certificate_arn" {
   description = "ACM certificate ARN in use (Terraform-created or BYO)"
   value       = local.certificate_arn
 }
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID — used for cache invalidation on deploy"
+  value       = var.domain_name != "" && var.enable_cloudfront ? aws_cloudfront_distribution.main[0].id : ""
+}

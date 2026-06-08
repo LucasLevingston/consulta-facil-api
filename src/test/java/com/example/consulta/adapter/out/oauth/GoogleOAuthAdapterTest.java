@@ -68,7 +68,7 @@ class GoogleOAuthAdapterTest {
 
             assertThatThrownBy(() -> adapter.verifyIdToken("expired-token"))
                     .isInstanceOf(UnauthorizedException.class)
-                    .hasMessageContaining("Token Google inválido");
+                    .hasMessageContaining("Invalid Google token");
         }
     }
 
@@ -83,7 +83,7 @@ class GoogleOAuthAdapterTest {
 
             assertThatThrownBy(() -> adapter.verifyIdToken("wrong-client-token"))
                     .isInstanceOf(UnauthorizedException.class)
-                    .hasMessageContaining("não pertence a esta aplicação");
+                    .hasMessageContaining("does not belong to this application");
         }
     }
 

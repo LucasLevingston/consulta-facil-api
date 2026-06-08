@@ -94,7 +94,7 @@ public class ClinicService implements ClinicUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
         if (!clinic.getOwner().getId().equals(userId)) {
-            throw new BadRequestException("Você não é o proprietário desta clínica");
+            throw new BadRequestException("You are not the owner of this clinic");
         }
 
         clinic.setName(dto.getName());
@@ -117,14 +117,14 @@ public class ClinicService implements ClinicUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
         if (!clinic.getOwner().getId().equals(requesterId)) {
-            throw new BadRequestException("Apenas o proprietário pode adicionar membros");
+            throw new BadRequestException("Only the clinic owner can add members");
         }
 
         ProfessionalProfile professional = professionalProfileRepository.findById(professionalProfileId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalProfileId));
 
         if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinicId, professionalProfileId)) {
-            throw new BadRequestException("Profissional já é membro desta clínica");
+            throw new BadRequestException("Professional is already a member of this clinic");
         }
 
         ClinicMember member = ClinicMember.builder()
@@ -144,7 +144,7 @@ public class ClinicService implements ClinicUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
         if (!clinic.getOwner().getId().equals(requesterId)) {
-            throw new BadRequestException("Apenas o proprietário pode remover membros");
+            throw new BadRequestException("Only the clinic owner can remove members");
         }
 
         ClinicMemberId id = new ClinicMemberId(clinicId, professionalProfileId);

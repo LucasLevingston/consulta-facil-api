@@ -36,13 +36,13 @@ public class RefreshTokenService {
     @Transactional
     public LoginResponseDTO rotate(String tokenValue) {
         RefreshToken existing = refreshTokenRepository.findByToken(tokenValue)
-                .orElseThrow(() -> new UnauthorizedException("Refresh token inválido"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
 
         if (existing.isRevoked()) {
-            throw new UnauthorizedException("Refresh token revogado");
+            throw new UnauthorizedException("Refresh token has been revoked");
         }
         if (existing.isExpired()) {
-            throw new UnauthorizedException("Refresh token expirado");
+            throw new UnauthorizedException("Refresh token has expired");
         }
 
         existing.setRevoked(true);

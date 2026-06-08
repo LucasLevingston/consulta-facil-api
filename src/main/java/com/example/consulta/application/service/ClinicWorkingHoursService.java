@@ -39,7 +39,7 @@ public class ClinicWorkingHoursService implements ClinicWorkingHoursUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
         if (!clinic.getOwner().getId().equals(userId)) {
-            throw new BadRequestException("Você não é o proprietário desta clínica");
+            throw new BadRequestException("You are not the owner of this clinic");
         }
 
         List<ClinicWorkingHours> saved = dtos.stream().map(dto -> {

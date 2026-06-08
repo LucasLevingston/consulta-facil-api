@@ -56,7 +56,7 @@ public class CreateAppointmentPaymentService implements CreateAppointmentPayment
 
         var acceptedMethods = appointment.getProfessional().getAcceptedPaymentMethods();
         if (!acceptedMethods.isEmpty() && !acceptedMethods.contains(PaymentMethod.MERCADOPAGO)) {
-            throw new BadRequestException("Este profissional não aceita pagamento via MercadoPago");
+            throw new BadRequestException("This professional does not accept payment via MercadoPago");
         }
 
         // Derive amount: caller-supplied → appointment (set at scheduling) → professional price
@@ -64,7 +64,7 @@ public class CreateAppointmentPaymentService implements CreateAppointmentPayment
         if (paymentAmount == null) paymentAmount = appointment.getPaymentAmount();
         if (paymentAmount == null) paymentAmount = appointment.getProfessional().getConsultationPrice();
         if (paymentAmount == null || paymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Valor do pagamento inválido. Configure o preço de consulta do profissional.");
+            throw new BadRequestException("Invalid payment amount. Configure the professional's consultation price.");
         }
 
         try {

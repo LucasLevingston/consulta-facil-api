@@ -57,7 +57,7 @@ class SubscriptionServiceTest {
         when(userRepository.findById("u-1")).thenReturn(Optional.of(user));
         assertThatThrownBy(() -> service.createCheckout("u-1", "invalid-plan"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Plano inválido");
+                .hasMessageContaining("Invalid plan");
     }
 
     @Test

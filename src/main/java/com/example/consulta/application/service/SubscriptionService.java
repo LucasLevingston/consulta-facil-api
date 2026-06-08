@@ -57,7 +57,7 @@ public class SubscriptionService implements SubscriptionUseCase {
     @Transactional
     public CheckoutResponseDTO createCheckout(String userId, String planId) {
         PlanInfo plan = PLANS.get(planId);
-        if (plan == null) throw new IllegalArgumentException("Plano inválido: " + planId);
+        if (plan == null) throw new IllegalArgumentException("Invalid plan: " + planId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));

@@ -85,7 +85,7 @@ public class AppointmentService implements
                             "ProfessionalService", command.serviceId()));
             if (service.isRequiresConsultation()) {
                 throw new BadRequestException(
-                        "Este serviço requer uma consulta prévia e não pode ser agendado diretamente.");
+                        "This service requires a prior consultation and cannot be scheduled directly.");
             }
         }
 
@@ -93,7 +93,7 @@ public class AppointmentService implements
         if (chosenMethod != null && !professional.getAcceptedPaymentMethods().isEmpty()
                 && !professional.getAcceptedPaymentMethods().contains(chosenMethod)) {
             throw new BadRequestException(
-                    "Método de pagamento não aceito por este profissional: " + chosenMethod);
+                    "Payment method not accepted by this professional: " + chosenMethod);
         }
 
         BigDecimal paymentAmount = service != null

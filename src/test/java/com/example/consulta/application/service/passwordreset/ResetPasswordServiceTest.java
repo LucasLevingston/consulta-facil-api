@@ -81,7 +81,7 @@ class ResetPasswordServiceTest {
 
         assertThatThrownBy(() -> service.reset("bad-token", "newPassword"))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Token inválido");
+                .hasMessageContaining("Invalid reset token");
     }
 
     @Test
@@ -91,7 +91,7 @@ class ResetPasswordServiceTest {
 
         assertThatThrownBy(() -> service.reset("valid-raw-token", "newPassword"))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Token já utilizado");
+                .hasMessageContaining("Token has already been used");
     }
 
     @Test
@@ -106,7 +106,7 @@ class ResetPasswordServiceTest {
 
         assertThatThrownBy(() -> service.reset("expired-token", "newPassword"))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Token expirado");
+                .hasMessageContaining("Reset token has expired");
     }
 
     @Test

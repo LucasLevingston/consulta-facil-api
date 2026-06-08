@@ -84,7 +84,7 @@ class VerifyMagicLinkServiceTest {
 
         assertThatThrownBy(() -> service.execute("valid-magic"))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("utilizado");
+                .hasMessageContaining("already been used");
     }
 
     @Test
@@ -94,6 +94,6 @@ class VerifyMagicLinkServiceTest {
 
         assertThatThrownBy(() -> service.execute("valid-magic"))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("expirou");
+                .hasMessageContaining("expired");
     }
 }

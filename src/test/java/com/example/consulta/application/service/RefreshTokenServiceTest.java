@@ -88,7 +88,7 @@ class RefreshTokenServiceTest {
 
         assertThatThrownBy(() -> service.rotate("valid-token"))
                 .isInstanceOf(UnauthorizedException.class)
-                .hasMessageContaining("revogado");
+                .hasMessageContaining("revoked");
     }
 
     @Test
@@ -98,6 +98,6 @@ class RefreshTokenServiceTest {
 
         assertThatThrownBy(() -> service.rotate("valid-token"))
                 .isInstanceOf(UnauthorizedException.class)
-                .hasMessageContaining("expirado");
+                .hasMessageContaining("expired");
     }
 }

@@ -25,7 +25,6 @@ import com.example.consulta.domain.entity.MedicalRecord;
 import com.example.consulta.domain.entity.Notification;
 import com.example.consulta.domain.entity.PatientProfile;
 import com.example.consulta.domain.entity.Subscription;
-import com.example.consulta.domain.entity.User;
 import com.example.consulta.domain.enums.AppointmentModality;
 import com.example.consulta.domain.enums.AppointmentPaymentStatus;
 import com.example.consulta.domain.enums.AppointmentStatus;
@@ -372,7 +371,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 if (firstClinicId == null)
                     firstClinicId = clinic.getId();
 
-                // Add 1-2 extra doctors from the pool as members
+                // Add 1-2 extra professionals from the pool as members
                 int added = 0;
                 for (String extraId : extraProfessionalProfileIds) {
                     if (added >= 2)
@@ -382,7 +381,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     try {
                         clinicService.addMember(clinic.getId(), extraId, ownerUserId);
 
-                        // Also give that doctor location data near the clinic
+                        // Also give that professional location data near the clinic
                         professionalProfileRepository.findById(extraId).ifPresent(p -> {
                             if (p.getLatitude() == null) {
                                 p.setCity(def.location().city());
@@ -1010,7 +1009,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         for (String userId : patientUserIds) {
             try {
                 patientProfileRepository.findByUserId(userId).ifPresent(profile -> {
-                    if (medicalRecordRepository.findByPatientProfileId(profile.getId()).isPresent()) return;
+                    if (medicalRecordRepository.findByPatientProfileId(profile.getId()).isPresent())
+                        return;
                     medicalRecordRepository.save(MedicalRecord.builder()
                             .patientProfile(profile)
                             .allergies(allergies.get(faker.random().nextInt(allergies.size())))
@@ -1039,7 +1039,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         // Subscription for test professional
         try {
             userRepository.findById(testProfessionalUserId).ifPresent(user -> {
-                if (subscriptionRepository.findByUserId(user.getId()).isPresent()) return;
+                if (subscriptionRepository.findByUserId(user.getId()).isPresent())
+                    return;
                 subscriptionRepository.save(Subscription.builder()
                         .user(user)
                         .planId("plan_pro")
@@ -1057,7 +1058,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             try {
                 professionalProfileRepository.findById(profId).ifPresent(prof -> {
                     String userId = prof.getUser().getId();
-                    if (subscriptionRepository.findByUserId(userId).isPresent()) return;
+                    if (subscriptionRepository.findByUserId(userId).isPresent())
+                        return;
                     SubscriptionStatus status = statuses.get(faker.random().nextInt(statuses.size()));
                     subscriptionRepository.save(Subscription.builder()
                             .user(prof.getUser())
@@ -1115,7 +1117,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 for (int i = 0; i < count; i++) {
                     try {
                         ExamRequestStatus examStatus = faker.random().nextInt(100) < 60
-                                ? ExamRequestStatus.UPLOADED : ExamRequestStatus.PENDING;
+                                ? ExamRequestStatus.UPLOADED
+                                : ExamRequestStatus.PENDING;
                         examRequestRepository.save(ExamRequest.builder()
                                 .appointment(appointment)
                                 .professional(appointment.getProfessional())
@@ -1136,7 +1139,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void seedNotifications(List<String> patientUserIds, List<String> professionalProfileIds) {
-        record NotifTemplate(NotificationType type, String title, String message) {}
+        record NotifTemplate(NotificationType type, String title, String message) {
+        }
 
         List<NotifTemplate> templates = List.of(
                 new NotifTemplate(NotificationType.APPOINTMENT_SCHEDULED,
@@ -1146,8 +1150,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 new NotifTemplate(NotificationType.APPOINTMENT_CANCELED,
                         "Consulta cancelada", "Sua consulta foi cancelada."),
                 new NotifTemplate(NotificationType.GENERAL,
-                        "Resultado disponível", "O resultado do seu exame está disponível.")
-        );
+                        "Resultado disponível", "O resultado do seu exame está disponível."));
 
         List<NotificationStatus> statuses = List.of(
                 NotificationStatus.READ, NotificationStatus.READ,
@@ -1178,16 +1181,16 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void seedClinicWorkingHours() {
-        record DaySlot(String day, LocalTime open, LocalTime close, boolean isOpen) {}
+        record DaySlot(String day, LocalTime open, LocalTime close, boolean isOpen) {
+        }
         List<DaySlot> slots = List.of(
-                new DaySlot("MONDAY",    LocalTime.of(8,  0), LocalTime.of(18, 0), true),
-                new DaySlot("TUESDAY",   LocalTime.of(8,  0), LocalTime.of(18, 0), true),
-                new DaySlot("WEDNESDAY", LocalTime.of(8,  0), LocalTime.of(18, 0), true),
-                new DaySlot("THURSDAY",  LocalTime.of(8,  0), LocalTime.of(18, 0), true),
-                new DaySlot("FRIDAY",    LocalTime.of(8,  0), LocalTime.of(17, 0), true),
-                new DaySlot("SATURDAY",  LocalTime.of(8,  0), LocalTime.of(12, 0), false),
-                new DaySlot("SUNDAY",    LocalTime.of(8,  0), LocalTime.of(12, 0), false)
-        );
+                new DaySlot("MONDAY", LocalTime.of(8, 0), LocalTime.of(18, 0), true),
+                new DaySlot("TUESDAY", LocalTime.of(8, 0), LocalTime.of(18, 0), true),
+                new DaySlot("WEDNESDAY", LocalTime.of(8, 0), LocalTime.of(18, 0), true),
+                new DaySlot("THURSDAY", LocalTime.of(8, 0), LocalTime.of(18, 0), true),
+                new DaySlot("FRIDAY", LocalTime.of(8, 0), LocalTime.of(17, 0), true),
+                new DaySlot("SATURDAY", LocalTime.of(8, 0), LocalTime.of(12, 0), false),
+                new DaySlot("SUNDAY", LocalTime.of(8, 0), LocalTime.of(12, 0), false));
 
         int created = 0;
         for (Clinic clinic : clinicRepository.findAll()) {

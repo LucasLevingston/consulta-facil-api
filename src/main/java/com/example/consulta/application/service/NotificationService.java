@@ -37,19 +37,19 @@ public class NotificationService implements NotificationUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Clinic", clinicId));
 
         if (!clinic.getOwner().getId().equals(requesterId)) {
-            throw new BadRequestException("Apenas o proprietário pode convidar profissionais");
+            throw new BadRequestException("Only the clinic owner can invite professionals");
         }
 
         ProfessionalProfile professional = professionalProfileRepository.findById(professionalProfileId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professional", professionalProfileId));
 
         if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinicId, professionalProfileId)) {
-            throw new BadRequestException("Profissional já é membro desta clínica");
+            throw new BadRequestException("Professional is already a member of this clinic");
         }
 
         if (notificationRepository.existsByClinicIdAndProfessionalProfileIdAndStatus(
                 clinicId, professionalProfileId, NotificationStatus.PENDING)) {
-            throw new BadRequestException("Já existe um convite pendente para este profissional");
+            throw new BadRequestException("A pending invitation already exists for this professional");
         }
 
         User targetUser = professional.getUser();
@@ -101,17 +101,17 @@ public class NotificationService implements NotificationUseCase {
         Notification notification = getAndValidate(notificationId, userId);
 
         if (notification.getType() != NotificationType.CLINIC_INVITE) {
-            throw new BadRequestException("Esta notificação não é um convite de clínica");
+            throw new BadRequestException("This notification is not a clinic invitation");
         }
         if (notification.getStatus() != NotificationStatus.PENDING) {
-            throw new BadRequestException("Este convite já foi respondido");
+            throw new BadRequestException("This invitation has already been answered");
         }
 
         Clinic clinic = notification.getClinic();
         ProfessionalProfile professional = notification.getProfessionalProfile();
 
         if (clinicMemberRepository.existsByClinicIdAndProfessionalProfileId(clinic.getId(), professional.getId())) {
-            throw new BadRequestException("Profissional já é membro desta clínica");
+            throw new BadRequestException("Professional is already a member of this clinic");
         }
 
         ClinicMember member = ClinicMember.builder()
@@ -133,10 +133,10 @@ public class NotificationService implements NotificationUseCase {
         Notification notification = getAndValidate(notificationId, userId);
 
         if (notification.getType() != NotificationType.CLINIC_INVITE) {
-            throw new BadRequestException("Esta notificação não é um convite de clínica");
+            throw new BadRequestException("This notification is not a clinic invitation");
         }
         if (notification.getStatus() != NotificationStatus.PENDING) {
-            throw new BadRequestException("Este convite já foi respondido");
+            throw new BadRequestException("This invitation has already been answered");
         }
 
         notification.setStatus(NotificationStatus.DECLINED);
@@ -149,7 +149,7 @@ public class NotificationService implements NotificationUseCase {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification", notificationId));
         if (!notification.getTargetUser().getId().equals(userId)) {
-            throw new BadRequestException("Você não tem permissão para acessar esta notificação");
+            throw new BadRequestException("You do not have permission to access this notification");
         }
         return notification;
     }

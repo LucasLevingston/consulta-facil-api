@@ -31,12 +31,12 @@ public class GoogleOAuthAdapter implements GoogleOAuthPort {
             JsonNode node = objectMapper.readTree(json);
 
             if (node.has("error_description")) {
-                throw new UnauthorizedException("Token Google inválido: " + node.get("error_description").asText());
+                throw new UnauthorizedException("Invalid Google token: " + node.get("error_description").asText());
             }
 
             String aud = node.path("aud").asText("");
             if (!expectedClientId.isBlank() && !aud.equals(expectedClientId)) {
-                throw new UnauthorizedException("Token Google não pertence a esta aplicação.");
+                throw new UnauthorizedException("Google token does not belong to this application.");
             }
 
             String sub     = node.path("sub").asText();

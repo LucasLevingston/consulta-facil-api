@@ -25,13 +25,13 @@ public class ResetPasswordService implements ResetPasswordUseCase {
     @Transactional
     public void reset(String rawToken, String newPassword) {
         PasswordResetToken token = tokenRepository.findByToken(rawToken)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reset token"));
 
         if (token.isUsed()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token já utilizado");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has already been used");
         }
         if (token.isExpired()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token expirado");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reset token has expired");
         }
 
         token.getUser().setPassword(passwordEncoder.encode(newPassword));

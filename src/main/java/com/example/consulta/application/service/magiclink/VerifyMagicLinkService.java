@@ -26,13 +26,13 @@ public class VerifyMagicLinkService implements VerifyMagicLinkUseCase {
     @Transactional
     public LoginResponseDTO execute(String token) {
         MagicLinkToken magicToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Token inválido ou expirado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired magic link token"));
 
         if (magicToken.isUsed()) {
-            throw new BadRequestException("Este link já foi utilizado.");
+            throw new BadRequestException("This magic link has already been used.");
         }
         if (magicToken.isExpired()) {
-            throw new BadRequestException("Este link expirou. Solicite um novo.");
+            throw new BadRequestException("This magic link has expired. Please request a new one.");
         }
 
         magicToken.setUsed(true);

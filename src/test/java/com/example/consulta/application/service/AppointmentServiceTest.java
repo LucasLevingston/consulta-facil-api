@@ -99,7 +99,7 @@ class AppointmentServiceTest {
 
         assertThatThrownBy(() -> service.execute(scheduleCmd("svc-1")))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("consulta prévia");
+                .hasMessageContaining("prior consultation");
     }
 
     @Test
