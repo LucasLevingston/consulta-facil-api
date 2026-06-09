@@ -313,7 +313,7 @@ public class AppointmentService implements
                 .professionalName(appointment.getProfessional() != null && appointment.getProfessional().getUser() != null
                         ? appointment.getProfessional().getUser().getName() : null)
                 .professionalId(appointment.getProfessional() != null ? appointment.getProfessional().getId() : null)
-                .specialty(appointment.getProfessional().getSpecialty())
+                .specialty(appointment.getProfessional() != null ? appointment.getProfessional().getSpecialty() : null)
                 .scheduledAt(appointment.getScheduledAt())
                 .previousScheduledAt(appointment.getPreviousScheduledAt())
                 .checkedInAt(appointment.getCheckedInAt())
@@ -327,7 +327,7 @@ public class AppointmentService implements
                 .paymentStatus(appointment.getPaymentStatus())
                 .paymentAmount(appointment.getPaymentAmount())
                 .chosenPaymentMethod(appointment.getChosenPaymentMethod())
-                .paymentTiming(appointment.getProfessional().getPaymentTiming())
+                .paymentTiming(appointment.getProfessional() != null ? appointment.getProfessional().getPaymentTiming() : null)
                 .rating(appointment.getRating())
                 .ratingComment(appointment.getRatingComment())
                 .serviceId(appointment.getService() != null ? appointment.getService().getId() : null)
