@@ -15,6 +15,10 @@ import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.application.port.in.UserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,6 +111,16 @@ public class UserService implements UserUseCase, RegisterUserUseCase {
 
     @Override
     public UserResponseDTO execute(CreateUserDTO dto) { return createUser(dto); }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserResponseDTO> getAllUsers(int page, int size, UserRole role) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<User> users = role != null
+                ? userRepository.findByRole(role, pageable)
+                : userRepository.findAll(pageable);
+        return users.map(this::toResponseDTO);
+    }
 
     private UserResponseDTO toResponseDTO(User user) {
         return UserResponseDTO.builder()

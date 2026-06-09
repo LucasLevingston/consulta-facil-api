@@ -3,10 +3,12 @@ package com.consultafacil.api.controller;
 import com.consultafacil.api.dto.user.UserResponseDTO;
 import com.consultafacil.application.port.in.UserUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
+import com.consultafacil.domain.enums.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +23,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserUseCase userUseCase;
+
+    @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@policy.canAdminListUsers(authentication)")
+    @Operation(summary = "List all users (admin only)")
+    public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) UserRole role) {
+        return ResponseEntity.ok(userUseCase.getAllUsers(page, size, role));
+    }
 
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")

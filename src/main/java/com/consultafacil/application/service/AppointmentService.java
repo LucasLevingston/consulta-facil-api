@@ -296,10 +296,12 @@ public class AppointmentService implements
     public AppointmentResponseDTO toResponseDTO(Appointment appointment) {
         return AppointmentResponseDTO.builder()
                 .id(appointment.getId())
-                .patientName(appointment.getPatient().getUser().getName())
-                .patientId(appointment.getPatient().getId())
-                .professionalName(appointment.getProfessional().getUser().getName())
-                .professionalId(appointment.getProfessional().getId())
+                .patientName(appointment.getPatient() != null && appointment.getPatient().getUser() != null
+                        ? appointment.getPatient().getUser().getName() : null)
+                .patientId(appointment.getPatient() != null ? appointment.getPatient().getId() : null)
+                .professionalName(appointment.getProfessional() != null && appointment.getProfessional().getUser() != null
+                        ? appointment.getProfessional().getUser().getName() : null)
+                .professionalId(appointment.getProfessional() != null ? appointment.getProfessional().getId() : null)
                 .specialty(appointment.getProfessional().getSpecialty())
                 .scheduledAt(appointment.getScheduledAt())
                 .previousScheduledAt(appointment.getPreviousScheduledAt())

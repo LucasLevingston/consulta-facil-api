@@ -1,6 +1,9 @@
 package com.consultafacil.domain.port.out;
 
 import com.consultafacil.domain.entity.User;
+import com.consultafacil.domain.enums.UserRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -21,4 +24,8 @@ public interface UserRepositoryPort {
     Optional<User> findByGoogleId(String googleId);
 
     void delete(User user);
+
+    Page<User> findAll(Pageable pageable);
+
+    Page<User> findByRole(UserRole role, Pageable pageable);
 }

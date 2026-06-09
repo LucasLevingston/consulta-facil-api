@@ -1,9 +1,12 @@
 package com.consultafacil.adapter.out.persistence;
 
 import com.consultafacil.domain.entity.User;
+import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
 import com.consultafacil.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -52,5 +55,15 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public void delete(User user) {
         userRepository.delete(user);
+    }
+
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<User> findByRole(UserRole role, Pageable pageable) {
+        return userRepository.findByRole(role, pageable);
     }
 }
