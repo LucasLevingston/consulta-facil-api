@@ -87,8 +87,10 @@ resource "aws_ecs_task_definition" "api" {
     secrets = [
       { name = "JWT_SECRET",                valueFrom = aws_ssm_parameter.jwt_secret.arn },
       { name = "DB_URL",                    valueFrom = aws_ssm_parameter.db_url.arn },
-      { name = "DB_USERNAME",               valueFrom = aws_ssm_parameter.db_username.arn },
-      { name = "DB_PASSWORD",               valueFrom = aws_ssm_parameter.db_password.arn },
+      { name = "DB_USERNAME",               valueFrom = aws_ssm_parameter.app_db_username.arn },
+      { name = "DB_PASSWORD",               valueFrom = aws_ssm_parameter.app_db_password.arn },
+      { name = "FLYWAY_DB_USERNAME",        valueFrom = aws_ssm_parameter.db_username.arn },
+      { name = "FLYWAY_DB_PASSWORD",        valueFrom = aws_ssm_parameter.db_password.arn },
       { name = "MERCADOPAGO_ACCESS_TOKEN",   valueFrom = aws_ssm_parameter.mercadopago_token.arn },
       { name = "MERCADOPAGO_WEBHOOK_SECRET", valueFrom = aws_ssm_parameter.mercadopago_webhook_secret.arn },
       { name = "GRAFANA_OTLP_ENDPOINT",      valueFrom = aws_ssm_parameter.grafana_otlp_endpoint.arn },

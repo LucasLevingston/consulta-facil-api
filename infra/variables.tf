@@ -138,7 +138,20 @@ variable "jwt_secret" {
 }
 
 variable "db_password" {
-  description = "RDS master password"
+  description = "RDS master password (used only by Flyway for DDL migrations)"
+  type        = string
+  sensitive   = true
+}
+
+variable "app_db_username" {
+  description = "PostgreSQL application user (limited: SELECT/INSERT/UPDATE/DELETE only — no DDL)"
+  type        = string
+  default     = "cfapp"
+  sensitive   = true
+}
+
+variable "app_db_password" {
+  description = "Password for the application DB user (cfapp)"
   type        = string
   sensitive   = true
 }

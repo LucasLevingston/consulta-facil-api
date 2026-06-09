@@ -12,7 +12,8 @@ acm_certificate_arn = ""   # e.g. "arn:aws:acm:us-east-1:123456789:certificate/a
 
 # ─── Secrets ─────────────────────────────────────────────────────────────────
 jwt_secret               = "CHANGE_ME_at_least_64_random_chars"
-db_password              = "CHANGE_ME_strong_password"
+db_password              = "CHANGE_ME_strong_password"    # master user — Flyway DDL only
+app_db_password          = "CHANGE_ME_strong_password_2"  # cfapp — app runtime (DML only)
 mercadopago_access_token = "APP_USR-..."
 grafana_otlp_endpoint    = "https://otlp-gateway-prod-us-east-0.grafana.net/otlp"
 grafana_otlp_token       = "base64(instanceId:apiKey)"
