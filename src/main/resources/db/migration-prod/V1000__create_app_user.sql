@@ -1,12 +1,13 @@
 -- Creates the application DB user (cfapp) with minimal privileges.
--- Flyway runs this as the master user (cfadmin).
--- After first deploy, change the password to match the SSM value:
---   psql -h <RDS_HOST> -U cfadmin -c "ALTER ROLE cfapp PASSWORD '<APP_DB_PASSWORD_from_SSM>';"
+-- Flyway runs this as the master user (cfadmin/FLYWAY_DB_USERNAME).
+-- Password injected via 'app_db_password' Flyway placeholder (= DB_PASSWORD env var = cfapp's password from SSM).
 
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'cfapp') THEN
-        CREATE ROLE cfapp WITH LOGIN PASSWORD 'CHANGE_ME_after_first_deploy';
+        CREATE ROLE cfapp WITH LOGIN PASSWORD '${app_db_password}';
+    ELSE
+        ALTER ROLE cfapp PASSWORD '${app_db_password}';
     END IF;
 END
 $$;
