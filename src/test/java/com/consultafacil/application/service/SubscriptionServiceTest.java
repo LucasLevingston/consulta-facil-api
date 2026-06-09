@@ -2,11 +2,15 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
+import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.entity.User;
+import com.consultafacil.domain.enums.BillingPeriod;
+import com.consultafacil.domain.enums.PlanStatus;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.port.out.EmailPort;
+import com.consultafacil.domain.port.out.PlanRepositoryPort;
 import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +30,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +39,7 @@ class SubscriptionServiceTest {
 
     @Mock SubscriptionRepositoryPort subscriptionRepository;
     @Mock UserRepositoryPort userRepository;
+    @Mock PlanRepositoryPort planRepository;
     @Mock MercadoPagoConfig mpConfig;
     @Mock EmailPort emailPort;
 
@@ -41,13 +47,26 @@ class SubscriptionServiceTest {
 
     User user;
     Subscription subscription;
+    Plan monthlyPlan;
 
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(service, "appUrl", "http://localhost:3000");
         user = User.builder().id("u-1").email("joao@email.com").name("João Silva").password("x").role(UserRole.PROFESSIONAL).build();
         subscription = Subscription.builder().id("sub-1").user(user).planId("monthly").status(SubscriptionStatus.ACTIVE).expiresAt(LocalDateTime.now().plusDays(30)).build();
+
+        monthlyPlan = Plan.builder()
+                .id("plan-pro-m").slug("monthly").name("Pro Mensal")
+                .price(new BigDecimal("149.90")).tier("PRO")
+                .billingPeriod(BillingPeriod.MONTHLY)
+                .frequency(1).frequencyType("months")
+                .status(PlanStatus.ACTIVE).displayOrder(4)
+                .build();
+
         when(subscriptionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(planRepository.findBySlug("monthly")).thenReturn(Optional.of(monthlyPlan));
+        when(planRepository.findBySlug("invalid-plan")).thenReturn(Optional.empty());
+        when(planRepository.findBySlug("unknown-plan")).thenReturn(Optional.empty());
     }
 
     // ── createCheckout ─────────────────────────────────────────────────────

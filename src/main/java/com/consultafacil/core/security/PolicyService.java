@@ -229,6 +229,12 @@ public class PolicyService {
         return auth != null && auth.isAuthenticated();
     }
 
+    // ── Plans ─────────────────────────────────────────────────────────────
+
+    public boolean canManagePlans(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
+    }
+
     // ── Admin ─────────────────────────────────────────────────────────────
 
     public boolean canAccessAdminPanel(Authentication auth) {

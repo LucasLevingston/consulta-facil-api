@@ -7,6 +7,7 @@ import com.consultafacil.application.port.in.CouponUseCase;
 import com.consultafacil.application.port.in.SubscriptionUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
+import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.entity.SellerSale;
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.entity.User;
@@ -14,6 +15,7 @@ import com.consultafacil.domain.enums.SellerSaleStatus;
 import com.consultafacil.domain.enums.SellerStatus;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.port.out.EmailPort;
+import com.consultafacil.domain.port.out.PlanRepositoryPort;
 import com.consultafacil.domain.port.out.SellerRepositoryPort;
 import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
 import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
@@ -36,7 +38,6 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -46,6 +47,7 @@ public class SubscriptionService implements SubscriptionUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepository;
     private final UserRepositoryPort userRepository;
+    private final PlanRepositoryPort planRepository;
     private final SellerRepositoryPort sellerRepository;
     private final SellerSaleRepositoryPort sellerSaleRepository;
     private final CouponUseCase couponUseCase;
@@ -55,31 +57,21 @@ public class SubscriptionService implements SubscriptionUseCase {
     @Value("${app.url:http://localhost:3000}")
     private String appUrl;
 
-    private static final Map<String, PlanInfo> PLANS = Map.of(
-            "monthly",        new PlanInfo("Plano Pro Mensal",       new BigDecimal("149.90"),  1, "months"),
-            "yearly",         new PlanInfo("Plano Pro Anual",        new BigDecimal("1618.92"), 12, "months"),
-            "clinic-monthly", new PlanInfo("Plano Clínica Mensal",   new BigDecimal("700.00"),  1, "months"),
-            "clinic-yearly",  new PlanInfo("Plano Clínica Anual",    new BigDecimal("7560.00"), 12, "months"));
-
-    record PlanInfo(String title, BigDecimal price, int frequency, String frequencyType) {
-        int durationDays() { return frequency == 12 ? 365 : 30; }
-    }
-
     @Override
     @Transactional
     public CheckoutResponseDTO createCheckout(String userId, String planId, String referralSlug, String couponCode) {
-        PlanInfo plan = PLANS.get(planId);
-        if (plan == null) throw new IllegalArgumentException("Invalid plan: " + planId);
+        Plan plan = planRepository.findBySlug(planId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid plan: " + planId));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
-        BigDecimal finalPrice = plan.price();
+        BigDecimal finalPrice = plan.getPrice();
         String couponId = null;
         BigDecimal discountApplied = null;
 
         if (couponCode != null && !couponCode.isBlank()) {
-            CouponValidationResponseDTO coupon = couponUseCase.validate(couponCode, userId, planId, plan.price());
+            CouponValidationResponseDTO coupon = couponUseCase.validate(couponCode, userId, planId, plan.getPrice());
             finalPrice = coupon.getFinalPrice();
             couponId = coupon.getCouponId();
             discountApplied = coupon.getDiscountAmount();
@@ -89,14 +81,14 @@ public class SubscriptionService implements SubscriptionUseCase {
             PreApprovalAutoRecurringCreateRequest autoRecurring = PreApprovalAutoRecurringCreateRequest.builder()
                     .currencyId("BRL")
                     .transactionAmount(finalPrice)
-                    .frequency(plan.frequency())
-                    .frequencyType(plan.frequencyType())
+                    .frequency(plan.getFrequency())
+                    .frequencyType(plan.getFrequencyType())
                     .startDate(OffsetDateTime.now().plusSeconds(30))
                     .build();
 
             PreapprovalCreateRequest request = PreapprovalCreateRequest.builder()
                     .payerEmail(user.getEmail())
-                    .reason(plan.title())
+                    .reason(plan.getName())
                     .externalReference(userId + "|" + planId)
                     .backUrl(mpConfig.getSuccessUrl() + "?planId=" + planId)
                     .autoRecurring(autoRecurring)
@@ -147,7 +139,7 @@ public class SubscriptionService implements SubscriptionUseCase {
         String userId = parts[0];
         String planId = parts[1];
 
-        PlanInfo plan = PLANS.get(planId);
+        Plan plan = planRepository.findBySlug(planId).orElse(null);
         if (plan == null) return;
 
         Optional<Subscription> opt = subscriptionRepository.findByUserId(userId);
@@ -155,7 +147,6 @@ public class SubscriptionService implements SubscriptionUseCase {
                 .map(u -> Subscription.builder().user(u).planId(planId).build()).orElse(null));
         if (subscription == null) return;
 
-        // Extend from current expiry if still active, otherwise from now
         LocalDateTime base = (subscription.getExpiresAt() != null
                 && subscription.getExpiresAt().isAfter(LocalDateTime.now()))
                 ? subscription.getExpiresAt()
@@ -213,7 +204,6 @@ public class SubscriptionService implements SubscriptionUseCase {
         String slug = subscription.getReferralSlug();
         if (slug == null || slug.isBlank()) return;
 
-        // Only create one sale per subscription
         if (sellerSaleRepository.findBySubscriptionId(subscription.getId()).isPresent()) return;
 
         sellerRepository.findBySlug(slug).ifPresentOrElse(seller -> {
@@ -222,8 +212,8 @@ public class SubscriptionService implements SubscriptionUseCase {
                 return;
             }
 
-            PlanInfo plan = PLANS.get(subscription.getPlanId());
-            BigDecimal grossAmount = plan != null ? plan.price() : BigDecimal.ZERO;
+            Plan plan = planRepository.findBySlug(subscription.getPlanId()).orElse(null);
+            BigDecimal grossAmount = plan != null ? plan.getPrice() : BigDecimal.ZERO;
             BigDecimal commissionAmount = grossAmount
                     .multiply(seller.getCommissionRate())
                     .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
@@ -248,13 +238,13 @@ public class SubscriptionService implements SubscriptionUseCase {
 
     // ── Helpers ───────────────────────────────────────────────────────────
 
-    private void sendRenewalEmail(User user, PlanInfo plan, LocalDateTime nextExpiry) {
+    private void sendRenewalEmail(User user, Plan plan, LocalDateTime nextExpiry) {
         try {
             String nextDate = nextExpiry.format(
                 DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.forLanguageTag("pt-BR")));
             emailPort.sendSubscriptionRenewed(
-                user.getEmail(), user.getName(), plan.title(),
-                plan.price().toPlainString(), nextDate);
+                user.getEmail(), user.getName(), plan.getName(),
+                plan.getPrice().toPlainString(), nextDate);
         } catch (Exception e) {
             log.error("[Email] Failed to send renewal email for user {}: {}", user.getId(), e.getMessage());
         }
