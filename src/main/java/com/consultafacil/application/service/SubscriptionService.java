@@ -1,7 +1,9 @@
 package com.consultafacil.application.service;
 
+import com.consultafacil.api.dto.coupon.CouponValidationResponseDTO;
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
 import com.consultafacil.api.dto.subscription.SubscriptionResponseDTO;
+import com.consultafacil.application.port.in.CouponUseCase;
 import com.consultafacil.application.port.in.SubscriptionUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
@@ -46,6 +48,7 @@ public class SubscriptionService implements SubscriptionUseCase {
     private final UserRepositoryPort userRepository;
     private final SellerRepositoryPort sellerRepository;
     private final SellerSaleRepositoryPort sellerSaleRepository;
+    private final CouponUseCase couponUseCase;
     private final MercadoPagoConfig mpConfig;
     private final EmailPort emailPort;
 
@@ -64,17 +67,28 @@ public class SubscriptionService implements SubscriptionUseCase {
 
     @Override
     @Transactional
-    public CheckoutResponseDTO createCheckout(String userId, String planId, String referralSlug) {
+    public CheckoutResponseDTO createCheckout(String userId, String planId, String referralSlug, String couponCode) {
         PlanInfo plan = PLANS.get(planId);
         if (plan == null) throw new IllegalArgumentException("Invalid plan: " + planId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
+        BigDecimal finalPrice = plan.price();
+        String couponId = null;
+        BigDecimal discountApplied = null;
+
+        if (couponCode != null && !couponCode.isBlank()) {
+            CouponValidationResponseDTO coupon = couponUseCase.validate(couponCode, userId, planId, plan.price());
+            finalPrice = coupon.getFinalPrice();
+            couponId = coupon.getCouponId();
+            discountApplied = coupon.getDiscountAmount();
+        }
+
         try {
             PreApprovalAutoRecurringCreateRequest autoRecurring = PreApprovalAutoRecurringCreateRequest.builder()
                     .currencyId("BRL")
-                    .transactionAmount(plan.price())
+                    .transactionAmount(finalPrice)
                     .frequency(plan.frequency())
                     .frequencyType(plan.frequencyType())
                     .startDate(OffsetDateTime.now().plusSeconds(30))
@@ -98,6 +112,8 @@ public class SubscriptionService implements SubscriptionUseCase {
             if (referralSlug != null && !referralSlug.isBlank()) {
                 subscription.setReferralSlug(referralSlug.trim().toUpperCase());
             }
+            subscription.setCouponId(couponId);
+            subscription.setDiscountApplied(discountApplied);
             subscriptionRepository.save(subscription);
 
             return CheckoutResponseDTO.builder()
@@ -173,6 +189,10 @@ public class SubscriptionService implements SubscriptionUseCase {
                     subscriptionRepository.save(sub);
                     log.info("[Subscription] Preapproval {} authorized for userId={}", preapprovalId, sub.getUser().getId());
                     createSellerSaleIfPresent(sub);
+                    if (sub.getCouponId() != null) {
+                        couponUseCase.recordUse(sub.getCouponId(), sub.getUser().getId(),
+                                sub.getId(), sub.getDiscountApplied());
+                    }
                 }
             }, () -> log.warn("[Subscription] Preapproval {} not found in DB", preapprovalId));
 

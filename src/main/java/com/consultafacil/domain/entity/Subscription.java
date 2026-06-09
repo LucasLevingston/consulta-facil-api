@@ -52,6 +52,12 @@ public class Subscription {
     @Column(name = "referral_slug", length = 20)
     private String referralSlug;
 
+    @Column(name = "coupon_id")
+    private String couponId;
+
+    @Column(name = "discount_applied", precision = 10, scale = 2)
+    private java.math.BigDecimal discountApplied;
+
     @Column(name = "created_at", updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

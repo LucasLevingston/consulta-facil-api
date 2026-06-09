@@ -219,6 +219,16 @@ public class PolicyService {
         return auth != null && auth.isAuthenticated();
     }
 
+    // ── Coupons ───────────────────────────────────────────────────────────
+
+    public boolean canManageCoupons(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
+    }
+
+    public boolean canValidateCoupon(Authentication auth) {
+        return auth != null && auth.isAuthenticated();
+    }
+
     // ── Admin ─────────────────────────────────────────────────────────────
 
     public boolean canAccessAdminPanel(Authentication auth) {

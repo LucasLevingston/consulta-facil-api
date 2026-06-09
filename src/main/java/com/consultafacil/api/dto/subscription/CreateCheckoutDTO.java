@@ -9,4 +9,6 @@ public class CreateCheckoutDTO {
     private String planId;
 
     private String referralSlug;
+
+    private String couponCode;
 }

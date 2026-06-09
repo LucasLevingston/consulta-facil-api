@@ -117,7 +117,7 @@ class SubscriptionControllerIntegrationTest {
                 .checkoutUrl("https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=pref-123")
                 .build();
 
-        when(subscriptionService.createCheckout(any(), eq("monthly"), any())).thenReturn(checkoutResponse);
+        when(subscriptionService.createCheckout(any(), eq("monthly"), any(), any())).thenReturn(checkoutResponse);
 
         Map<String, String> body = Map.of("planId", "monthly");
 
