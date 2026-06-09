@@ -25,4 +25,4 @@ ENV SPRING_PROFILES_ACTIVE=railway
 
 EXPOSE ${PORT:-8080}
 
-ENTRYPOINT ["sh", "-c", "java -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -jar app.jar --server.port=${PORT:-8080}"]
+ENTRYPOINT ["sh", "-c", "java -Xms48m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=64m -jar app.jar --server.port=${PORT:-8080}"]
