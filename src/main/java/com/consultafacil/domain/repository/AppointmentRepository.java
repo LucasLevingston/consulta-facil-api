@@ -2,6 +2,7 @@ package com.consultafacil.domain.repository;
 
 import com.consultafacil.domain.PatientSummary;
 import com.consultafacil.domain.entity.Appointment;
+import com.consultafacil.domain.enums.AppointmentSource;
 import com.consultafacil.domain.enums.AppointmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
 
     @EntityGraph(attributePaths = {"patient.user", "professional.user", "service"})
     Page<Appointment> findByProfessionalId(String professionalId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"patient.user", "professional.user", "service"})
+    Page<Appointment> findByProfessionalIdAndSource(String professionalId, AppointmentSource source, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient.user", "professional.user", "service"})
     Optional<Appointment> findById(String id);

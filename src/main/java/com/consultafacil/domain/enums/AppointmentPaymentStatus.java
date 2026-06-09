@@ -4,5 +4,6 @@ public enum AppointmentPaymentStatus {
     UNPAID,
     PENDING_PAYMENT,
     PAID,
-    REFUNDED
+    REFUNDED,
+    FREE
 }

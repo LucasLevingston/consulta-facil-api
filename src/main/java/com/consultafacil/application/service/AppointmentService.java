@@ -18,13 +18,13 @@ import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.ProfessionalService;
 import com.consultafacil.domain.enums.AppointmentModality;
+import com.consultafacil.domain.enums.AppointmentSource;
 import com.consultafacil.domain.enums.PaymentMethod;
 import com.consultafacil.domain.enums.PaymentTiming;
 import com.consultafacil.domain.port.out.AppointmentNotificationPort;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.OwnershipValidator;
-import com.consultafacil.domain.PatientSummary;
 import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
 import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
 import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
@@ -162,6 +162,17 @@ public class AppointmentService implements
         log.debug("Fetching appointments for professional: {}", professionalId);
         return professionalProfileRepository.findById(professionalId)
                 .map(p -> appointmentRepository.findByProfessionalId(professionalId, pageable)
+                        .map(this::toResponseDTO))
+                .orElse(Page.empty());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponseDTO> getProfessionalAppointmentsBySource(String professionalId,
+                                                                             AppointmentSource source,
+                                                                             Pageable pageable) {
+        return professionalProfileRepository.findById(professionalId)
+                .map(p -> appointmentRepository.findByProfessionalIdAndSource(professionalId, source, pageable)
                         .map(this::toResponseDTO))
                 .orElse(Page.empty());
     }

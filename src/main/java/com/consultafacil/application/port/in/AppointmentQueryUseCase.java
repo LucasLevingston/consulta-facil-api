@@ -2,6 +2,7 @@ package com.consultafacil.application.port.in;
 
 import com.consultafacil.api.dto.appointment.AppointmentResponseDTO;
 import com.consultafacil.api.dto.appointment.PatientSummaryDTO;
+import com.consultafacil.domain.enums.AppointmentSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,6 +14,10 @@ public interface AppointmentQueryUseCase {
                                                          boolean isAdmin, Pageable pageable);
 
     Page<AppointmentResponseDTO> getProfessionalAppointments(String professionalId, Pageable pageable);
+
+    Page<AppointmentResponseDTO> getProfessionalAppointmentsBySource(String professionalId,
+                                                                      AppointmentSource source,
+                                                                      Pageable pageable);
 
     Page<PatientSummaryDTO> getProfessionalPatients(String professionalId, String search,
                                                      String sort, int page, int size);

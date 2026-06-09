@@ -31,6 +31,7 @@ import com.consultafacil.application.port.in.command.RescheduleAppointmentComman
 import com.consultafacil.application.port.in.command.ScheduleAppointmentCommand;
 import com.consultafacil.application.port.in.ClinicalNoteUseCase;
 import com.consultafacil.application.port.in.MedicalHistoryUseCase;
+import com.consultafacil.domain.enums.AppointmentSource;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -116,7 +117,11 @@ public class AppointmentController {
     @Operation(summary = "List professional appointments")
     public ResponseEntity<Page<AppointmentResponseDTO>> getProfessionalAppointments(
             @PathVariable String professionalId,
+            @RequestParam(required = false) AppointmentSource source,
             Pageable pageable) {
+        if (source != null) {
+            return ResponseEntity.ok(appointmentQuery.getProfessionalAppointmentsBySource(professionalId, source, pageable));
+        }
         return ResponseEntity.ok(appointmentQuery.getProfessionalAppointments(professionalId, pageable));
     }
 

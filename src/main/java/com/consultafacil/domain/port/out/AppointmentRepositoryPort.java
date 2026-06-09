@@ -2,6 +2,7 @@ package com.consultafacil.domain.port.out;
 
 import com.consultafacil.domain.PatientSummary;
 import com.consultafacil.domain.entity.Appointment;
+import com.consultafacil.domain.enums.AppointmentSource;
 import com.consultafacil.domain.enums.AppointmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,8 @@ public interface AppointmentRepositoryPort {
     Page<Appointment> findByPatientId(String patientId, Pageable pageable);
 
     Page<Appointment> findByProfessionalId(String professionalId, Pageable pageable);
+
+    Page<Appointment> findByProfessionalIdAndSource(String professionalId, AppointmentSource source, Pageable pageable);
 
     List<Appointment> findByPatientIdAndStatus(String patientId, AppointmentStatus status);
 

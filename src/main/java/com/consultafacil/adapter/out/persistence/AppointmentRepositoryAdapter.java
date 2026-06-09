@@ -2,6 +2,7 @@ package com.consultafacil.adapter.out.persistence;
 
 import com.consultafacil.domain.PatientSummary;
 import com.consultafacil.domain.entity.Appointment;
+import com.consultafacil.domain.enums.AppointmentSource;
 import com.consultafacil.domain.enums.AppointmentStatus;
 import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
 import com.consultafacil.domain.repository.AppointmentRepository;
@@ -38,6 +39,11 @@ public class AppointmentRepositoryAdapter implements AppointmentRepositoryPort {
     @Override
     public Page<Appointment> findByProfessionalId(String professionalId, Pageable pageable) {
         return appointmentRepository.findByProfessionalId(professionalId, pageable);
+    }
+
+    @Override
+    public Page<Appointment> findByProfessionalIdAndSource(String professionalId, AppointmentSource source, Pageable pageable) {
+        return appointmentRepository.findByProfessionalIdAndSource(professionalId, source, pageable);
     }
 
     @Override

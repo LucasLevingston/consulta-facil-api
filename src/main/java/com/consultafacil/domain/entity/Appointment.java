@@ -2,8 +2,10 @@ package com.consultafacil.domain.entity;
 
 import com.consultafacil.domain.enums.AppointmentModality;
 import com.consultafacil.domain.enums.AppointmentPaymentStatus;
+import com.consultafacil.domain.enums.AppointmentSource;
 import com.consultafacil.domain.enums.AppointmentStatus;
 import com.consultafacil.domain.enums.PaymentMethod;
+import com.consultafacil.domain.enums.WalkInPaymentMethod;
 import com.consultafacil.domain.exception.InvalidStateException;
 import java.math.BigDecimal;
 
@@ -92,6 +94,18 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
     private PaymentMethod chosenPaymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    @Builder.Default
+    private AppointmentSource source = AppointmentSource.ONLINE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "walk_in_payment_method", length = 30)
+    private WalkInPaymentMethod walkInPaymentMethod;
+
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes;
 
     @Column(length = 255)
     private String paymentPreferenceId;

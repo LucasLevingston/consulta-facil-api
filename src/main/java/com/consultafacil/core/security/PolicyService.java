@@ -235,6 +235,12 @@ public class PolicyService {
         return is(auth, UserRole.ADMIN);
     }
 
+    // ── Walk-in ───────────────────────────────────────────────────────────
+
+    public boolean canRegisterWalkIn(Authentication auth) {
+        return is(auth, UserRole.PROFESSIONAL, UserRole.RECEPTIONIST, UserRole.ADMIN);
+    }
+
     // ── Admin ─────────────────────────────────────────────────────────────
 
     public boolean canAccessAdminPanel(Authentication auth) {
