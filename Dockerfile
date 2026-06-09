@@ -21,6 +21,8 @@ USER spring
 
 COPY --from=builder /app/build/libs/*.jar app.jar
 
+ENV SPRING_PROFILES_ACTIVE=railway
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", \
