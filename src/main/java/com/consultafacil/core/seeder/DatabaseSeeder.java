@@ -64,7 +64,7 @@ import java.util.Locale;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("seed | (!prod & !test)")
+@Profile("seed | (!prod & !test & !railway)")
 public class DatabaseSeeder implements CommandLineRunner {
 
     private final Flyway flyway;
