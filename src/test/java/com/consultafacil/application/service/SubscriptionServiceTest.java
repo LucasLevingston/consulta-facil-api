@@ -1,5 +1,6 @@
 package com.consultafacil.application.service;
 
+import com.consultafacil.api.dto.tax.TaxBreakdown;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Plan;
@@ -11,6 +12,7 @@ import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.port.out.EmailPort;
 import com.consultafacil.domain.port.out.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.SubscriptionPaymentRepositoryPort;
 import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +42,8 @@ class SubscriptionServiceTest {
     @Mock SubscriptionRepositoryPort subscriptionRepository;
     @Mock UserRepositoryPort userRepository;
     @Mock PlanRepositoryPort planRepository;
+    @Mock SubscriptionPaymentRepositoryPort subscriptionPaymentRepository;
+    @Mock TaxCalculationService taxCalculationService;
     @Mock MercadoPagoConfig mpConfig;
     @Mock EmailPort emailPort;
 
@@ -64,9 +68,21 @@ class SubscriptionServiceTest {
                 .build();
 
         when(subscriptionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(subscriptionPaymentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(planRepository.findBySlug("monthly")).thenReturn(Optional.of(monthlyPlan));
         when(planRepository.findBySlug("invalid-plan")).thenReturn(Optional.empty());
         when(planRepository.findBySlug("unknown-plan")).thenReturn(Optional.empty());
+
+        TaxBreakdown dummyTax = new TaxBreakdown(
+                new java.math.BigDecimal("149.90"),
+                new java.math.BigDecimal("7.47"),
+                new java.math.BigDecimal("8.99"),
+                java.math.BigDecimal.ZERO,
+                new java.math.BigDecimal("133.44"),
+                new java.math.BigDecimal("6.0"),
+                "SIMPLES_NACIONAL", "CREDIT_CARD");
+        when(taxCalculationService.calculate(any(), any())).thenReturn(dummyTax);
+        when(taxCalculationService.buildSnapshot(any())).thenReturn("{}");
     }
 
     // ── createCheckout ─────────────────────────────────────────────────────

@@ -3,6 +3,7 @@ package com.consultafacil.application.service;
 import com.consultafacil.api.dto.coupon.CouponValidationResponseDTO;
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
 import com.consultafacil.api.dto.subscription.SubscriptionResponseDTO;
+import com.consultafacil.api.dto.tax.TaxBreakdown;
 import com.consultafacil.application.port.in.CouponUseCase;
 import com.consultafacil.application.port.in.SubscriptionUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
@@ -10,6 +11,7 @@ import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.entity.SellerSale;
 import com.consultafacil.domain.entity.Subscription;
+import com.consultafacil.domain.entity.SubscriptionPayment;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.SellerSaleStatus;
 import com.consultafacil.domain.enums.SellerStatus;
@@ -18,6 +20,7 @@ import com.consultafacil.domain.port.out.EmailPort;
 import com.consultafacil.domain.port.out.PlanRepositoryPort;
 import com.consultafacil.domain.port.out.SellerRepositoryPort;
 import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
+import com.consultafacil.domain.port.out.SubscriptionPaymentRepositoryPort;
 import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
 import com.mercadopago.client.payment.PaymentClient;
@@ -50,7 +53,9 @@ public class SubscriptionService implements SubscriptionUseCase {
     private final PlanRepositoryPort planRepository;
     private final SellerRepositoryPort sellerRepository;
     private final SellerSaleRepositoryPort sellerSaleRepository;
+    private final SubscriptionPaymentRepositoryPort subscriptionPaymentRepository;
     private final CouponUseCase couponUseCase;
+    private final TaxCalculationService taxCalculationService;
     private final MercadoPagoConfig mpConfig;
     private final EmailPort emailPort;
 
@@ -160,6 +165,7 @@ public class SubscriptionService implements SubscriptionUseCase {
         subscriptionRepository.save(subscription);
         log.info("[Subscription] Renewed for userId={} plan={} expiresAt={}", userId, planId, newExpiry);
 
+        recordPayment(subscription.getId(), paymentId, plan.getPrice(), "CREDIT_CARD");
         sendRenewalEmail(subscription.getUser(), plan, newExpiry);
     }
 
@@ -184,6 +190,12 @@ public class SubscriptionService implements SubscriptionUseCase {
                         couponUseCase.recordUse(sub.getCouponId(), sub.getUser().getId(),
                                 sub.getId(), sub.getDiscountApplied());
                     }
+                    planRepository.findBySlug(sub.getPlanId()).ifPresent(plan -> {
+                        BigDecimal gross = sub.getDiscountApplied() != null
+                                ? plan.getPrice().subtract(sub.getDiscountApplied()).max(BigDecimal.ZERO)
+                                : plan.getPrice();
+                        recordPayment(sub.getId(), preapprovalId, gross, "CREDIT_CARD");
+                    });
                 }
             }, () -> log.warn("[Subscription] Preapproval {} not found in DB", preapprovalId));
 
@@ -237,6 +249,31 @@ public class SubscriptionService implements SubscriptionUseCase {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
+
+    private void recordPayment(String subscriptionId, String mpPaymentId,
+                               BigDecimal grossAmount, String paymentMethod) {
+        try {
+            TaxBreakdown tax = taxCalculationService.calculate(grossAmount, paymentMethod);
+            SubscriptionPayment payment = SubscriptionPayment.builder()
+                    .subscriptionId(subscriptionId)
+                    .mpPaymentId(mpPaymentId)
+                    .grossAmount(tax.grossAmount())
+                    .processingFee(tax.processingFee())
+                    .taxAmount(tax.taxAmount())
+                    .issAmount(tax.issAmount())
+                    .netAmount(tax.netAmount())
+                    .taxRateApplied(tax.taxRateApplied())
+                    .taxRegime(tax.taxRegime())
+                    .paymentMethod(tax.paymentMethod())
+                    .taxSnapshot(taxCalculationService.buildSnapshot(tax))
+                    .build();
+            subscriptionPaymentRepository.save(payment);
+            log.info("[Tax] Payment recorded subscriptionId={} gross={} net={}",
+                    subscriptionId, grossAmount, tax.netAmount());
+        } catch (Exception e) {
+            log.error("[Tax] Failed to record payment for subscriptionId={}: {}", subscriptionId, e.getMessage());
+        }
+    }
 
     private void sendRenewalEmail(User user, Plan plan, LocalDateTime nextExpiry) {
         try {
