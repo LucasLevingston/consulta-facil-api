@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface SubscriptionUseCase {
 
-    CheckoutResponseDTO createCheckout(String userId, String planId);
+    CheckoutResponseDTO createCheckout(String userId, String planId, String referralSlug);
 
     void handlePaymentApproved(String paymentId, String externalReference);
 

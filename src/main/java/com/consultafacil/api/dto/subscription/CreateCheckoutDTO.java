@@ -7,4 +7,6 @@ import lombok.Data;
 public class CreateCheckoutDTO {
     @NotBlank(message = "planId é obrigatório")
     private String planId;
+
+    private String referralSlug;
 }

@@ -46,6 +46,12 @@ public class Subscription {
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
+    @Column(name = "seller_id")
+    private String sellerId;
+
+    @Column(name = "referral_slug", length = 20)
+    private String referralSlug;
+
     @Column(name = "created_at", updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

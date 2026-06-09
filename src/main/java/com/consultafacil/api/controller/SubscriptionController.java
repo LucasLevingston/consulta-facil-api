@@ -34,7 +34,7 @@ public class SubscriptionController {
     public ResponseEntity<CheckoutResponseDTO> createCheckout(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateCheckoutDTO dto) {
-        return ResponseEntity.ok(subscriptionUseCase.createCheckout(userDetails.getUserId(), dto.getPlanId()));
+        return ResponseEntity.ok(subscriptionUseCase.createCheckout(userDetails.getUserId(), dto.getPlanId(), dto.getReferralSlug()));
     }
 
     @GetMapping("/me")

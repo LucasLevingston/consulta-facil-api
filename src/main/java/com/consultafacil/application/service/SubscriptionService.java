@@ -2,12 +2,18 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
 import com.consultafacil.api.dto.subscription.SubscriptionResponseDTO;
+import com.consultafacil.application.port.in.SubscriptionUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
+import com.consultafacil.domain.entity.SellerSale;
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.entity.User;
+import com.consultafacil.domain.enums.SellerSaleStatus;
+import com.consultafacil.domain.enums.SellerStatus;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.port.out.EmailPort;
+import com.consultafacil.domain.port.out.SellerRepositoryPort;
+import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
 import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
 import com.mercadopago.client.payment.PaymentClient;
@@ -16,7 +22,6 @@ import com.mercadopago.client.preapproval.PreapprovalClient;
 import com.mercadopago.client.preapproval.PreapprovalCreateRequest;
 import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preapproval.Preapproval;
-import com.consultafacil.application.port.in.SubscriptionUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +44,8 @@ public class SubscriptionService implements SubscriptionUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepository;
     private final UserRepositoryPort userRepository;
+    private final SellerRepositoryPort sellerRepository;
+    private final SellerSaleRepositoryPort sellerSaleRepository;
     private final MercadoPagoConfig mpConfig;
     private final EmailPort emailPort;
 
@@ -54,8 +62,9 @@ public class SubscriptionService implements SubscriptionUseCase {
         int durationDays() { return frequency == 12 ? 365 : 30; }
     }
 
+    @Override
     @Transactional
-    public CheckoutResponseDTO createCheckout(String userId, String planId) {
+    public CheckoutResponseDTO createCheckout(String userId, String planId, String referralSlug) {
         PlanInfo plan = PLANS.get(planId);
         if (plan == null) throw new IllegalArgumentException("Invalid plan: " + planId);
 
@@ -86,6 +95,9 @@ public class SubscriptionService implements SubscriptionUseCase {
             subscription.setPlanId(planId);
             subscription.setStatus(SubscriptionStatus.PENDING);
             subscription.setMpPreapprovalId(preapproval.getId());
+            if (referralSlug != null && !referralSlug.isBlank()) {
+                subscription.setReferralSlug(referralSlug.trim().toUpperCase());
+            }
             subscriptionRepository.save(subscription);
 
             return CheckoutResponseDTO.builder()
@@ -99,6 +111,7 @@ public class SubscriptionService implements SubscriptionUseCase {
         }
     }
 
+    @Override
     @Transactional
     public void handlePaymentApproved(String paymentId, String externalReference) {
         String ref = externalReference;
@@ -143,6 +156,7 @@ public class SubscriptionService implements SubscriptionUseCase {
         sendRenewalEmail(subscription.getUser(), plan, newExpiry);
     }
 
+    @Override
     @Transactional
     public void handlePreapprovalWebhook(String preapprovalId) {
         try {
@@ -155,10 +169,10 @@ public class SubscriptionService implements SubscriptionUseCase {
                     subscriptionRepository.save(sub);
                     log.info("[Subscription] Preapproval {} → CANCELLED for userId={}", preapprovalId, sub.getUser().getId());
                 } else if ("authorized".equals(status) && sub.getStatus() == SubscriptionStatus.PENDING) {
-                    // First authorization — activate immediately (payment webhook will extend expiry)
                     sub.setStatus(SubscriptionStatus.ACTIVE);
                     subscriptionRepository.save(sub);
                     log.info("[Subscription] Preapproval {} authorized for userId={}", preapprovalId, sub.getUser().getId());
+                    createSellerSaleIfPresent(sub);
                 }
             }, () -> log.warn("[Subscription] Preapproval {} not found in DB", preapprovalId));
 
@@ -167,10 +181,52 @@ public class SubscriptionService implements SubscriptionUseCase {
         }
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Optional<SubscriptionResponseDTO> getMySubscription(String userId) {
         return subscriptionRepository.findByUserId(userId).map(this::toDTO);
     }
+
+    // ── Seller commission linking ─────────────────────────────────────────
+
+    private void createSellerSaleIfPresent(Subscription subscription) {
+        String slug = subscription.getReferralSlug();
+        if (slug == null || slug.isBlank()) return;
+
+        // Only create one sale per subscription
+        if (sellerSaleRepository.findBySubscriptionId(subscription.getId()).isPresent()) return;
+
+        sellerRepository.findBySlug(slug).ifPresentOrElse(seller -> {
+            if (seller.getStatus() != SellerStatus.ACTIVE) {
+                log.warn("[Seller] Slug {} found but seller is INACTIVE — skipping sale", slug);
+                return;
+            }
+
+            PlanInfo plan = PLANS.get(subscription.getPlanId());
+            BigDecimal grossAmount = plan != null ? plan.price() : BigDecimal.ZERO;
+            BigDecimal commissionAmount = grossAmount
+                    .multiply(seller.getCommissionRate())
+                    .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+
+            SellerSale sale = SellerSale.builder()
+                    .seller(seller)
+                    .subscription(subscription)
+                    .grossAmount(grossAmount)
+                    .commissionAmount(commissionAmount)
+                    .monthReference(LocalDate.now().withDayOfMonth(1))
+                    .status(SellerSaleStatus.PENDING)
+                    .build();
+
+            sellerSaleRepository.save(sale);
+            subscription.setSellerId(seller.getId());
+            subscriptionRepository.save(subscription);
+
+            log.info("[Seller] Sale created for sellerId={} subscriptionId={} commission=R${}",
+                    seller.getId(), subscription.getId(), commissionAmount);
+        }, () -> log.warn("[Seller] Referral slug '{}' not found — no sale created", slug));
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
 
     private void sendRenewalEmail(User user, PlanInfo plan, LocalDateTime nextExpiry) {
         try {

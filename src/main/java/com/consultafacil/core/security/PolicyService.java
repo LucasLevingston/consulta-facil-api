@@ -209,6 +209,16 @@ public class PolicyService {
         return auth != null && auth.isAuthenticated();
     }
 
+    // ── Sellers ───────────────────────────────────────────────────────────
+
+    public boolean canManageSellers(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
+    }
+
+    public boolean canViewSellerDashboard(Authentication auth) {
+        return auth != null && auth.isAuthenticated();
+    }
+
     // ── Admin ─────────────────────────────────────────────────────────────
 
     public boolean canAccessAdminPanel(Authentication auth) {

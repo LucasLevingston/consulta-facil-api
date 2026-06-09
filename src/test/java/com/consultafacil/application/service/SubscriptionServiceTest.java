@@ -55,7 +55,7 @@ class SubscriptionServiceTest {
     @Test
     void createCheckout_invalidPlanId_throwsIllegalArgument() {
         when(userRepository.findById("u-1")).thenReturn(Optional.of(user));
-        assertThatThrownBy(() -> service.createCheckout("u-1", "invalid-plan"))
+        assertThatThrownBy(() -> service.createCheckout("u-1", "invalid-plan", null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid plan");
     }
@@ -63,7 +63,7 @@ class SubscriptionServiceTest {
     @Test
     void createCheckout_userNotFound_throwsNotFound() {
         when(userRepository.findById("bad")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.createCheckout("bad", "monthly"))
+        assertThatThrownBy(() -> service.createCheckout("bad", "monthly", null))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
