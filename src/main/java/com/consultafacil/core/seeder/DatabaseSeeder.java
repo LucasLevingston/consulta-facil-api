@@ -17,31 +17,57 @@ import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professionalservice.CreateProfessionalServiceDTO;
 import com.consultafacil.api.dto.receptionist.InviteReceptionistDTO;
 import com.consultafacil.api.dto.user.CreateUserDTO;
+import com.consultafacil.domain.entity.Address;
 import com.consultafacil.domain.entity.ClinicalNote;
 import com.consultafacil.domain.entity.Clinic;
 import com.consultafacil.domain.entity.ClinicWorkingHours;
+import com.consultafacil.domain.entity.Coupon;
+import com.consultafacil.domain.entity.CouponUse;
+import com.consultafacil.domain.entity.EmergencyContact;
 import com.consultafacil.domain.entity.ExamRequest;
+import com.consultafacil.domain.entity.MedicalHistory;
 import com.consultafacil.domain.entity.MedicalRecord;
 import com.consultafacil.domain.entity.Notification;
 import com.consultafacil.domain.entity.PatientProfile;
+import com.consultafacil.domain.entity.Plan;
+import com.consultafacil.domain.entity.Seller;
+import com.consultafacil.domain.entity.SellerSale;
 import com.consultafacil.domain.entity.Subscription;
+import com.consultafacil.domain.entity.SubscriptionPayment;
+import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.AppointmentModality;
 import com.consultafacil.domain.enums.AppointmentPaymentStatus;
 import com.consultafacil.domain.enums.AppointmentStatus;
+import com.consultafacil.domain.enums.BillingPeriod;
+import com.consultafacil.domain.enums.CouponStatus;
+import com.consultafacil.domain.enums.CouponType;
 import com.consultafacil.domain.enums.ExamRequestStatus;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.NotificationStatus;
 import com.consultafacil.domain.enums.NotificationType;
+import com.consultafacil.domain.enums.PlanStatus;
+import com.consultafacil.domain.enums.SellerSaleStatus;
+import com.consultafacil.domain.enums.SellerStatus;
 import com.consultafacil.domain.enums.SubscriptionStatus;
+import com.consultafacil.domain.enums.UserRole;
+import com.consultafacil.domain.repository.AddressRepository;
 import com.consultafacil.domain.repository.AppointmentRepository;
 import com.consultafacil.domain.repository.ClinicalNoteRepository;
 import com.consultafacil.domain.repository.ClinicRepository;
 import com.consultafacil.domain.repository.ClinicWorkingHoursRepository;
+import com.consultafacil.domain.repository.CouponRepository;
+import com.consultafacil.domain.repository.CouponUseRepository;
+import com.consultafacil.domain.repository.EmergencyContactRepository;
 import com.consultafacil.domain.repository.ExamRequestRepository;
+import com.consultafacil.domain.repository.MedicalHistoryRepository;
 import com.consultafacil.domain.repository.MedicalRecordRepository;
 import com.consultafacil.domain.repository.NotificationRepository;
 import com.consultafacil.domain.repository.PatientProfileRepository;
+import com.consultafacil.domain.repository.PlanRepository;
 import com.consultafacil.domain.repository.ProfessionalProfileRepository;
+import com.consultafacil.domain.repository.SellerRepository;
+import com.consultafacil.domain.repository.SellerSaleRepository;
+import com.consultafacil.domain.repository.SubscriptionPaymentRepository;
 import com.consultafacil.domain.repository.SubscriptionRepository;
 import com.consultafacil.domain.repository.UserRepository;
 import com.github.javafaker.Faker;
@@ -50,6 +76,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -88,6 +115,16 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
     private final ClinicRepository clinicRepository;
+    private final AddressRepository addressRepository;
+    private final EmergencyContactRepository emergencyContactRepository;
+    private final MedicalHistoryRepository medicalHistoryRepository;
+    private final PlanRepository planRepository;
+    private final SellerRepository sellerRepository;
+    private final SellerSaleRepository sellerSaleRepository;
+    private final SubscriptionPaymentRepository subscriptionPaymentRepository;
+    private final CouponRepository couponRepository;
+    private final CouponUseRepository couponUseRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -146,6 +183,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         try {
 
+            seedPlans();
+
             String patientUserId = createPatient(
                     "patient@example.com",
                     "12345678",
@@ -160,9 +199,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "00000000002",
                     "Médico",
                     "Cardiologia",
-                    "CRM-TESTE-001"
-
-            );
+                    "CRM-TESTE-001");
             professionalService.approveApplication(professionalProfileId);
 
             String professionalUserId = professionalProfileRepository
@@ -170,18 +207,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .map(p -> p.getUser().getId())
                     .orElse(null);
 
+            String adminUserId = createAdmin(
+                    "admin@example.com",
+                    "admin1234",
+                    "Admin Teste",
+                    "00000000003");
+
             seedServicesAndProcedureRequests(professionalUserId, patientUserId);
             seedSchedule(professionalUserId, ScheduleTemplate.FULL_WEEK);
-
-            String adminProfessionalProfileId = createProfessional(
-                    "admin@example.com",
-                    "12345678",
-                    "Admin Teste",
-                    "00000000003",
-                    "Médico",
-                    "Clínica Geral",
-                    "CRM-ADMIN-001");
-            professionalService.approveApplication(adminProfessionalProfileId);
 
             List<String> patientUserIds = createPatients(20);
 
@@ -195,7 +228,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             });
             seedSchedulesForProfessionals(professionalProfileIds);
 
-            String firstClinicId = createClinics(professionalProfileId, adminProfessionalProfileId,
+            String firstClinicId = createClinics(professionalProfileId, professionalUserId,
                     professionalProfileIds);
 
             String professionalOwnerUserId = professionalProfileRepository
@@ -214,12 +247,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
 
             createAppointments(patientUserIds, professionalProfileIds);
-
             createTestAppointments(patientUserId, professionalProfileId);
-
-            createBulkAppointmentsForTestProfessional(
-                    professionalProfileId,
-                    patientUserIds);
+            createBulkAppointmentsForTestProfessional(professionalProfileId, patientUserIds);
 
             seedMedicalRecords(patientUserIds);
             seedSubscriptions(professionalUserId, professionalProfileIds);
@@ -227,15 +256,438 @@ public class DatabaseSeeder implements CommandLineRunner {
             seedNotifications(patientUserIds, professionalProfileIds);
             seedClinicWorkingHours();
 
+            // Tables previously empty
+            seedAddresses(patientUserId, professionalUserId, adminUserId, patientUserIds);
+            seedEmergencyContacts(patientUserId, patientUserIds);
+            seedAnamneses();
+            seedSellers(adminUserId, professionalUserId, professionalProfileIds);
+            seedCoupons(adminUserId);
+            seedSubscriptionPayments();
+
         } catch (Exception e) {
             log.error("Erro durante o seed:", e);
         }
     }
 
+    // ─── Admin ──────────────────────────────────────────────────────────────────
+
+    private String createAdmin(String email, String password, String name, String cpf) {
+        try {
+            if (userRepository.existsByEmail(email)) {
+                return userRepository.findByEmail(email).map(User::getId).orElse(null);
+            }
+            User admin = User.builder()
+                    .name(name)
+                    .email(email)
+                    .password(passwordEncoder.encode(password))
+                    .cpf(cpf)
+                    .phone("11900000003")
+                    .birthDate(LocalDate.of(1980, 3, 10))
+                    .gender(Gender.MALE)
+                    .imageUrl("https://i.pravatar.cc/150?img=10")
+                    .role(UserRole.ADMIN)
+                    .build();
+            User saved = userRepository.save(admin);
+            log.info("Admin criado: {}", email);
+            return saved.getId();
+        } catch (Exception e) {
+            log.warn("Erro ao criar admin: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // ─── Plans ──────────────────────────────────────────────────────────────────
+
+    private void seedPlans() {
+        record PlanDef(String slug, String name, String tier, BillingPeriod period,
+                BigDecimal price, String features, int order) {
+        }
+
+        List<PlanDef> defs = List.of(
+                new PlanDef("plan_basic", "Básico", "basic", BillingPeriod.MONTHLY,
+                        new BigDecimal("49.90"),
+                        "Até 50 consultas/mês;Agenda online;Suporte por email",
+                        1),
+                new PlanDef("plan_pro", "Pro", "pro", BillingPeriod.MONTHLY,
+                        new BigDecimal("129.90"),
+                        "Consultas ilimitadas;Teleconsulta;Prontuário digital;Suporte prioritário",
+                        2),
+                new PlanDef("plan_premium", "Premium", "premium", BillingPeriod.MONTHLY,
+                        new BigDecimal("249.90"),
+                        "Tudo do Pro;IA assistente;Gestão financeira;API de integração;Suporte 24/7",
+                        3),
+                new PlanDef("plan_pro_annual", "Pro Anual", "pro", BillingPeriod.ANNUAL,
+                        new BigDecimal("1199.90"),
+                        "Tudo do Pro;2 meses grátis;Suporte dedicado",
+                        4));
+
+        for (PlanDef def : defs) {
+            try {
+                if (planRepository.findBySlug(def.slug()).isEmpty()) {
+                    planRepository.save(Plan.builder()
+                            .slug(def.slug())
+                            .name(def.name())
+                            .tier(def.tier())
+                            .billingPeriod(def.period())
+                            .price(def.price())
+                            .features(def.features())
+                            .status(PlanStatus.ACTIVE)
+                            .displayOrder(def.order())
+                            .build());
+                }
+            } catch (Exception e) {
+                log.warn("Erro ao criar plano {}: {}", def.slug(), e.getMessage());
+            }
+        }
+        log.info("[Seed] Planos criados: {}", defs.size());
+    }
+
+    // ─── Addresses ──────────────────────────────────────────────────────────────
+
+    private void seedAddresses(String patientUserId, String professionalUserId,
+            String adminUserId, List<String> randomPatientIds) {
+
+        record AddressDef(String userId, String zip, String street, String number,
+                String district, String city, String state) {
+        }
+
+        List<AddressDef> fixed = new ArrayList<>();
+        if (patientUserId != null)
+            fixed.add(new AddressDef(patientUserId, "58000-000", "Rua das Flores", "123",
+                    "Centro", "João Pessoa", "PB"));
+        if (professionalUserId != null)
+            fixed.add(new AddressDef(professionalUserId, "01310-100", "Av. Paulista", "1578",
+                    "Bela Vista", "São Paulo", "SP"));
+        if (adminUserId != null)
+            fixed.add(new AddressDef(adminUserId, "70040-010", "SCS Quadra 2", "Bloco C",
+                    "Asa Sul", "Brasília", "DF"));
+
+        for (AddressDef def : fixed) {
+            saveAddressIfMissing(def.userId(), def.zip(), def.street(), def.number(),
+                    def.district(), def.city(), def.state());
+        }
+
+        List<String> cities = List.of("São Paulo", "Rio de Janeiro", "Belo Horizonte",
+                "Curitiba", "Porto Alegre", "João Pessoa", "Campina Grande");
+        List<String> states = List.of("SP", "RJ", "MG", "PR", "RS", "PB", "PB");
+
+        int created = 0;
+        for (int i = 0; i < Math.min(randomPatientIds.size(), 15); i++) {
+            int idx = i % cities.size();
+            created += saveAddressIfMissing(randomPatientIds.get(i),
+                    "58" + String.format("%06d", faker.random().nextInt(999999)),
+                    faker.address().streetName(),
+                    String.valueOf(faker.random().nextInt(1, 999)),
+                    faker.address().streetAddressNumber(),
+                    cities.get(idx),
+                    states.get(idx)) ? 1 : 0;
+        }
+        log.info("[Seed] Endereços criados: {}", fixed.size() + created);
+    }
+
+    private boolean saveAddressIfMissing(String userId, String zip, String street,
+            String number, String district, String city, String state) {
+        try {
+            if (addressRepository.findByUserId(userId).isPresent()) return false;
+            userRepository.findById(userId).ifPresent(user ->
+                    addressRepository.save(Address.builder()
+                            .user(user)
+                            .zipCode(zip)
+                            .street(street)
+                            .number(number)
+                            .district(district)
+                            .city(city)
+                            .state(state)
+                            .build()));
+            return true;
+        } catch (Exception e) {
+            log.debug("Erro ao criar endereço para userId={}: {}", userId, e.getMessage());
+            return false;
+        }
+    }
+
+    // ─── Emergency contacts ──────────────────────────────────────────────────────
+
+    private void seedEmergencyContacts(String patientUserId, List<String> randomPatientIds) {
+        List<String> allPatientIds = new ArrayList<>();
+        if (patientUserId != null) allPatientIds.add(patientUserId);
+        allPatientIds.addAll(randomPatientIds);
+
+        int created = 0;
+        for (String userId : allPatientIds) {
+            try {
+                var profile = patientProfileRepository.findByUserId(userId).orElse(null);
+                if (profile == null) continue;
+                if (emergencyContactRepository.findByPatientProfileId(profile.getId()).isPresent()) continue;
+                emergencyContactRepository.save(EmergencyContact.builder()
+                        .patientProfile(profile)
+                        .name(faker.name().fullName())
+                        .phone(faker.phoneNumber().cellPhone())
+                        .build());
+                created++;
+            } catch (Exception e) {
+                log.debug("Erro ao criar contato de emergência: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] Contatos de emergência criados: {}", created);
+    }
+
+    // ─── Anamneses ──────────────────────────────────────────────────────────────
+
+    private void seedAnamneses() {
+        List<String> complaints = List.of(
+                "Dor de cabeça frequente há 2 semanas",
+                "Cansaço excessivo e falta de ar ao esforço",
+                "Dor abdominal pós-refeição",
+                "Pressão alta detectada em medição domiciliar",
+                "Ansiedade e dificuldade para dormir",
+                "Dor nas costas há 3 meses",
+                "Tosse persistente há 10 dias");
+        List<String> meds = List.of("Losartana 50mg", "Metformina 850mg", "Nenhum",
+                "Omeprazol 20mg", "Dipirona 500mg se necessário");
+        List<String> allergies = List.of("Nenhuma conhecida", "Penicilina", "Dipirona",
+                "Látex", "Frutos do mar");
+        List<String> histories = List.of(
+                "Hipertensão diagnosticada em 2018",
+                "Diabetes tipo 2 desde 2020",
+                "Sem histórico relevante",
+                "Pneumonia em 2019, apendicectomia em 2015");
+
+        int created = 0;
+        var completedAppointments = appointmentRepository.findAll().stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                .toList();
+
+        for (var appointment : completedAppointments) {
+            try {
+                if (medicalHistoryRepository.findByAppointmentId(appointment.getId()).isPresent()) continue;
+                if (faker.random().nextInt(100) < 60) {
+                    medicalHistoryRepository.save(MedicalHistory.builder()
+                            .appointment(appointment)
+                            .chiefComplaint(complaints.get(faker.random().nextInt(complaints.size())))
+                            .currentMedications(meds.get(faker.random().nextInt(meds.size())))
+                            .allergies(allergies.get(faker.random().nextInt(allergies.size())))
+                            .medicalHistory(histories.get(faker.random().nextInt(histories.size())))
+                            .familyHistory(faker.bool().bool()
+                                    ? "Hipertensão e diabetes na família"
+                                    : "Sem histórico familiar relevante")
+                            .observations(faker.lorem().sentence())
+                            .build());
+                    created++;
+                }
+            } catch (Exception e) {
+                log.debug("Erro ao criar anamnese: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] Anamneses criadas: {}", created);
+    }
+
+    // ─── Sellers ────────────────────────────────────────────────────────────────
+
+    private void seedSellers(String adminUserId, String professionalUserId,
+            List<String> professionalProfileIds) {
+
+        if (professionalUserId != null && !sellerRepository.existsByUserId(professionalUserId)) {
+            try {
+                userRepository.findById(professionalUserId).ifPresent(user ->
+                        sellerRepository.save(Seller.builder()
+                                .user(user)
+                                .slug("prof-teste")
+                                .commissionRate(new BigDecimal("15.00"))
+                                .status(SellerStatus.ACTIVE)
+                                .pixKey("professional@example.com")
+                                .notes("Vendedor de teste criado pelo seed")
+                                .build()));
+                log.info("[Seed] Seller de teste criado para professional@example.com");
+            } catch (Exception e) {
+                log.warn("Erro ao criar seller de teste: {}", e.getMessage());
+            }
+        }
+
+        int created = 0;
+        for (int i = 0; i < Math.min(professionalProfileIds.size(), 8); i++) {
+            if (i % 3 != 0) continue;
+            final int idx = i;
+            try {
+                String userId = professionalProfileRepository.findById(professionalProfileIds.get(idx))
+                        .map(p -> p.getUser().getId())
+                        .orElse(null);
+                if (userId == null || sellerRepository.existsByUserId(userId)) continue;
+
+                String slug = "afiliado-" + (i + 1);
+                if (sellerRepository.existsBySlug(slug)) continue;
+
+                userRepository.findById(userId).ifPresent(user -> {
+                    SellerStatus status = faker.random().nextInt(100) < 80
+                            ? SellerStatus.ACTIVE : SellerStatus.INACTIVE;
+                    sellerRepository.save(Seller.builder()
+                            .user(user)
+                            .slug(slug)
+                            .commissionRate(BigDecimal.valueOf(10 + faker.random().nextInt(11)))
+                            .status(status)
+                            .pixKey(user.getEmail())
+                            .build());
+                });
+                created++;
+            } catch (Exception e) {
+                log.debug("Erro ao criar seller random: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] Sellers adicionais criados: {}", created);
+
+        seedSellerSales();
+    }
+
+    private void seedSellerSales() {
+        List<Seller> sellers = sellerRepository.findAll();
+        if (sellers.isEmpty()) return;
+
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        if (subscriptions.isEmpty()) return;
+
+        int created = 0;
+        for (Subscription sub : subscriptions) {
+            if (faker.random().nextInt(100) < 50) continue;
+            try {
+                if (sellerSaleRepository.findBySubscriptionId(sub.getId()).isPresent()) continue;
+                Seller seller = sellers.get(faker.random().nextInt(sellers.size()));
+                BigDecimal gross = BigDecimal.valueOf(50 + faker.random().nextInt(200));
+                BigDecimal commission = gross.multiply(seller.getCommissionRate())
+                        .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+                SellerSaleStatus status = faker.random().nextInt(100) < 60
+                        ? SellerSaleStatus.PAID : SellerSaleStatus.PENDING;
+                sellerSaleRepository.save(SellerSale.builder()
+                        .seller(seller)
+                        .subscription(sub)
+                        .grossAmount(gross)
+                        .commissionAmount(commission)
+                        .monthReference(LocalDate.now().minusMonths(faker.random().nextInt(3)))
+                        .status(status)
+                        .paidAt(status == SellerSaleStatus.PAID
+                                ? LocalDateTime.now().minusDays(faker.random().nextInt(30)) : null)
+                        .build());
+                created++;
+            } catch (Exception e) {
+                log.debug("Erro ao criar seller sale: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] SellerSales criadas: {}", created);
+    }
+
+    // ─── Coupons ────────────────────────────────────────────────────────────────
+
+    private void seedCoupons(String adminUserId) {
+        record CouponDef(String code, String desc, CouponType type, BigDecimal value,
+                Integer maxUses, String applicablePlans) {
+        }
+
+        List<CouponDef> defs = List.of(
+                new CouponDef("BEMVINDO10", "10% de desconto para novos usuários",
+                        CouponType.PERCENT, new BigDecimal("10.00"), 200, null),
+                new CouponDef("PRO50OFF", "R$50 de desconto no plano Pro",
+                        CouponType.FIXED, new BigDecimal("50.00"), 100, "plan_pro,plan_pro_annual"),
+                new CouponDef("PREMIUM20", "20% de desconto no plano Premium",
+                        CouponType.PERCENT, new BigDecimal("20.00"), 50, "plan_premium"),
+                new CouponDef("TESTCOUPON", "Cupom de teste ilimitado",
+                        CouponType.PERCENT, new BigDecimal("15.00"), null, null));
+
+        List<Coupon> savedCoupons = new ArrayList<>();
+        for (CouponDef def : defs) {
+            try {
+                if (couponRepository.findByCodeIgnoreCase(def.code()).isPresent()) continue;
+                Coupon coupon = couponRepository.save(Coupon.builder()
+                        .code(def.code())
+                        .description(def.desc())
+                        .type(def.type())
+                        .value(def.value())
+                        .maxUses(def.maxUses())
+                        .applicablePlanIds(def.applicablePlans())
+                        .status(CouponStatus.ACTIVE)
+                        .createdBy(adminUserId)
+                        .startsAt(LocalDateTime.now().minusDays(30))
+                        .expiresAt(LocalDateTime.now().plusMonths(6))
+                        .build());
+                savedCoupons.add(coupon);
+            } catch (Exception e) {
+                log.warn("Erro ao criar cupom {}: {}", def.code(), e.getMessage());
+            }
+        }
+        log.info("[Seed] Cupons criados: {}", savedCoupons.size());
+
+        seedCouponUses(savedCoupons);
+    }
+
+    private void seedCouponUses(List<Coupon> coupons) {
+        if (coupons.isEmpty()) return;
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        if (subscriptions.isEmpty()) return;
+
+        int created = 0;
+        for (int i = 0; i < Math.min(subscriptions.size(), 10); i++) {
+            if (faker.random().nextInt(100) < 40) continue;
+            try {
+                Subscription sub = subscriptions.get(i);
+                Coupon coupon = coupons.get(faker.random().nextInt(coupons.size()));
+                BigDecimal discount = coupon.getType() == CouponType.PERCENT
+                        ? new BigDecimal("99.90").multiply(coupon.getValue())
+                                .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP)
+                        : coupon.getValue();
+                couponUseRepository.save(CouponUse.builder()
+                        .coupon(coupon)
+                        .userId(sub.getUser().getId())
+                        .subscriptionId(sub.getId())
+                        .discountApplied(discount)
+                        .build());
+                created++;
+            } catch (Exception e) {
+                log.debug("Erro ao criar coupon use: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] CouponUses criados: {}", created);
+    }
+
+    // ─── Subscription payments ───────────────────────────────────────────────────
+
+    private void seedSubscriptionPayments() {
+        List<Subscription> active = subscriptionRepository.findAll().stream()
+                .filter(s -> s.getStatus() == SubscriptionStatus.ACTIVE)
+                .toList();
+
+        List<String> methods = List.of("credit_card", "pix", "boleto");
+        int created = 0;
+
+        for (Subscription sub : active) {
+            int payments = faker.random().nextInt(1, 4);
+            for (int i = 0; i < payments; i++) {
+                try {
+                    BigDecimal gross = BigDecimal.valueOf(49.90 + faker.random().nextInt(200));
+                    BigDecimal fee = gross.multiply(new BigDecimal("0.039"))
+                            .setScale(2, java.math.RoundingMode.HALF_UP);
+                    BigDecimal net = gross.subtract(fee);
+                    subscriptionPaymentRepository.save(SubscriptionPayment.builder()
+                            .subscriptionId(sub.getId())
+                            .mpPaymentId("mp_" + faker.random().nextInt(100000, 999999))
+                            .grossAmount(gross)
+                            .processingFee(fee)
+                            .netAmount(net)
+                            .paymentMethod(methods.get(faker.random().nextInt(methods.size())))
+                            .paidAt(LocalDateTime.now().minusDays(i * 30L + faker.random().nextInt(5)))
+                            .build());
+                    created++;
+                } catch (Exception e) {
+                    log.debug("Erro ao criar subscription payment: {}", e.getMessage());
+                }
+            }
+        }
+        log.info("[Seed] SubscriptionPayments criados: {}", created);
+    }
+
+    // ─── Original methods ────────────────────────────────────────────────────────
+
     private record CityLocation(String city, String state, double lat, double lng) {
     }
 
-    private String createClinics(String testProfessionalProfileId, String adminProfessionalProfileId,
+    private String createClinics(String testProfessionalProfileId, String professionalUserId,
             List<String> extraProfessionalProfileIds) {
 
         record ClinicDef(String name, String description, String phone, String address,
@@ -268,7 +720,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Visconde de Pirajá, 330",
                         cities.get(1),
                         "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600",
-                        adminProfessionalProfileId),
+                        professionalUserId),
                 new ClinicDef(
                         "Centro Médico BH",
                         "Clínica geral e especialidades para toda a família",
@@ -338,7 +790,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         for (ClinicDef def : defs) {
             try {
-                // Set location on the owner professional profile
                 professionalProfileRepository.findById(def.ownerProfileId()).ifPresent(p -> {
                     p.setCity(def.location().city());
                     p.setState(def.location().state());
@@ -347,13 +798,11 @@ public class DatabaseSeeder implements CommandLineRunner {
                     professionalProfileRepository.save(p);
                 });
 
-                // Get the owning user id
                 String ownerUserId = professionalProfileRepository.findById(def.ownerProfileId())
                         .map(p -> p.getUser().getId())
                         .orElse(null);
 
-                if (ownerUserId == null)
-                    continue;
+                if (ownerUserId == null) continue;
 
                 CreateClinicDTO dto = new CreateClinicDTO();
                 dto.setName(def.name());
@@ -368,20 +817,14 @@ public class DatabaseSeeder implements CommandLineRunner {
 
                 var clinic = clinicService.createClinic(ownerUserId, dto);
 
-                if (firstClinicId == null)
-                    firstClinicId = clinic.getId();
+                if (firstClinicId == null) firstClinicId = clinic.getId();
 
-                // Add 1-2 extra professionals from the pool as members
                 int added = 0;
                 for (String extraId : extraProfessionalProfileIds) {
-                    if (added >= 2)
-                        break;
-                    if (extraId.equals(def.ownerProfileId()))
-                        continue;
+                    if (added >= 2) break;
+                    if (extraId.equals(def.ownerProfileId())) continue;
                     try {
                         clinicService.addMember(clinic.getId(), extraId, ownerUserId);
-
-                        // Also give that professional location data near the clinic
                         professionalProfileRepository.findById(extraId).ifPresent(p -> {
                             if (p.getLatitude() == null) {
                                 p.setCity(def.location().city());
@@ -407,12 +850,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void createReceptionist(
-            String email,
-            String password,
-            String name,
-            String cpf,
-            String clinicId,
-            String ownerUserId) {
+            String email, String password, String name, String cpf,
+            String clinicId, String ownerUserId) {
         try {
             createPatient(email, password, name, cpf, "https://i.pravatar.cc/150?img=5");
             InviteReceptionistDTO dto = new InviteReceptionistDTO();
@@ -501,12 +940,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private String createPatient(
-            String email,
-            String password,
-            String name,
-            String cpf,
-            String imageUrl) {
-
+            String email, String password, String name, String cpf, String imageUrl) {
         CreateUserDTO dto = CreateUserDTO.builder()
                 .name(name)
                 .email(email)
@@ -517,21 +951,12 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .gender(Gender.MALE)
                 .imageUrl(imageUrl)
                 .build();
-
-        var created = userService.createUser(dto);
-
-        return created.getId();
+        return userService.createUser(dto).getId();
     }
 
     private String createProfessional(
-            String email,
-            String password,
-            String name,
-            String cpf,
-            String profession,
-            String specialty,
-            String licenseNumber) {
-
+            String email, String password, String name, String cpf,
+            String profession, String specialty, String licenseNumber) {
         CreateUserDTO dto = CreateUserDTO.builder()
                 .name(name)
                 .email(email)
@@ -542,9 +967,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70))
                 .gender(Gender.MALE)
                 .build();
-
         var userResponse = userService.createUser(dto);
-
         var profResponse = professionalService.createProfessionalProfile(
                 userResponse.getId(),
                 CreateProfessionalDTO.builder()
@@ -552,71 +975,32 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .specialty(specialty)
                         .licenseNumber(licenseNumber)
                         .build());
-
         return profResponse.getId();
     }
 
-    private void forceStatus(
-            String appointmentId,
-            AppointmentStatus status) {
+    private void createTestAppointments(String patientUserId, String testProfessionalProfileId) {
+        PatientProfile profile = patientProfileRepository.findByUserId(patientUserId).orElse(null);
+        if (profile == null) return;
 
-        appointmentRepository.findById(appointmentId).ifPresent(appointment -> {
-            appointment.setStatus(status);
-            appointmentRepository.save(appointment);
-        });
-    }
-
-    private void createTestAppointments(
-            String patientUserId,
-            String testProfessionalProfileId) {
-
-        PatientProfile profile = patientProfileRepository
-                .findByUserId(patientUserId)
-                .orElse(null);
-
-        if (profile == null) {
-            return;
-        }
-
-        String[] reasons = {
-                "Consulta de rotina",
-                "Dor no peito",
-                "Check-up anual",
-                "Pressão alta",
-                "Retorno"
-        };
-
+        String[] reasons = { "Consulta de rotina", "Dor no peito", "Check-up anual", "Pressão alta", "Retorno" };
         int[] daysAhead = { -10, -5, 1, 7, 20 };
-
         int[] hours = { 9, 11, 14, 10, 15 };
-
         AppointmentStatus[] statuses = {
-                AppointmentStatus.COMPLETED,
-                AppointmentStatus.COMPLETED,
-                AppointmentStatus.CONFIRMED,
-                AppointmentStatus.PENDING,
-                AppointmentStatus.PENDING
+                AppointmentStatus.COMPLETED, AppointmentStatus.COMPLETED,
+                AppointmentStatus.CONFIRMED, AppointmentStatus.PENDING, AppointmentStatus.PENDING
         };
 
         for (int i = 0; i < reasons.length; i++) {
-
             try {
-
                 var response = appointmentService.scheduleAppointment(
                         patientUserId,
                         CreateAppointmentDTO.builder()
                                 .professionalId(testProfessionalProfileId)
-                                .scheduledAt(
-                                        LocalDateTime.now()
-                                                .plusDays(daysAhead[i])
-                                                .withHour(hours[i])
-                                                .withMinute(0)
-                                                .withSecond(0)
-                                                .withNano(0))
+                                .scheduledAt(LocalDateTime.now().plusDays(daysAhead[i])
+                                        .withHour(hours[i]).withMinute(0).withSecond(0).withNano(0))
                                 .reason(reasons[i])
                                 .notes(faker.lorem().sentence())
                                 .build());
-
                 final AppointmentStatus finalStatus = statuses[i];
                 appointmentRepository.findById(response.getId()).ifPresent(appointment -> {
                     appointment.setStatus(finalStatus);
@@ -626,20 +1010,18 @@ public class DatabaseSeeder implements CommandLineRunner {
                     }
                     appointmentRepository.save(appointment);
                 });
-
             } catch (Exception e) {
                 log.debug("Erro ao criar consulta de teste: {}", e.getMessage());
             }
         }
 
-        // ONLINE appointments for frontend testing
         try {
             var onlineConfirmed = appointmentService.scheduleAppointment(
                     patientUserId,
                     CreateAppointmentDTO.builder()
                             .professionalId(testProfessionalProfileId)
-                            .scheduledAt(LocalDateTime.now().plusDays(3).withHour(16).withMinute(0).withSecond(0)
-                                    .withNano(0))
+                            .scheduledAt(LocalDateTime.now().plusDays(3)
+                                    .withHour(16).withMinute(0).withSecond(0).withNano(0))
                             .reason("Teleconsulta — acompanhamento")
                             .notes("Consulta online de acompanhamento.")
                             .build());
@@ -658,8 +1040,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                     patientUserId,
                     CreateAppointmentDTO.builder()
                             .professionalId(testProfessionalProfileId)
-                            .scheduledAt(LocalDateTime.now().plusDays(12).withHour(9).withMinute(30).withSecond(0)
-                                    .withNano(0))
+                            .scheduledAt(LocalDateTime.now().plusDays(12)
+                                    .withHour(9).withMinute(30).withSecond(0).withNano(0))
                             .reason("Teleconsulta — primeira consulta")
                             .notes("Paciente solicita atendimento online.")
                             .build());
@@ -673,134 +1055,78 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void createBulkAppointmentsForTestProfessional(
-            String testProfessionalProfileId,
-            List<String> patientUserIds) {
+            String testProfessionalProfileId, List<String> patientUserIds) {
 
         List<AppointmentStatus> statuses = List.of(
-                AppointmentStatus.COMPLETED,
-                AppointmentStatus.CONFIRMED,
-                AppointmentStatus.PENDING,
-                AppointmentStatus.CANCELED);
-
-        List<String> reasons = List.of(
-                "Consulta de rotina",
-                "Check-up anual",
-                "Dor de cabeça",
-                "Pressão alta",
-                "Retorno médico",
-                "Exames laboratoriais",
-                "Avaliação clínica",
-                "Consulta preventiva");
+                AppointmentStatus.COMPLETED, AppointmentStatus.CONFIRMED,
+                AppointmentStatus.PENDING, AppointmentStatus.CANCELED);
+        List<String> reasons = List.of("Consulta de rotina", "Check-up anual", "Dor de cabeça",
+                "Pressão alta", "Retorno médico", "Exames laboratoriais",
+                "Avaliação clínica", "Consulta preventiva");
 
         int created = 0;
-
         for (int i = 0; i < 100; i++) {
-
             try {
-
-                String patientId = patientUserIds.get(
-                        faker.random().nextInt(patientUserIds.size()));
-
-                AppointmentStatus status = statuses.get(
-                        faker.random().nextInt(statuses.size()));
-
+                String patientId = patientUserIds.get(faker.random().nextInt(patientUserIds.size()));
+                AppointmentStatus status = statuses.get(faker.random().nextInt(statuses.size()));
                 LocalDateTime scheduledAt = resolveScheduledAt(status);
-
-                LocalDateTime safeDate = LocalDateTime.now()
-                        .plusDays(1)
-                        .withHour(10)
-                        .withMinute(0)
-                        .withSecond(0)
-                        .withNano(0);
-
+                LocalDateTime safeDate = LocalDateTime.now().plusDays(1)
+                        .withHour(10).withMinute(0).withSecond(0).withNano(0);
                 var response = appointmentService.scheduleAppointment(
                         patientId,
                         CreateAppointmentDTO.builder()
                                 .professionalId(testProfessionalProfileId)
                                 .scheduledAt(safeDate)
-                                .reason(reasons.get(
-                                        faker.random().nextInt(reasons.size())))
+                                .reason(reasons.get(faker.random().nextInt(reasons.size())))
                                 .notes(faker.lorem().sentence(10))
                                 .build());
-
                 final AppointmentStatus finalStatus = status;
                 final LocalDateTime finalScheduledAt = scheduledAt;
-
                 appointmentRepository.findById(response.getId()).ifPresent(appointment -> {
-
                     appointment.setStatus(finalStatus);
-
                     appointment.setScheduledAt(finalScheduledAt);
-
                     if (finalStatus == AppointmentStatus.COMPLETED) {
                         enrichCompletedAppointment(appointment);
                     }
-
                     appointmentRepository.save(appointment);
                 });
-
                 created++;
-
             } catch (Exception e) {
-                log.debug(
-                        "Erro ao criar consulta fake para profissional teste: {}",
-                        e.getMessage());
+                log.debug("Erro ao criar consulta fake para profissional teste: {}", e.getMessage());
             }
         }
-
-        log.info(
-                "Criadas {} consultas para o profissional de teste",
-                created);
+        log.info("Criadas {} consultas para o profissional de teste", created);
     }
 
     private List<String> createPatients(int count) {
-
         List<String> userIds = new ArrayList<>();
-
         for (int i = 0; i < count; i++) {
-
             try {
-
                 CreateUserDTO patientDTO = CreateUserDTO.builder()
                         .name(faker.name().fullName())
                         .email(faker.internet().emailAddress())
                         .password("patient123")
                         .cpf(generateFakeCPF())
                         .phone(faker.phoneNumber().cellPhone())
-                        .birthDate(
-                                faker.date()
-                                        .birthday()
-                                        .toInstant()
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDate())
-                        .gender(faker.bool().bool()
-                                ? Gender.MALE
-                                : Gender.FEMALE)
+                        .birthDate(faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                        .gender(faker.bool().bool() ? Gender.MALE : Gender.FEMALE)
                         .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70))
                         .build();
-
                 var userResponse = userService.createUser(patientDTO);
-
-                patientProfileRepository
-                        .findByUserId(userResponse.getId())
-                        .ifPresent(profile -> {
-                            profile.setOccupation(faker.job().title());
-                            patientProfileRepository.save(profile);
-                        });
-
+                patientProfileRepository.findByUserId(userResponse.getId()).ifPresent(profile -> {
+                    profile.setOccupation(faker.job().title());
+                    patientProfileRepository.save(profile);
+                });
                 userIds.add(userResponse.getId());
-
             } catch (Exception e) {
                 log.debug("Erro ao criar paciente fake: {}", e.getMessage());
             }
         }
-
         return userIds;
     }
 
     private void seedServicesAndProcedureRequests(String professionalUserId, String patientUserId) {
-        if (professionalUserId == null)
-            return;
+        if (professionalUserId == null) return;
 
         try {
             setConsultationPriceService.execute(professionalUserId, new BigDecimal("250.00"));
@@ -813,16 +1139,16 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         List<ServiceDef> services = List.of(
-                new ServiceDef("Consulta de Cardiologia", "Consulta clínica de cardiologia", new BigDecimal("250.00"),
-                        30, false),
+                new ServiceDef("Consulta de Cardiologia", "Consulta clínica de cardiologia",
+                        new BigDecimal("250.00"), 30, false),
                 new ServiceDef("ECG - Eletrocardiograma", "Exame do ritmo cardíaco em repouso",
                         new BigDecimal("180.00"), 20, false),
-                new ServiceDef("Holter 24h", "Monitoramento cardíaco contínuo de 24 horas", new BigDecimal("350.00"),
-                        60, true),
+                new ServiceDef("Holter 24h", "Monitoramento cardíaco contínuo de 24 horas",
+                        new BigDecimal("350.00"), 60, true),
                 new ServiceDef("Ecocardiograma", "Ultrassom do coração com avaliação funcional",
                         new BigDecimal("450.00"), 60, true),
-                new ServiceDef("MAPA", "Monitoramento ambulatorial da pressão arterial", new BigDecimal("320.00"), 45,
-                        true));
+                new ServiceDef("MAPA", "Monitoramento ambulatorial da pressão arterial",
+                        new BigDecimal("320.00"), 45, true));
 
         List<String> requiresConsultationServiceIds = new ArrayList<>();
 
@@ -836,8 +1162,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .requiresConsultation(def.requiresConsultation())
                         .build();
                 var created = createProfessionalServiceService.execute(professionalUserId, dto);
-                if (def.requiresConsultation())
-                    requiresConsultationServiceIds.add(created.getId());
+                if (def.requiresConsultation()) requiresConsultationServiceIds.add(created.getId());
                 log.info("Serviço criado no seed: {}", def.name());
             } catch (Exception e) {
                 log.warn("Erro ao criar serviço no seed: {}", e.getMessage());
@@ -853,7 +1178,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                             .notes("Paciente encaminhado para avaliação. Aguarda agendamento.")
                             .build();
                     createProcedureRequestService.execute(professionalUserId, dto);
-                    log.info("Procedure request criado no seed para serviceId={}", serviceId);
                 } catch (Exception e) {
                     log.warn("Erro ao criar procedure request no seed: {}", e.getMessage());
                 }
@@ -866,8 +1190,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void seedSchedule(String userId, ScheduleTemplate template) {
-        if (userId == null)
-            return;
+        if (userId == null) return;
         try {
             List<CreateProfessionalScheduleDTO> dtos = buildScheduleDTOs(template);
             professionalScheduleUseCase.saveMySchedule(userId, dtos);
@@ -934,9 +1257,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             String userId = professionalProfileRepository.findById(profId)
                     .map(p -> p.getUser().getId())
                     .orElse(null);
-            if (userId == null)
-                continue;
-            // Assign round-robin templates so there's variety; ~40% get a schedule
+            if (userId == null) continue;
             if (i % 5 == 0 || i % 5 == 1 || i % 5 == 2) {
                 seedSchedule(userId, templates[i % templates.length]);
                 assigned++;
@@ -947,8 +1268,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private String generateFakeCPF() {
         StringBuilder cpf = new StringBuilder();
-        for (int i = 0; i < 11; i++)
-            cpf.append(faker.random().nextInt(0, 9));
+        for (int i = 0; i < 11; i++) cpf.append(faker.random().nextInt(0, 9));
         return cpf.toString();
     }
 
@@ -1009,8 +1329,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         for (String userId : patientUserIds) {
             try {
                 patientProfileRepository.findByUserId(userId).ifPresent(profile -> {
-                    if (medicalRecordRepository.findByPatientProfileId(profile.getId()).isPresent())
-                        return;
+                    if (medicalRecordRepository.findByPatientProfileId(profile.getId()).isPresent()) return;
                     medicalRecordRepository.save(MedicalRecord.builder()
                             .patientProfile(profile)
                             .allergies(allergies.get(faker.random().nextInt(allergies.size())))
@@ -1036,11 +1355,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                 SubscriptionStatus.ACTIVE, SubscriptionStatus.ACTIVE, SubscriptionStatus.ACTIVE,
                 SubscriptionStatus.PENDING, SubscriptionStatus.CANCELLED);
 
-        // Subscription for test professional
         try {
             userRepository.findById(testProfessionalUserId).ifPresent(user -> {
-                if (subscriptionRepository.findByUserId(user.getId()).isPresent())
-                    return;
+                if (subscriptionRepository.findByUserId(user.getId()).isPresent()) return;
                 subscriptionRepository.save(Subscription.builder()
                         .user(user)
                         .planId("plan_pro")
@@ -1058,8 +1375,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             try {
                 professionalProfileRepository.findById(profId).ifPresent(prof -> {
                     String userId = prof.getUser().getId();
-                    if (subscriptionRepository.findByUserId(userId).isPresent())
-                        return;
+                    if (subscriptionRepository.findByUserId(userId).isPresent()) return;
                     SubscriptionStatus status = statuses.get(faker.random().nextInt(statuses.size()));
                     subscriptionRepository.save(Subscription.builder()
                             .user(prof.getUser())
@@ -1117,8 +1433,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 for (int i = 0; i < count; i++) {
                     try {
                         ExamRequestStatus examStatus = faker.random().nextInt(100) < 60
-                                ? ExamRequestStatus.UPLOADED
-                                : ExamRequestStatus.PENDING;
+                                ? ExamRequestStatus.UPLOADED : ExamRequestStatus.PENDING;
                         examRequestRepository.save(ExamRequest.builder()
                                 .appointment(appointment)
                                 .professional(appointment.getProfessional())
