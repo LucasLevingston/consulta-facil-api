@@ -29,4 +29,9 @@ public class SubscriptionPaymentRepositoryAdapter implements SubscriptionPayment
     public List<SubscriptionPayment> findBySubscriptionId(String subscriptionId) {
         return repository.findBySubscriptionId(subscriptionId);
     }
+
+    @Override
+    public boolean existsByMpPaymentId(String mpPaymentId) {
+        return repository.existsByMpPaymentId(mpPaymentId);
+    }
 }

@@ -9,4 +9,5 @@ import java.util.List;
 public interface SubscriptionPaymentRepository extends JpaRepository<SubscriptionPayment, String> {
     List<SubscriptionPayment> findByPaidAtBetween(LocalDateTime start, LocalDateTime end);
     List<SubscriptionPayment> findBySubscriptionId(String subscriptionId);
+    boolean existsByMpPaymentId(String mpPaymentId);
 }

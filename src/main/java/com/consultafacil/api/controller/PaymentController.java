@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
@@ -44,9 +46,15 @@ public class PaymentController {
             @RequestBody Map<String, Object> body,
             @RequestHeader(value = "x-signature", required = false) String xSignature,
             @RequestHeader(value = "x-request-id", required = false, defaultValue = "") String xRequestId) {
-        String dataId = extractDataId(body);
-        webhookValidator.validate(dataId, xRequestId, xSignature);
-        handleWebhook.execute(body);
+        try {
+            String dataId = extractDataId(body);
+            webhookValidator.validate(dataId, xRequestId, xSignature);
+            handleWebhook.execute(body);
+        } catch (com.consultafacil.core.exception.WebhookAuthenticationException e) {
+            return ResponseEntity.status(401).build();
+        } catch (Exception e) {
+            log.error("[PaymentWebhook] Processing error: {}", e.getMessage());
+        }
         return ResponseEntity.ok().build();
     }
 

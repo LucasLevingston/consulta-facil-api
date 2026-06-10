@@ -67,6 +67,10 @@ public class HandleAppointmentPaymentWebhookService implements HandlePaymentWebh
             }
 
             appointmentRepository.findById(appointmentId).ifPresent(appointment -> {
+                if (appointment.getPaymentStatus() == AppointmentPaymentStatus.PAID) {
+                    log.info("[PaymentWebhook] Duplicate webhook for already-PAID appointment {}", appointmentId);
+                    return;
+                }
                 appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
                 appointment.setPaymentId(paymentId);
                 appointmentRepository.save(appointment);

@@ -9,4 +9,5 @@ public interface SubscriptionPaymentRepositoryPort {
     SubscriptionPayment save(SubscriptionPayment payment);
     List<SubscriptionPayment> findByPaidAtBetween(LocalDateTime start, LocalDateTime end);
     List<SubscriptionPayment> findBySubscriptionId(String subscriptionId);
+    boolean existsByMpPaymentId(String mpPaymentId);
 }

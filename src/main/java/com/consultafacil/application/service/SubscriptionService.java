@@ -120,7 +120,7 @@ public class SubscriptionService implements SubscriptionUseCase {
 
         } catch (Exception e) {
             log.error("Erro ao criar preapproval MP para user {}: {}", userId, e.getMessage());
-            throw new RuntimeException("Erro ao criar checkout: " + e.getMessage(), e);
+            throw new RuntimeException("Erro ao processar checkout. Tente novamente.", e);
         }
     }
 
@@ -253,6 +253,10 @@ public class SubscriptionService implements SubscriptionUseCase {
     private void recordPayment(String subscriptionId, String mpPaymentId,
                                BigDecimal grossAmount, String paymentMethod) {
         try {
+            if (subscriptionPaymentRepository.existsByMpPaymentId(mpPaymentId)) {
+                log.info("[Tax] Payment {} already recorded — skipping duplicate", mpPaymentId);
+                return;
+            }
             TaxBreakdown tax = taxCalculationService.calculate(grossAmount, paymentMethod);
             SubscriptionPayment payment = SubscriptionPayment.builder()
                     .subscriptionId(subscriptionId)
