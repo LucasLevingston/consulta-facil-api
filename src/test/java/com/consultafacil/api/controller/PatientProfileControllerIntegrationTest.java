@@ -262,4 +262,56 @@ class PatientProfileControllerIntegrationTest {
                 .param("size", "20"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void testGetProfessionalPatients_unknownUserId_returns404() throws Exception {
+        // Route expects a user ID; passing a non-existent ID returns 404
+        mockMvc.perform(get("/patients/professional/non-existent-user-id")
+                .header("Authorization", "Bearer " + doctorToken)
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetProfessionalPatients_withProfileIdInsteadOfUserId_returns404() throws Exception {
+        // Route path variable is a user ID, NOT a professional profile ID.
+        // Passing a profile ID returns 404 — the likely cause of the frontend 404 error.
+        mockMvc.perform(get("/patients/professional/" + professionalProfileId)
+                .header("Authorization", "Bearer " + doctorToken)
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetProfessionalPatientsSearchByName() throws Exception {
+        CreateAppointmentDTO dto = CreateAppointmentDTO.builder()
+                .professionalId(professionalProfileId)
+                .scheduledAt(LocalDateTime.now().plusDays(7))
+                .reason("Consulta search test")
+                .build();
+
+        mockMvc.perform(post("/appointments")
+                .header("Authorization", "Bearer " + patientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
+
+        // search term matches patient name
+        mockMvc.perform(get("/patients/professional/" + doctorUserId)
+                .header("Authorization", "Bearer " + doctorToken)
+                .param("search", "Patient")
+                .param("sort", "recent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements", equalTo(1)));
+
+        // search term matches nothing
+        mockMvc.perform(get("/patients/professional/" + doctorUserId)
+                .header("Authorization", "Bearer " + doctorToken)
+                .param("search", "ZZZNaoExiste")
+                .param("sort", "recent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements", equalTo(0)));
+    }
 }

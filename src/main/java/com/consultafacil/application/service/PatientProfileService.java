@@ -10,6 +10,8 @@ import com.consultafacil.domain.port.out.UserRepositoryPort;
 import com.consultafacil.application.port.in.PatientProfileUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -109,6 +111,13 @@ public class PatientProfileService implements PatientProfileUseCase {
         MedicalRecord updated = medicalRecordRepository.save(medicalRecord);
 
         return toMedicalRecordMap(updated);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Map<String, Object>> getAllPatients(Pageable pageable) {
+        return patientProfileRepository.findAll(pageable)
+                .map(pp -> toResponseMap(pp.getUser(), pp));
     }
 
     private Map<String, Object> toResponseMap(User user, PatientProfile patientProfile) {

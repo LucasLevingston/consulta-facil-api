@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -77,5 +78,12 @@ public class PatientProfileController {
     public ResponseEntity<?> updatePatientMedicalRecords(
             @PathVariable String userId, @RequestBody Map<String, Object> updates) {
         return ResponseEntity.ok(patientProfileUseCase.updatePatientMedicalRecords(userId, updates));
+    }
+
+    @GetMapping
+    @PreAuthorize("@policy.canAdminListPatients(authentication)")
+    @Operation(summary = "List all patients (admin)")
+    public ResponseEntity<Page<Map<String, Object>>> getAllPatients(Pageable pageable) {
+        return ResponseEntity.ok(patientProfileUseCase.getAllPatients(pageable));
     }
 }

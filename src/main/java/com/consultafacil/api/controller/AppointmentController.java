@@ -112,6 +112,13 @@ public class AppointmentController {
                 appointmentQuery.getPatientAppointments(userId, userDetails.getUserId(), isAdmin, pageable));
     }
 
+    @GetMapping
+    @PreAuthorize("@policy.canDeleteAppointment(authentication)")
+    @Operation(summary = "List all appointments (admin)")
+    public ResponseEntity<Page<AppointmentResponseDTO>> getAllAppointments(Pageable pageable) {
+        return ResponseEntity.ok(appointmentQuery.getAllAppointments(pageable));
+    }
+
     @GetMapping("/professional/{professionalId}")
     @PreAuthorize("@policy.canViewProfessionalAppointments(authentication)")
     @Operation(summary = "List professional appointments")

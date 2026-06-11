@@ -21,4 +21,6 @@ public interface AppointmentQueryUseCase {
 
     Page<PatientSummaryDTO> getProfessionalPatients(String professionalId, String search,
                                                      String sort, int page, int size);
+
+    Page<AppointmentResponseDTO> getAllAppointments(Pageable pageable);
 }

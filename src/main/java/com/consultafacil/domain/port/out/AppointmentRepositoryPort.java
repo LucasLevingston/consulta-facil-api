@@ -14,6 +14,8 @@ import java.util.Optional;
 // NOTE: Page/Pageable are Spring types — pragmatic compromise for pagination support.
 public interface AppointmentRepositoryPort {
 
+    Page<Appointment> findAll(Pageable pageable);
+
     Appointment save(Appointment appointment);
 
     Optional<Appointment> findById(String id);

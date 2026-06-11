@@ -335,6 +335,46 @@ class ProfessionalControllerIntegrationTest {
     }
 
     @Test
+    void testGetMyProfile_professionalUserWithNoProfile_returns404() throws Exception {
+        // A PROFESSIONAL-role user who has no ProfessionalProfile entity returns 404.
+        // This is the likely cause of the frontend 404 on GET /v1/professionals/me.
+        CreateUserDTO dto = CreateUserDTO.builder()
+                .name("No Profile Pro")
+                .email("noprofile.pro@example.com")
+                .password("password123")
+                .cpf("77788899900")
+                .phone("11977778888")
+                .birthDate(LocalDate.of(1985, 6, 1))
+                .gender(Gender.MALE)
+                .build();
+
+        String regResponse = mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String userId = objectMapper.readTree(regResponse).get("id").asText();
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setRole(UserRole.PROFESSIONAL);
+        userRepository.saveAndFlush(user);
+
+        String loginResponse = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(LoginRequestDTO.builder()
+                        .email("noprofile.pro@example.com")
+                        .password("password123")
+                        .build())))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String token = objectMapper.readTree(loginResponse).get("token").asText();
+
+        mockMvc.perform(get("/professionals/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void testGetPendingApplications() throws Exception {
         CreateUserDTO applicantDTO = CreateUserDTO.builder()
                 .name("Pending Applicant")

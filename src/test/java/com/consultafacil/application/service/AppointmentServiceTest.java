@@ -23,7 +23,13 @@ import com.consultafacil.domain.entity.ProfessionalService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -230,6 +236,62 @@ class AppointmentServiceTest {
 
         assertThatThrownBy(() -> service.delete("bad"))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    // ── getProfessionalAppointments ──────────────────────────────────────────
+
+    @Test
+    void getProfessionalAppointments_existingProfessional_returnsMappedPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Appointment> page = new PageImpl<>(List.of(appointment), pageable, 1);
+        when(professionalProfileRepository.findById("prof-1")).thenReturn(Optional.of(professional));
+        when(appointmentRepository.findByProfessionalId("prof-1", pageable)).thenReturn(page);
+
+        var result = service.getProfessionalAppointments("prof-1", pageable);
+
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getProfessionalId()).isEqualTo("prof-1");
+    }
+
+    @Test
+    void getProfessionalAppointments_professionalNotFound_returnsEmptyPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(professionalProfileRepository.findById("bad")).thenReturn(Optional.empty());
+
+        var result = service.getProfessionalAppointments("bad", pageable);
+
+        assertThat(result.isEmpty()).isTrue();
+        assertThat(result.getTotalElements()).isZero();
+        assertThat(result.getPageable()).isEqualTo(pageable);
+    }
+
+    // ── getProfessionalAppointmentsBySource ──────────────────────────────────
+
+    @Test
+    void getProfessionalAppointmentsBySource_existingProfessional_returnsFilteredPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        appointment.setSource(AppointmentSource.ONLINE);
+        Page<Appointment> page = new PageImpl<>(List.of(appointment), pageable, 1);
+        when(professionalProfileRepository.findById("prof-1")).thenReturn(Optional.of(professional));
+        when(appointmentRepository.findByProfessionalIdAndSource("prof-1", AppointmentSource.ONLINE, pageable))
+                .thenReturn(page);
+
+        var result = service.getProfessionalAppointmentsBySource("prof-1", AppointmentSource.ONLINE, pageable);
+
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getProfessionalId()).isEqualTo("prof-1");
+    }
+
+    @Test
+    void getProfessionalAppointmentsBySource_professionalNotFound_returnsEmptyPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(professionalProfileRepository.findById("bad")).thenReturn(Optional.empty());
+
+        var result = service.getProfessionalAppointmentsBySource("bad", AppointmentSource.ONLINE, pageable);
+
+        assertThat(result.isEmpty()).isTrue();
+        assertThat(result.getTotalElements()).isZero();
+        assertThat(result.getPageable()).isEqualTo(pageable);
     }
 
     // ── backward-compat bridges ───────────────────────────────────────────

@@ -21,6 +21,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
 
     // Eager-load patient.user + professional.user + service to eliminate N+1 on list endpoints
     @EntityGraph(attributePaths = {"patient.user", "professional.user", "service"})
+    @Override
+    Page<Appointment> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"patient.user", "professional.user", "service"})
     Page<Appointment> findByPatientId(String patientId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"patient.user", "professional.user", "service"})

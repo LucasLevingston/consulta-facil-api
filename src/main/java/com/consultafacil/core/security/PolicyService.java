@@ -129,6 +129,10 @@ public class PolicyService {
         return is(auth, UserRole.PROFESSIONAL, UserRole.ADMIN);
     }
 
+    public boolean canAdminListPatients(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
+    }
+
     public boolean canManagePatientProfile(Authentication auth) {
         return is(auth, UserRole.PATIENT);
     }

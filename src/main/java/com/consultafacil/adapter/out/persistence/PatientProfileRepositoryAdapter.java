@@ -4,6 +4,8 @@ import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
 import com.consultafacil.domain.repository.PatientProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -27,5 +29,10 @@ public class PatientProfileRepositoryAdapter implements PatientProfileRepository
     @Override
     public Optional<PatientProfile> findByUserId(String userId) {
         return patientProfileRepository.findByUserId(userId);
+    }
+
+    @Override
+    public Page<PatientProfile> findAll(Pageable pageable) {
+        return patientProfileRepository.findAll(pageable);
     }
 }

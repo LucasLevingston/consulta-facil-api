@@ -22,6 +22,11 @@ public class AppointmentRepositoryAdapter implements AppointmentRepositoryPort {
     private final AppointmentRepository appointmentRepository;
 
     @Override
+    public Page<Appointment> findAll(Pageable pageable) {
+        return appointmentRepository.findAll(pageable);
+    }
+
+    @Override
     public Appointment save(Appointment appointment) {
         return appointmentRepository.save(appointment);
     }

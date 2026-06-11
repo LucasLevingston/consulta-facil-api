@@ -163,7 +163,13 @@ public class AppointmentService implements
         return professionalProfileRepository.findById(professionalId)
                 .map(p -> appointmentRepository.findByProfessionalId(professionalId, pageable)
                         .map(this::toResponseDTO))
-                .orElse(Page.empty());
+                .orElse(Page.empty(pageable));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponseDTO> getAllAppointments(Pageable pageable) {
+        return appointmentRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Override
@@ -174,7 +180,7 @@ public class AppointmentService implements
         return professionalProfileRepository.findById(professionalId)
                 .map(p -> appointmentRepository.findByProfessionalIdAndSource(professionalId, source, pageable)
                         .map(this::toResponseDTO))
-                .orElse(Page.empty());
+                .orElse(Page.empty(pageable));
     }
 
     @Override
