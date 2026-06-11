@@ -21,6 +21,7 @@ public class PlanResponseDTO {
     private int frequency;
     private String frequencyType;
     private List<String> features;
+    private Integer maxAppointments;
     private PlanStatus status;
     private int displayOrder;
 }

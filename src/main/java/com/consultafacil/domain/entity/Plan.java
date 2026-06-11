@@ -55,6 +55,9 @@ public class Plan {
     @Builder.Default
     private PlanStatus status = PlanStatus.ACTIVE;
 
+    @Column(name = "max_appointments")
+    private Integer maxAppointments;
+
     @Column(name = "display_order", nullable = false)
     @Builder.Default
     private int displayOrder = 0;

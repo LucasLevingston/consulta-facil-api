@@ -64,6 +64,7 @@ public class PlanService implements PlanUseCase {
                 .frequency(dto.getFrequency() > 0 ? dto.getFrequency() : 1)
                 .frequencyType(dto.getFrequencyType() != null ? dto.getFrequencyType() : "months")
                 .features(featuresStr)
+                .maxAppointments(dto.getMaxAppointments())
                 .status(PlanStatus.ACTIVE)
                 .displayOrder(dto.getDisplayOrder())
                 .build();
@@ -83,6 +84,7 @@ public class PlanService implements PlanUseCase {
         if (dto.getStatus() != null) plan.setStatus(dto.getStatus());
         if (dto.getDisplayOrder() != null) plan.setDisplayOrder(dto.getDisplayOrder());
         if (dto.getFeatures() != null) plan.setFeatures(String.join(",", dto.getFeatures()));
+        if (dto.getMaxAppointments() != null) plan.setMaxAppointments(dto.getMaxAppointments());
 
         return toDTO(planRepository.save(plan));
     }
@@ -107,6 +109,7 @@ public class PlanService implements PlanUseCase {
                 .frequency(p.getFrequency())
                 .frequencyType(p.getFrequencyType())
                 .features(featureList)
+                .maxAppointments(p.getMaxAppointments())
                 .status(p.getStatus())
                 .displayOrder(p.getDisplayOrder())
                 .build();

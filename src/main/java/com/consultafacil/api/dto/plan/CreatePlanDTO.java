@@ -27,11 +27,12 @@ public class CreatePlanDTO {
     private BillingPeriod billingPeriod;
 
     @NotNull(message = "price é obrigatório")
-    @DecimalMin(value = "0.01", message = "price deve ser maior que zero")
+    @DecimalMin(value = "0.00", inclusive = true, message = "price deve ser maior ou igual a zero")
     private BigDecimal price;
 
     private int frequency = 1;
     private String frequencyType = "months";
     private List<String> features;
+    private Integer maxAppointments;
     private int displayOrder = 0;
 }

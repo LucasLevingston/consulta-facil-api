@@ -12,6 +12,7 @@ public class UpdatePlanDTO {
     private String description;
     private BigDecimal price;
     private List<String> features;
+    private Integer maxAppointments;
     private PlanStatus status;
     private Integer displayOrder;
 }
