@@ -159,6 +159,10 @@ public class PolicyService {
         return is(auth, UserRole.PROFESSIONAL, UserRole.ADMIN);
     }
 
+    public boolean canViewOwnExams(Authentication auth) {
+        return is(auth, UserRole.PATIENT, UserRole.PROFESSIONAL, UserRole.ADMIN);
+    }
+
     // ── Procedure Requests ────────────────────────────────────────────────
 
     public boolean canManageProcedureRequest(Authentication auth) {

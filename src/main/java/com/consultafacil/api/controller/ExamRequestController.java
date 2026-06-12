@@ -4,10 +4,12 @@ import com.consultafacil.api.dto.exam.CreateExamRequestDTO;
 import com.consultafacil.api.dto.exam.ExamRequestResponseDTO;
 import com.consultafacil.api.dto.exam.ReviewExamRequestDTO;
 import com.consultafacil.application.port.in.GetExamsByAppointmentUseCase;
+import com.consultafacil.application.port.in.GetMyExamsUseCase;
 import com.consultafacil.application.port.in.RequestExamUseCase;
 import com.consultafacil.application.port.in.ReviewExamUseCase;
 import com.consultafacil.application.port.in.UploadExamUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
+import com.consultafacil.domain.enums.ExamRequestStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +35,7 @@ public class ExamRequestController {
     private final UploadExamUseCase uploadExam;
     private final ReviewExamUseCase reviewExam;
     private final GetExamsByAppointmentUseCase getExamsByAppointment;
+    private final GetMyExamsUseCase getMyExams;
 
     @PostMapping("/appointments/{appointmentId}/exams")
     @PreAuthorize("@policy.canManageExamRequest(authentication)")
@@ -51,6 +54,15 @@ public class ExamRequestController {
     public ResponseEntity<List<ExamRequestResponseDTO>> getExamsByAppointment(
             @PathVariable String appointmentId) {
         return ResponseEntity.ok(getExamsByAppointment.execute(appointmentId));
+    }
+
+    @GetMapping("/exams/my")
+    @PreAuthorize("@policy.canViewOwnExams(authentication)")
+    @Operation(summary = "List all exam requests for the authenticated user")
+    public ResponseEntity<List<ExamRequestResponseDTO>> getMyExams(
+            @RequestParam(required = false) ExamRequestStatus status,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(getMyExams.execute(userDetails.getUserId(), status));
     }
 
     @PutMapping(value = "/exams/{examId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
