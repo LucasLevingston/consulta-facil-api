@@ -20,13 +20,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.time.LocalDate;
 import java.util.Map;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -62,7 +65,7 @@ class ReceptionistControllerIntegrationTest {
         userRepository.saveAndFlush(ownerUser);
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
-                .user(ownerUser).specialty("Cardiologia")
+                .user(ownerUser).specialty(Specialty.CARDIOLOGIA)
                 .licenseNumber("CRM-SP-63300").status(ProfessionalProfileStatus.ACTIVE).build();
         professionalProfileRepository.saveAndFlush(profile);
 

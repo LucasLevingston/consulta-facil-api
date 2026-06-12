@@ -20,13 +20,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.time.LocalDate;
 import java.util.Map;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -66,7 +69,7 @@ class ClinicControllerIntegrationTest {
         userRepository.saveAndFlush(doctorUser);
 
         ProfessionalProfile dp = ProfessionalProfile.builder()
-                .user(doctorUser).specialty("Cardiologia")
+                .user(doctorUser).specialty(Specialty.CARDIOLOGIA)
                 .licenseNumber("CRM-SP-11111").status(ProfessionalProfileStatus.ACTIVE).build();
         professionalProfileId = professionalProfileRepository.saveAndFlush(dp).getId();
 
@@ -108,7 +111,7 @@ class ClinicControllerIntegrationTest {
         userRepository.saveAndFlush(secondUser);
 
         ProfessionalProfile dp2 = ProfessionalProfile.builder()
-                .user(secondUser).specialty("Neurologia")
+                .user(secondUser).specialty(Specialty.NEUROLOGIA)
                 .licenseNumber("CRM-SP-22222").status(ProfessionalProfileStatus.ACTIVE).build();
         secondProfessionalProfileId = professionalProfileRepository.saveAndFlush(dp2).getId();
         secondDoctorToken = loginAndGetToken("maria@example.com", "senha456");
@@ -538,7 +541,7 @@ class ClinicControllerIntegrationTest {
                 .param("specialty", "Cardiologia"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].specialty", equalTo("Cardiologia")));
+                .andExpect(jsonPath("$[0].specialty", equalTo("CARDIOLOGIA")));
     }
 
     @Test

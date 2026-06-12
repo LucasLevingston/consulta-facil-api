@@ -5,6 +5,8 @@ import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
+import com.consultafacil.domain.enums.ProfessionalType;
+import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.repository.ProfessionalProfileRepository;
 import com.consultafacil.domain.repository.UserRepository;
@@ -51,35 +53,35 @@ class ProfessionalsListIntegrationTest {
         medicoCardiologiaId = criarProfissional(
                 "Dr. João Silva", "joao.silva@example.com", "prof1234",
                 "11111111101", "11900000101",
-                "Médico", "Cardiologia", "CRM-SP-10001", Gender.MALE
+                ProfessionalType.MEDICO, Specialty.CARDIOLOGIA, "CRM-SP-10001", Gender.MALE
         );
 
         // Profissional 2: Médico / Neurologia / com nome "Dra. Ana Costa"
         criarProfissional(
                 "Dra. Ana Costa", "ana.costa@example.com", "prof1234",
                 "22222222202", "11900000202",
-                "Médico", "Neurologia", "CRM-SP-10002", Gender.FEMALE
+                ProfessionalType.MEDICO, Specialty.NEUROLOGIA, "CRM-SP-10002", Gender.FEMALE
         );
 
         // Profissional 3: Psicólogo / TCC / com nome "Carlos Mendes"
         psicologoTccId = criarProfissional(
                 "Carlos Mendes", "carlos.mendes@example.com", "prof1234",
                 "33333333303", "11900000303",
-                "Psicólogo", "TCC", "CRP-SP-10003", Gender.MALE
+                ProfessionalType.PSICOLOGO, Specialty.TCC, "CRP-SP-10003", Gender.MALE
         );
 
         // Profissional 4: Nutricionista / Nutrição Clínica
         criarProfissional(
                 "Beatriz Oliveira", "beatriz@example.com", "prof1234",
                 "44444444404", "11900000404",
-                "Nutricionista", "Nutrição Clínica", "CRN-SP-10004", Gender.FEMALE
+                ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_CLINICA, "CRN-SP-10004", Gender.FEMALE
         );
 
         // Profissional 5: profession=null (dado legado sem migração)
         criarProfissionalSemProfissao(
                 "Legado Sem Profissao", "legado@example.com", "prof1234",
                 "55555555505", "11900000505",
-                "Fisioterapia", "CREFITO-SP-10005", Gender.MALE
+                Specialty.FISIOTERAPIA_ORTOPEDICA, "CREFITO-SP-10005", Gender.MALE
         );
     }
 
@@ -137,9 +139,9 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Médico"))
+                        .param("profession", "MEDICO"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[*].profession", everyItem(equalTo("Médico"))))
+                .andExpect(jsonPath("$.content[*].profession", everyItem(equalTo("MEDICO"))))
                 .andExpect(jsonPath("$.totalElements", equalTo(2)));
     }
 
@@ -159,7 +161,7 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "médico"))
+                        .param("profession", "medico"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", greaterThanOrEqualTo(2)));
     }
@@ -173,7 +175,7 @@ class ProfessionalsListIntegrationTest {
                         .param("size", "12")
                         .param("specialty", "Cardiologia"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[*].specialty", everyItem(equalTo("Cardiologia"))))
+                .andExpect(jsonPath("$.content[*].specialty", everyItem(equalTo("CARDIOLOGIA"))))
                 .andExpect(jsonPath("$.totalElements", equalTo(1)));
     }
 
@@ -238,12 +240,12 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Médico")
-                        .param("specialty", "Cardiologia"))
+                        .param("profession", "MEDICO")
+                        .param("specialty", "CARDIOLOGIA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", equalTo(1)))
-                .andExpect(jsonPath("$.content[0].profession", equalTo("Médico")))
-                .andExpect(jsonPath("$.content[0].specialty", equalTo("Cardiologia")));
+                .andExpect(jsonPath("$.content[0].profession", equalTo("MEDICO")))
+                .andExpect(jsonPath("$.content[0].specialty", equalTo("CARDIOLOGIA")));
     }
 
     @Test
@@ -251,7 +253,7 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Médico")
+                        .param("profession", "MEDICO")
                         .param("name", "Ana"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", equalTo(1)))
@@ -263,8 +265,8 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Médico")
-                        .param("specialty", "Neurologia")
+                        .param("profession", "MEDICO")
+                        .param("specialty", "NEUROLOGIA")
                         .param("name", "Ana"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", equalTo(1)));
@@ -275,7 +277,7 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Médico")
+                        .param("profession", "MEDICO")
                         .param("specialty", "TCC"))  // TCC pertence a Psicólogo, não Médico
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", equalTo(0)));
@@ -289,7 +291,7 @@ class ProfessionalsListIntegrationTest {
                         .param("page", "0")
                         .param("size", "12"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[?(@.specialty == 'Fisioterapia')]", hasSize(1)));
+                .andExpect(jsonPath("$.content[?(@.specialty == 'FISIOTERAPIA_ORTOPEDICA')]", hasSize(1)));
     }
 
     @Test
@@ -298,9 +300,9 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Médico"))
+                        .param("profession", "MEDICO"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[?(@.specialty == 'Fisioterapia')]", hasSize(0)));
+                .andExpect(jsonPath("$.content[?(@.specialty == 'FISIOTERAPIA_ORTOPEDICA')]", hasSize(0)));
     }
 
     // ─── Estrutura da resposta paginada ────────────────────────────────────────
@@ -325,14 +327,14 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Médico")
-                        .param("specialty", "Cardiologia"))
+                        .param("profession", "MEDICO")
+                        .param("specialty", "CARDIOLOGIA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").isString())
                 .andExpect(jsonPath("$.content[0].name").isString())
                 .andExpect(jsonPath("$.content[0].email").isString())
-                .andExpect(jsonPath("$.content[0].profession", equalTo("Médico")))
-                .andExpect(jsonPath("$.content[0].specialty", equalTo("Cardiologia")))
+                .andExpect(jsonPath("$.content[0].profession", equalTo("MEDICO")))
+                .andExpect(jsonPath("$.content[0].specialty", equalTo("CARDIOLOGIA")))
                 .andExpect(jsonPath("$.content[0].licenseNumber").isString())
                 .andExpect(jsonPath("$.content[0].status").isString())
                 .andExpect(jsonPath("$.content[0].consultationCount").isNumber());
@@ -343,7 +345,7 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("specialty", "Cardiologia"))
+                        .param("specialty", "CARDIOLOGIA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id", equalTo(medicoCardiologiaId)));
     }
@@ -353,7 +355,7 @@ class ProfessionalsListIntegrationTest {
         mockMvc.perform(get("/professionals")
                         .param("page", "0")
                         .param("size", "12")
-                        .param("profession", "Psicólogo"))
+                        .param("profession", "PSICOLOGO"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", equalTo(1)))
                 .andExpect(jsonPath("$.content[0].id", equalTo(psicologoTccId)));
@@ -384,7 +386,7 @@ class ProfessionalsListIntegrationTest {
     private String criarProfissional(
             String name, String email, String password,
             String cpf, String phone,
-            String profession, String specialty, String licenseNumber,
+            ProfessionalType profession, Specialty specialty, String licenseNumber,
             Gender gender) throws Exception {
 
         CreateUserDTO dto = CreateUserDTO.builder()
@@ -419,7 +421,7 @@ class ProfessionalsListIntegrationTest {
     private void criarProfissionalSemProfissao(
             String name, String email, String password,
             String cpf, String phone,
-            String specialty, String licenseNumber,
+            Specialty specialty, String licenseNumber,
             Gender gender) throws Exception {
 
         CreateUserDTO dto = CreateUserDTO.builder()

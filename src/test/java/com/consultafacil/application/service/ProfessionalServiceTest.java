@@ -19,14 +19,20 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 import java.util.List;
 import java.util.Optional;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -48,8 +54,8 @@ class ProfessionalServiceTest {
         profile = ProfessionalProfile.builder()
                 .id("prof-1")
                 .user(user)
-                .profession("Médica")
-                .specialty("Cardiologia")
+                .profession(ProfessionalType.MEDICO)
+                .specialty(Specialty.CARDIOLOGIA)
                 .licenseNumber("CRM-12345")
                 .status(ProfessionalProfileStatus.ACTIVE)
                 .build();
@@ -64,11 +70,11 @@ class ProfessionalServiceTest {
         when(professionalProfileRepository.existsByLicenseNumber("CRM-NEW")).thenReturn(false);
 
         var dto = CreateProfessionalDTO.builder()
-                .profession("Médica").specialty("Cardiologia").licenseNumber("CRM-NEW").build();
+                .profession(ProfessionalType.MEDICO).specialty(Specialty.CARDIOLOGIA).licenseNumber("CRM-NEW").build();
 
         var result = service.createProfessionalProfile("u-1", dto);
 
-        assertThat(result.getSpecialty()).isEqualTo("Cardiologia");
+        assertThat(result.getSpecialty()).isEqualTo("CARDIOLOGIA");
         verify(professionalProfileRepository).save(any());
     }
 
@@ -78,7 +84,7 @@ class ProfessionalServiceTest {
         when(professionalProfileRepository.existsByLicenseNumber("CRM-12345")).thenReturn(true);
 
         var dto = CreateProfessionalDTO.builder()
-                .profession("Médica").specialty("Cardiologia").licenseNumber("CRM-12345").build();
+                .profession(ProfessionalType.MEDICO).specialty(Specialty.CARDIOLOGIA).licenseNumber("CRM-12345").build();
 
         assertThatThrownBy(() -> service.createProfessionalProfile("u-1", dto))
                 .isInstanceOf(DuplicateResourceException.class);

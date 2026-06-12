@@ -3,6 +3,8 @@ package com.consultafacil.domain.entity;
 import com.consultafacil.domain.enums.PaymentMethod;
 import com.consultafacil.domain.enums.PaymentTiming;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
+import com.consultafacil.domain.enums.ProfessionalType;
+import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.exception.InvalidStateException;
 import jakarta.persistence.*;
 import org.hibernate.annotations.BatchSize;
@@ -35,10 +37,12 @@ public class ProfessionalProfile {
     @ToString.Exclude
     private User user;
 
-    private String profession;
+    @Enumerated(EnumType.STRING)
+    private ProfessionalType profession;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String specialty;
+    private Specialty specialty;
 
     @Column(nullable = false, unique = true)
     private String licenseNumber;

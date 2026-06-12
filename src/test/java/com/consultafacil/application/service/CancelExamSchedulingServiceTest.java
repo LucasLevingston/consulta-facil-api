@@ -13,14 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.consultafacil.domain.enums.ExamType;
 
 import java.util.Optional;
+import com.consultafacil.domain.enums.ExamType;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import com.consultafacil.domain.enums.ExamType;
 
 @ExtendWith(MockitoExtension.class)
 class CancelExamSchedulingServiceTest {
@@ -52,7 +55,7 @@ class CancelExamSchedulingServiceTest {
                 .id("exam-1")
                 .patient(patientProfile)
                 .professional(professionalProfile)
-                .examName("Hemograma")
+                .examName(ExamType.HEMOGRAMA_COMPLETO)
                 .status(ExamRequestStatus.SCHEDULED)
                 .build();
 

@@ -25,13 +25,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -103,7 +106,7 @@ class AppointmentModalityIntegrationTest {
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
                 .user(doctorUser)
-                .specialty("Clínica Geral")
+                .specialty(Specialty.CLINICA_GERAL)
                 .licenseNumber("CRM-SP-77700")
                 .build();
         professionalProfileId = professionalProfileRepository.saveAndFlush(profile).getId();
@@ -255,7 +258,7 @@ class AppointmentModalityIntegrationTest {
         doc2.setRole(UserRole.PROFESSIONAL);
         userRepository.saveAndFlush(doc2);
         ProfessionalProfile profile2 = ProfessionalProfile.builder()
-                .user(doc2).specialty("Neurologia").licenseNumber("CRM-SP-99900").build();
+                .user(doc2).specialty(Specialty.NEUROLOGIA).licenseNumber("CRM-SP-99900").build();
         professionalProfileRepository.saveAndFlush(profile2);
 
         String doc2Login = mockMvc.perform(post("/auth/login")

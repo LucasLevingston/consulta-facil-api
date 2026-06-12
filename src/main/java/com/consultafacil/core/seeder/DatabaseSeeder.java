@@ -44,6 +44,9 @@ import com.consultafacil.domain.enums.AppointmentPaymentStatus;
 import com.consultafacil.domain.enums.AppointmentStatus;
 import com.consultafacil.domain.enums.BillingPeriod;
 import com.consultafacil.domain.enums.CouponStatus;
+import com.consultafacil.domain.enums.ExamType;
+import com.consultafacil.domain.enums.ProfessionalType;
+import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.enums.CouponType;
 import com.consultafacil.domain.enums.ExamRequestStatus;
 import com.consultafacil.domain.enums.Gender;
@@ -134,52 +137,52 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
-    private record ProfessionData(String profession, String specialty, String licensePrefix) {
+    private record ProfessionData(ProfessionalType profession, Specialty specialty, String licensePrefix) {
     }
 
     private final List<ProfessionData> professionData = List.of(
-            new ProfessionData("Médico", "Cardiologia", "CRM/SP"),
-            new ProfessionData("Médico", "Clínica Geral", "CRM/SP"),
-            new ProfessionData("Médico", "Dermatologia", "CRM/SP"),
-            new ProfessionData("Médico", "Endocrinologia", "CRM/SP"),
-            new ProfessionData("Médico", "Gastroenterologia", "CRM/SP"),
-            new ProfessionData("Médico", "Neurologia", "CRM/SP"),
-            new ProfessionData("Médico", "Oftalmologia", "CRM/SP"),
-            new ProfessionData("Médico", "Ortopedia", "CRM/SP"),
-            new ProfessionData("Médico", "Pediatria", "CRM/SP"),
-            new ProfessionData("Médico", "Pneumologia", "CRM/SP"),
-            new ProfessionData("Médico", "Psiquiatria", "CRM/SP"),
-            new ProfessionData("Médico", "Cardiologia", "CRM/PB"),
-            new ProfessionData("Médico", "Clínica Geral", "CRM/PB"),
-            new ProfessionData("Médico", "Pediatria", "CRM/PB"),
-            new ProfessionData("Médico", "Ginecologia", "CRM/PB"),
-            new ProfessionData("Médico", "Ortopedia", "CRM/PB"),
-            new ProfessionData("Médico", "Neurologia", "CRM/PB"),
-            new ProfessionData("Médico", "Psiquiatria", "CRM/PB"),
-            new ProfessionData("Nutricionista", "Nutrição Clínica", "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Esportiva", "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Oncológica", "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Materno-Infantil", "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Funcional", "CRN/SP"),
-            new ProfessionData("Nutricionista", "Nutrição Clínica", "CRN/PB"),
-            new ProfessionData("Nutricionista", "Nutrição Esportiva", "CRN/PB"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica", "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica", "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Respiratória", "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Desportiva", "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Pilates Clínico", "CREFITO/SP"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Ortopédica", "CREFITO/PB"),
-            new ProfessionData("Fisioterapeuta", "Fisioterapia Neurológica", "CREFITO/PB"),
-            new ProfessionData("Psicólogo", "TCC", "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicanálise", "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicologia Infantil", "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicologia Organizacional", "CRP/SP"),
-            new ProfessionData("Psicólogo", "Psicologia do Esporte", "CRP/SP"),
-            new ProfessionData("Psicólogo", "TCC", "CRP/PB"),
-            new ProfessionData("Psicólogo", "Psicanálise", "CRP/PB"),
-            new ProfessionData("Dentista", "Odontologia Geral", "CRO/PB"),
-            new ProfessionData("Dentista", "Ortodontia", "CRO/PB"),
-            new ProfessionData("Dentista", "Implantodontia", "CRO/PB"));
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.CARDIOLOGIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.CLINICA_GERAL, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.DERMATOLOGIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.ENDOCRINOLOGIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.GASTROENTEROLOGIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.NEUROLOGIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.OFTALMOLOGIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.ORTOPEDIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.PEDIATRIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.PNEUMOLOGIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.PSIQUIATRIA, "CRM/SP"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.CARDIOLOGIA, "CRM/PB"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.CLINICA_GERAL, "CRM/PB"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.PEDIATRIA, "CRM/PB"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.GINECOLOGIA_OBSTETRICIA, "CRM/PB"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.ORTOPEDIA, "CRM/PB"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.NEUROLOGIA, "CRM/PB"),
+            new ProfessionData(ProfessionalType.MEDICO, Specialty.PSIQUIATRIA, "CRM/PB"),
+            new ProfessionData(ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_CLINICA, "CRN/SP"),
+            new ProfessionData(ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_ESPORTIVA, "CRN/SP"),
+            new ProfessionData(ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_ONCOLOGICA, "CRN/SP"),
+            new ProfessionData(ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_MATERNO_INFANTIL, "CRN/SP"),
+            new ProfessionData(ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_FUNCIONAL, "CRN/SP"),
+            new ProfessionData(ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_CLINICA, "CRN/PB"),
+            new ProfessionData(ProfessionalType.NUTRICIONISTA, Specialty.NUTRICAO_ESPORTIVA, "CRN/PB"),
+            new ProfessionData(ProfessionalType.FISIOTERAPEUTA, Specialty.FISIOTERAPIA_ORTOPEDICA, "CREFITO/SP"),
+            new ProfessionData(ProfessionalType.FISIOTERAPEUTA, Specialty.FISIOTERAPIA_NEUROLOGICA, "CREFITO/SP"),
+            new ProfessionData(ProfessionalType.FISIOTERAPEUTA, Specialty.FISIOTERAPIA_RESPIRATORIA, "CREFITO/SP"),
+            new ProfessionData(ProfessionalType.FISIOTERAPEUTA, Specialty.FISIOTERAPIA_DESPORTIVA, "CREFITO/SP"),
+            new ProfessionData(ProfessionalType.FISIOTERAPEUTA, Specialty.PILATES_CLINICO, "CREFITO/SP"),
+            new ProfessionData(ProfessionalType.FISIOTERAPEUTA, Specialty.FISIOTERAPIA_ORTOPEDICA, "CREFITO/PB"),
+            new ProfessionData(ProfessionalType.FISIOTERAPEUTA, Specialty.FISIOTERAPIA_NEUROLOGICA, "CREFITO/PB"),
+            new ProfessionData(ProfessionalType.PSICOLOGO, Specialty.TCC, "CRP/SP"),
+            new ProfessionData(ProfessionalType.PSICOLOGO, Specialty.PSICANALISE, "CRP/SP"),
+            new ProfessionData(ProfessionalType.PSICOLOGO, Specialty.PSICOLOGIA_INFANTIL, "CRP/SP"),
+            new ProfessionData(ProfessionalType.PSICOLOGO, Specialty.PSICOLOGIA_ORGANIZACIONAL, "CRP/SP"),
+            new ProfessionData(ProfessionalType.PSICOLOGO, Specialty.PSICOLOGIA_DO_ESPORTE, "CRP/SP"),
+            new ProfessionData(ProfessionalType.PSICOLOGO, Specialty.TCC, "CRP/PB"),
+            new ProfessionData(ProfessionalType.PSICOLOGO, Specialty.PSICANALISE, "CRP/PB"),
+            new ProfessionData(ProfessionalType.DENTISTA, Specialty.ODONTOLOGIA_GERAL, "CRO/PB"),
+            new ProfessionData(ProfessionalType.DENTISTA, Specialty.ORTODONTIA, "CRO/PB"),
+            new ProfessionData(ProfessionalType.DENTISTA, Specialty.IMPLANTODONTIA, "CRO/PB"));
 
     @Override
     public void run(String... args) {
@@ -203,8 +206,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                     "12345678",
                     "Profissional Teste",
                     "00000000002",
-                    "Médico",
-                    "Cardiologia",
+                    ProfessionalType.MEDICO,
+                    Specialty.CARDIOLOGIA,
                     "CRM-TESTE-001");
             professionalService.approveApplication(professionalProfileId);
 
@@ -963,7 +966,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private String createProfessional(
             String email, String password, String name, String cpf,
-            String profession, String specialty, String licenseNumber) {
+            ProfessionalType profession, Specialty specialty, String licenseNumber) {
         CreateUserDTO dto = CreateUserDTO.builder()
                 .name(name)
                 .email(email)
@@ -1405,8 +1408,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         List<String> diagnoses = List.of("Hipertensão arterial", "Diabetes mellitus tipo 2",
                 "Lombalgia crônica", "Ansiedade generalizada", "Gastrite crônica");
         List<String> cids = List.of("I10", "E11", "M54.5", "F41.1", "K29.5");
-        List<String> exams = List.of("Hemograma completo", "Glicemia em jejum", "ECG",
-                "Raio-X de tórax", "Ultrassom abdominal", "TSH", "Colesterol total");
+        List<ExamType> exams = List.of(ExamType.HEMOGRAMA_COMPLETO, ExamType.GLICEMIA_JEJUM,
+                ExamType.ELETROCARDIOGRAMA, ExamType.RAIO_X, ExamType.ULTRASSOM_ABDOMINAL,
+                ExamType.TSH, ExamType.COLESTEROL_TOTAL);
         List<String> prescriptions = List.of(
                 "Losartana 50mg 1x/dia", "Metformina 850mg 2x/dia",
                 "Omeprazol 20mg em jejum", "Paracetamol 750mg se necessário");
@@ -1507,7 +1511,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private void seedExamLabs() {
         record LabDef(String name, String description, String phone, String address,
                 String city, String state, double lat, double lng, String imageUrl,
-                List<String> acceptedExams) {
+                List<ExamType> acceptedExams) {
         }
 
         List<LabDef> defs = List.of(
@@ -1518,8 +1522,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Epitácio Pessoa, 2490 — Bessa",
                         "João Pessoa", "PB", -7.1105, -34.8239,
                         "https://images.unsplash.com/photo-1579165466741-7f35e4755182?w=600",
-                        List.of("Hemograma completo", "Glicemia em jejum", "TSH", "Colesterol total",
-                                "Ureia e creatinina", "TGO/TGP", "PSA", "Vitamina D")),
+                        List.of(ExamType.HEMOGRAMA_COMPLETO, ExamType.GLICEMIA_JEJUM, ExamType.TSH,
+                                ExamType.COLESTEROL_TOTAL, ExamType.CREATININA, ExamType.TGO,
+                                ExamType.TGP, ExamType.PSA, ExamType.VITAMINA_D)),
                 new LabDef(
                         "Clínica Diagnóstica Paraibana",
                         "Imagem e análises clínicas de alta precisão",
@@ -1527,8 +1532,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Cardoso Vieira, 180 — Miramar",
                         "João Pessoa", "PB", -7.1158, -34.8611,
                         "https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=600",
-                        List.of("Raio-X", "Ultrassom abdominal", "Ultrassom pélvico", "Ecocardiograma",
-                                "Holter 24h", "MAPA", "Tomografia computadorizada")),
+                        List.of(ExamType.RAIO_X, ExamType.ULTRASSOM_ABDOMINAL, ExamType.ULTRASSOM_PELVICO,
+                                ExamType.ECOCARDIOGRAMA, ExamType.HOLTER_24H, ExamType.MAPA,
+                                ExamType.TOMOGRAFIA)),
                 new LabDef(
                         "LabClin Campina Grande",
                         "Referência em análises clínicas no Agreste paraibano",
@@ -1536,8 +1542,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Assis Chateaubriand, 1200",
                         "Campina Grande", "PB", -7.2258, -35.8811,
                         "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=600",
-                        List.of("Hemograma completo", "Glicemia", "HbA1c", "Perfil lipídico",
-                                "Cultura de urina", "Antibiograma", "Teste de HIV")),
+                        List.of(ExamType.HEMOGRAMA_COMPLETO, ExamType.GLICEMIA_JEJUM,
+                                ExamType.HEMOGLOBINA_GLICADA, ExamType.COLESTEROL_TOTAL,
+                                ExamType.UROCULTURA, ExamType.URINA_TIPO_I, ExamType.SOROLOGIAS_HIV)),
                 new LabDef(
                         "Laboratório Einstein SP",
                         "Exames de alta complexidade com tecnologia de ponta",
@@ -1545,8 +1552,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Av. Albert Einstein, 627 — Morumbi",
                         "São Paulo", "SP", -23.5978, -46.7195,
                         "https://images.unsplash.com/photo-1576765608866-5b51046452be?w=600",
-                        List.of("Hemograma completo", "Glicemia", "TSH", "Colesterol total",
-                                "Raio-X", "Ressonância magnética", "Tomografia", "PET-CT")),
+                        List.of(ExamType.HEMOGRAMA_COMPLETO, ExamType.GLICEMIA_JEJUM, ExamType.TSH,
+                                ExamType.COLESTEROL_TOTAL, ExamType.RAIO_X,
+                                ExamType.RESSONANCIA_MAGNETICA, ExamType.TOMOGRAFIA, ExamType.PET_CT)),
                 new LabDef(
                         "Centro de Imagem Rio",
                         "Diagnóstico por imagem no Rio de Janeiro",
@@ -1554,8 +1562,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                         "Rua Visconde de Pirajá, 550 — Ipanema",
                         "Rio de Janeiro", "RJ", -22.9840, -43.2053,
                         "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600",
-                        List.of("Ultrassom", "Raio-X", "Ecocardiograma", "Holter", "MAPA",
-                                "Mamografia", "Densitometria óssea")));
+                        List.of(ExamType.ULTRASSONOGRAFIA, ExamType.RAIO_X, ExamType.ECOCARDIOGRAMA,
+                                ExamType.HOLTER_24H, ExamType.MAPA,
+                                ExamType.MAMOGRAFIA, ExamType.DENSITOMETRIA_OSSEA)));
 
         record DaySlot(String day, LocalTime open, LocalTime close, int duration, boolean isOpen) {
         }

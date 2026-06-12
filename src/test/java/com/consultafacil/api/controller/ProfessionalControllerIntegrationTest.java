@@ -21,12 +21,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -110,7 +114,7 @@ class ProfessionalControllerIntegrationTest {
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
                 .user(professionalUser)
-                .specialty("Cardiologia")
+                .specialty(Specialty.CARDIOLOGIA)
                 .licenseNumber("CRM-SP-12345")
                 .status(ProfessionalProfileStatus.ACTIVE)
                 .build();
@@ -140,7 +144,7 @@ class ProfessionalControllerIntegrationTest {
     void testSearchProfessionalsBySpecialty() throws Exception {
         mockMvc.perform(get("/professionals/search").param("specialty", "Cardiologia"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].specialty", equalTo("Cardiologia")));
+                .andExpect(jsonPath("$.content[0].specialty", equalTo("CARDIOLOGIA")));
     }
 
     @Test
@@ -148,7 +152,7 @@ class ProfessionalControllerIntegrationTest {
         mockMvc.perform(get("/professionals/" + professionalProfileId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(professionalProfileId)))
-                .andExpect(jsonPath("$.specialty", equalTo("Cardiologia")));
+                .andExpect(jsonPath("$.specialty", equalTo("CARDIOLOGIA")));
     }
 
     @Test
@@ -162,7 +166,7 @@ class ProfessionalControllerIntegrationTest {
         mockMvc.perform(get("/professionals/me")
                 .header("Authorization", "Bearer " + professionalToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.specialty", equalTo("Cardiologia")))
+                .andExpect(jsonPath("$.specialty", equalTo("CARDIOLOGIA")))
                 .andExpect(jsonPath("$.licenseNumber", equalTo("CRM-SP-12345")));
     }
 
@@ -200,8 +204,8 @@ class ProfessionalControllerIntegrationTest {
     @Test
     void testCreateProfessionalProfile() throws Exception {
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
-                .profession("Médico")
-                .specialty("Neurologia")
+                .profession(ProfessionalType.MEDICO)
+                .specialty(Specialty.NEUROLOGIA)
                 .licenseNumber("CRM-RJ-99999")
                 .build();
 
@@ -210,15 +214,15 @@ class ProfessionalControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.specialty", equalTo("Neurologia")))
+                .andExpect(jsonPath("$.specialty", equalTo("NEUROLOGIA")))
                 .andExpect(jsonPath("$.licenseNumber", equalTo("CRM-RJ-99999")));
     }
 
     @Test
     void testCreateProfileForbiddenForProfessional() throws Exception {
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
-                .profession("Médico")
-                .specialty("Dermatologia")
+                .profession(ProfessionalType.MEDICO)
+                .specialty(Specialty.DERMATOLOGIA)
                 .licenseNumber("CRM-MG-77777")
                 .build();
 
@@ -259,8 +263,8 @@ class ProfessionalControllerIntegrationTest {
         String patientToken = objectMapper.readTree(patientLoginResponse).get("token").asText();
 
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
-                .profession("Médico")
-                .specialty("Pediatria")
+                .profession(ProfessionalType.MEDICO)
+                .specialty(Specialty.PEDIATRIA)
                 .licenseNumber("CRM-SP-55555")
                 .build();
 
@@ -269,7 +273,7 @@ class ProfessionalControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.specialty", equalTo("Pediatria")))
+                .andExpect(jsonPath("$.specialty", equalTo("PEDIATRIA")))
                 .andExpect(jsonPath("$.status", equalTo("PENDING_REVIEW")))
                 .andReturn().getResponse().getContentAsString();
 
@@ -290,8 +294,8 @@ class ProfessionalControllerIntegrationTest {
     @Test
     void testUpdateProfessionalProfile() throws Exception {
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
-                .profession("Médico")
-                .specialty("Ortopedia")
+                .profession(ProfessionalType.MEDICO)
+                .specialty(Specialty.ORTOPEDIA)
                 .licenseNumber("CRM-SP-12345")
                 .build();
 
@@ -300,7 +304,7 @@ class ProfessionalControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.specialty", equalTo("Ortopedia")));
+                .andExpect(jsonPath("$.specialty", equalTo("ORTOPEDIA")));
     }
 
     @Test
@@ -399,7 +403,7 @@ class ProfessionalControllerIntegrationTest {
         String applicantToken = objectMapper.readTree(applicantLogin).get("token").asText();
 
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
-                .profession("Médico").specialty("Reumatologia").licenseNumber("CRM-SP-88888").build();
+                .profession(ProfessionalType.MEDICO).specialty(Specialty.REUMATOLOGIA).licenseNumber("CRM-SP-88888").build();
 
         mockMvc.perform(post("/professionals")
                 .header("Authorization", "Bearer " + applicantToken)
@@ -439,7 +443,7 @@ class ProfessionalControllerIntegrationTest {
         String applicantToken = objectMapper.readTree(applicantLogin).get("token").asText();
 
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
-                .profession("Médico").specialty("Psiquiatria").licenseNumber("CRM-SP-77777").build();
+                .profession(ProfessionalType.MEDICO).specialty(Specialty.PSIQUIATRIA).licenseNumber("CRM-SP-77777").build();
 
         mockMvc.perform(post("/professionals")
                 .header("Authorization", "Bearer " + applicantToken)
@@ -451,7 +455,7 @@ class ProfessionalControllerIntegrationTest {
                 .header("Authorization", "Bearer " + applicantToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", equalTo("PENDING_REVIEW")))
-                .andExpect(jsonPath("$.specialty", equalTo("Psiquiatria")));
+                .andExpect(jsonPath("$.specialty", equalTo("PSIQUIATRIA")));
     }
 
     @Test
@@ -479,7 +483,7 @@ class ProfessionalControllerIntegrationTest {
         String applicantToken = objectMapper.readTree(applicantLogin).get("token").asText();
 
         CreateProfessionalDTO dto = CreateProfessionalDTO.builder()
-                .profession("Médico").specialty("Dermatologia").licenseNumber("CRM-SP-66666").build();
+                .profession(ProfessionalType.MEDICO).specialty(Specialty.DERMATOLOGIA).licenseNumber("CRM-SP-66666").build();
 
         String createResp = mockMvc.perform(post("/professionals")
                 .header("Authorization", "Bearer " + applicantToken)

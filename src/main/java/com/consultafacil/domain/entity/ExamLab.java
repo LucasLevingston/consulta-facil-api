@@ -1,5 +1,6 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.domain.enums.ExamType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -44,12 +45,13 @@ public class ExamLab {
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
-    @ElementCollection
+    @ElementCollection(targetClass = ExamType.class)
     @CollectionTable(name = "exam_lab_accepted_exams", joinColumns = @JoinColumn(name = "exam_lab_id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "exam_name")
     @Builder.Default
     @ToString.Exclude
-    private List<String> acceptedExams = new ArrayList<>();
+    private List<ExamType> acceptedExams = new ArrayList<>();
 
     @Column(nullable = false)
     @Builder.Default

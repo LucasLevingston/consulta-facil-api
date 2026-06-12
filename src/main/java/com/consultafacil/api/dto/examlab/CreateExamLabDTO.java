@@ -1,5 +1,6 @@
 package com.consultafacil.api.dto.examlab;
 
+import com.consultafacil.domain.enums.ExamType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -20,5 +21,5 @@ public class CreateExamLabDTO {
     private Double latitude;
     private Double longitude;
     private String imageUrl;
-    private List<String> acceptedExams;
+    private List<ExamType> acceptedExams;
 }

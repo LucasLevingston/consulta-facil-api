@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.consultafacil.domain.enums.ExamType;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
+import com.consultafacil.domain.enums.ExamType;
 
 @ExtendWith(MockitoExtension.class)
 class GetMyExamsServiceTest {
@@ -61,7 +63,7 @@ class GetMyExamsServiceTest {
                 .appointment(appointment)
                 .professional(professionalProfile)
                 .patient(patientProfile)
-                .examName("Hemograma")
+                .examName(ExamType.HEMOGRAMA_COMPLETO)
                 .status(ExamRequestStatus.PENDING)
                 .build();
     }
@@ -74,7 +76,7 @@ class GetMyExamsServiceTest {
         var result = service.execute("u-patient", null);
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getExamName()).isEqualTo("Hemograma");
+        assertThat(result.get(0).getExamName()).isEqualTo(ExamType.HEMOGRAMA_COMPLETO);
         verify(examRequestRepository).findByPatientUserId("u-patient");
         verify(examRequestRepository, never()).findByProfessionalUserId(any());
     }

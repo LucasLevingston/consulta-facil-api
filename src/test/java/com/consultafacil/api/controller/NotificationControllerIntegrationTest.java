@@ -25,12 +25,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.time.LocalDate;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -90,7 +93,7 @@ class NotificationControllerIntegrationTest {
         userRepository.saveAndFlush(profUser);
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
-                .user(profUser).specialty("Cardiologia").licenseNumber("CRM-SP-99999").build();
+                .user(profUser).specialty(Specialty.CARDIOLOGIA).licenseNumber("CRM-SP-99999").build();
         professionalProfileId = professionalProfileRepository.saveAndFlush(profile).getId();
 
         professionalToken = loginToken("notif.doctor@test.com", "password1");

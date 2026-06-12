@@ -2,6 +2,7 @@ package com.consultafacil.adapter.out.persistence;
 
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
+import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.consultafacil.domain.repository.ProfessionalProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,9 +50,9 @@ public class ProfessionalProfileRepositoryAdapter implements ProfessionalProfile
     }
 
     @Override
-    public Page<ProfessionalProfile> findBySpecialtyContainingIgnoreCaseAndStatus(
-            String specialty, ProfessionalProfileStatus status, Pageable pageable) {
-        return professionalProfileRepository.findBySpecialtyContainingIgnoreCaseAndStatus(specialty, status, pageable);
+    public Page<ProfessionalProfile> findBySpecialtyAndStatus(
+            Specialty specialty, ProfessionalProfileStatus status, Pageable pageable) {
+        return professionalProfileRepository.findBySpecialtyAndStatus(specialty, status, pageable);
     }
 
     @Override

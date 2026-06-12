@@ -1,6 +1,7 @@
 package com.consultafacil.api.dto.exam;
 
 import com.consultafacil.domain.enums.ExamRequestStatus;
+import com.consultafacil.domain.enums.ExamType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class ExamRequestResponseDTO {
     private String professionalName;
     private String patientId;
     private String patientName;
-    private String examName;
+    private ExamType examName;
     private String instructions;
     private ExamRequestStatus status;
     private String fileUrl;

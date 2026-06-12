@@ -17,24 +17,29 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import com.consultafacil.domain.enums.Specialty;
 
 import com.consultafacil.application.port.in.command.ScheduleAppointmentCommand;
 import com.consultafacil.domain.entity.ProfessionalService;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import com.consultafacil.domain.enums.Specialty;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -68,7 +73,7 @@ class AppointmentServiceTest {
         professional = new ProfessionalProfile();
         professional.setId("prof-1");
         professional.setUser(profUser);
-        professional.setSpecialty("Cardiologia");
+        professional.setSpecialty(Specialty.CARDIOLOGIA);
 
         appointment = new Appointment();
         appointment.setId("appt-1");

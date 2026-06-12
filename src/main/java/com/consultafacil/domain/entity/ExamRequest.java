@@ -1,6 +1,7 @@
 package com.consultafacil.domain.entity;
 
 import com.consultafacil.domain.enums.ExamRequestStatus;
+import com.consultafacil.domain.enums.ExamType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,8 +42,9 @@ public class ExamRequest {
     @ToString.Exclude
     private PatientProfile patient;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String examName;
+    private ExamType examName;
 
     @Column(columnDefinition = "TEXT")
     private String instructions;

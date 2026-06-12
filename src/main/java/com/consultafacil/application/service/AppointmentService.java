@@ -319,7 +319,7 @@ public class AppointmentService implements
                 .professionalName(appointment.getProfessional() != null && appointment.getProfessional().getUser() != null
                         ? appointment.getProfessional().getUser().getName() : null)
                 .professionalId(appointment.getProfessional() != null ? appointment.getProfessional().getId() : null)
-                .specialty(appointment.getProfessional() != null ? appointment.getProfessional().getSpecialty() : null)
+                .specialty(appointment.getProfessional() != null && appointment.getProfessional().getSpecialty() != null ? appointment.getProfessional().getSpecialty().name() : null)
                 .scheduledAt(appointment.getScheduledAt())
                 .previousScheduledAt(appointment.getPreviousScheduledAt())
                 .checkedInAt(appointment.getCheckedInAt())

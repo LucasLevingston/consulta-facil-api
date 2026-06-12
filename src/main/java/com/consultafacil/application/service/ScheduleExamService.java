@@ -70,7 +70,7 @@ public class ScheduleExamService implements ScheduleExamUseCase {
         return ExamSchedulingResponseDTO.builder()
                 .id(s.getId())
                 .examRequestId(s.getExamRequest().getId())
-                .examName(s.getExamRequest().getExamName())
+                .examName(s.getExamRequest().getExamName() != null ? s.getExamRequest().getExamName().name() : null)
                 .examLabId(s.getExamLab().getId())
                 .examLabName(s.getExamLab().getName())
                 .examLabAddress(s.getExamLab().getAddress())

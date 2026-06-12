@@ -2,6 +2,7 @@ package com.consultafacil.domain.port.out;
 
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
+import com.consultafacil.domain.enums.Specialty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,8 +25,8 @@ public interface ProfessionalProfileRepositoryPort {
 
     Page<ProfessionalProfile> findByStatus(ProfessionalProfileStatus status, Pageable pageable);
 
-    Page<ProfessionalProfile> findBySpecialtyContainingIgnoreCaseAndStatus(
-            String specialty, ProfessionalProfileStatus status, Pageable pageable);
+    Page<ProfessionalProfile> findBySpecialtyAndStatus(
+            Specialty specialty, ProfessionalProfileStatus status, Pageable pageable);
 
     Page<ProfessionalProfile> findActiveWithFilters(
             String profession, String specialty, String name, Pageable pageable);

@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -35,10 +36,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -107,7 +110,7 @@ class QueueAndCheckInIntegrationTest {
         userRepository.saveAndFlush(profUser);
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
-                .user(profUser).specialty("Neurologia").licenseNumber("CRM-RJ-99999").build();
+                .user(profUser).specialty(Specialty.NEUROLOGIA).licenseNumber("CRM-RJ-99999").build();
         ProfessionalProfile saved = professionalProfileRepository.saveAndFlush(profile);
         professionalProfileId = saved.getId();
 

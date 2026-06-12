@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class CreateExamLabService implements CreateExamLabUseCase {
                 .latitude(dto.getLatitude())
                 .longitude(dto.getLongitude())
                 .imageUrl(dto.getImageUrl())
-                .acceptedExams(dto.getAcceptedExams() != null ? dto.getAcceptedExams() : new ArrayList<>())
+                .acceptedExams(dto.getAcceptedExams() != null ? new ArrayList<>(dto.getAcceptedExams()) : new ArrayList<>())
                 .build();
 
         return toDTO(examLabRepository.save(lab));
@@ -50,7 +51,9 @@ public class CreateExamLabService implements CreateExamLabUseCase {
                 .latitude(lab.getLatitude())
                 .longitude(lab.getLongitude())
                 .imageUrl(lab.getImageUrl())
-                .acceptedExams(lab.getAcceptedExams())
+                .acceptedExams(lab.getAcceptedExams() != null
+                        ? lab.getAcceptedExams().stream().map(Enum::name).toList()
+                        : List.of())
                 .status(lab.getStatus())
                 .hours(lab.getHours() == null ? java.util.List.of() : lab.getHours().stream()
                         .map(h -> ExamLabResponseDTO.HoursEntry.builder()

@@ -27,13 +27,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -96,7 +99,7 @@ class MedicalHistoryAndClinicalNoteIntegrationTest {
         userRepository.saveAndFlush(profUser);
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
-                .user(profUser).specialty("Clínica Geral").licenseNumber("CRM-SP-88888").build();
+                .user(profUser).specialty(Specialty.CLINICA_GERAL).licenseNumber("CRM-SP-88888").build();
         professionalProfileId = professionalProfileRepository.saveAndFlush(profile).getId();
 
         professionalToken = loginToken("medicalHistory.doctor@test.com", "password1");

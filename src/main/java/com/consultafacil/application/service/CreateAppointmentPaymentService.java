@@ -69,7 +69,7 @@ public class CreateAppointmentPaymentService implements CreateAppointmentPayment
 
         try {
             PreferenceItemRequest item = PreferenceItemRequest.builder()
-                    .title("Consulta — " + appointment.getProfessional().getSpecialty())
+                    .title("Consulta — " + (appointment.getProfessional().getSpecialty() != null ? appointment.getProfessional().getSpecialty().name() : ""))
                     .description("Agendamento em " + appointment.getScheduledAt())
                     .quantity(1)
                     .unitPrice(paymentAmount)

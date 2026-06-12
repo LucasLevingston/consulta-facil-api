@@ -15,8 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import com.consultafacil.domain.enums.ExamType;
 
 import java.util.Optional;
+import com.consultafacil.domain.enums.ExamType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import com.consultafacil.domain.enums.ExamType;
 
 @ExtendWith(MockitoExtension.class)
 class UploadExamServiceTest {
@@ -63,7 +66,7 @@ class UploadExamServiceTest {
                 .appointment(appointment)
                 .professional(professional)
                 .patient(patientProfile)
-                .examName("Hemograma")
+                .examName(ExamType.HEMOGRAMA_COMPLETO)
                 .status(ExamRequestStatus.PENDING)
                 .build();
 

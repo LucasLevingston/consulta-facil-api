@@ -165,7 +165,7 @@ public class WhatsAppAgentService implements WhatsAppWebhookUseCase {
                     page.getContent().forEach(p -> sb
                             .append("- ID: ").append(p.getId())
                             .append(", Nome: ").append(p.getUser().getName())
-                            .append(", Especialidade: ").append(p.getSpecialty()).append("\n"));
+                            .append(", Especialidade: ").append(p.getSpecialty() != null ? p.getSpecialty().name() : "").append("\n"));
                     yield sb.toString();
                 }
                 case "list_appointments" -> {

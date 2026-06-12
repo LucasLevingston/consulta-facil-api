@@ -15,13 +15,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Optional;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
+import com.consultafacil.domain.enums.Specialty;
 
 @ExtendWith(MockitoExtension.class)
 class CreateAppointmentPaymentServiceTest {
@@ -47,7 +50,7 @@ class CreateAppointmentPaymentServiceTest {
         professional = new ProfessionalProfile();
         professional.setId("prof-1");
         professional.setUser(dUser);
-        professional.setSpecialty("Cardiologia");
+        professional.setSpecialty(Specialty.CARDIOLOGIA);
         professional.setConsultationPrice(new BigDecimal("250.00"));
         professional.setAcceptedPaymentMethods(new HashSet<>());
 

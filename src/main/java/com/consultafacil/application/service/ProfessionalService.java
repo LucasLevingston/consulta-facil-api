@@ -9,6 +9,8 @@ import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.AppointmentStatus;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
+import com.consultafacil.domain.enums.ProfessionalType;
+import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
@@ -72,15 +74,20 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
     @Override
     @Transactional(readOnly = true)
     public Page<ProfessionalResponseDTO> searchBySpecialty(String specialty, Pageable pageable) {
-        return professionalProfileRepository
-                .findBySpecialtyContainingIgnoreCaseAndStatus(specialty, ProfessionalProfileStatus.ACTIVE, pageable)
-                .map(this::toResponseDTO);
+        try {
+            Specialty specialtyEnum = Specialty.valueOf(specialty.toUpperCase());
+            return professionalProfileRepository
+                    .findBySpecialtyAndStatus(specialtyEnum, ProfessionalProfileStatus.ACTIVE, pageable)
+                    .map(this::toResponseDTO);
+        } catch (IllegalArgumentException e) {
+            return Page.empty(pageable);
+        }
     }
 
     @Transactional(readOnly = true)
     public Page<ProfessionalResponseDTO> getAllProfessionals(String profession, String specialty, String name, Pageable pageable) {
-        String profParam = (profession != null && !profession.isBlank()) ? profession : "";
-        String specParam = (specialty != null && !specialty.isBlank()) ? specialty : "";
+        String profParam = resolveEnumName(ProfessionalType.class, profession);
+        String specParam = resolveEnumName(Specialty.class, specialty);
         String nameParam = (name != null && !name.isBlank()) ? name : "";
         return professionalProfileRepository.findActiveWithFilters(profParam, specParam, nameParam, pageable)
                 .map(this::toListSummaryDTO);
@@ -88,10 +95,19 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
 
     @Transactional(readOnly = true)
     public List<ProfessionalResponseDTO> getProfessionalsNearby(double lat, double lng, double radiusKm, String specialty, String profession) {
-        String specParam = (specialty != null && !specialty.isBlank()) ? specialty : "";
-        String profParam = (profession != null && !profession.isBlank()) ? profession : "";
+        String specParam = resolveEnumName(Specialty.class, specialty);
+        String profParam = resolveEnumName(ProfessionalType.class, profession);
         return professionalProfileRepository.findNearby(lat, lng, radiusKm, specParam, profParam)
                 .stream().map(this::toResponseDTO).toList();
+    }
+
+    private <T extends Enum<T>> String resolveEnumName(Class<T> enumClass, String value) {
+        if (value == null || value.isBlank()) return "";
+        try {
+            return Enum.valueOf(enumClass, value.toUpperCase()).name();
+        } catch (IllegalArgumentException e) {
+            return value;
+        }
     }
 
     @Override
@@ -189,8 +205,8 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .userId(profile.getUser().getId())
                 .name(profile.getUser().getName())
                 .email(profile.getUser().getEmail())
-                .profession(profile.getProfession())
-                .specialty(profile.getSpecialty())
+                .profession(profile.getProfession() != null ? profile.getProfession().name() : null)
+                .specialty(profile.getSpecialty() != null ? profile.getSpecialty().name() : null)
                 .licenseNumber(profile.getLicenseNumber())
                 .phone(profile.getUser().getPhone())
                 .imageUrl(profile.getUser().getImageUrl())
@@ -223,8 +239,8 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .userId(profile.getUser().getId())
                 .name(profile.getUser().getName())
                 .email(profile.getUser().getEmail())
-                .profession(profile.getProfession())
-                .specialty(profile.getSpecialty())
+                .profession(profile.getProfession() != null ? profile.getProfession().name() : null)
+                .specialty(profile.getSpecialty() != null ? profile.getSpecialty().name() : null)
                 .licenseNumber(profile.getLicenseNumber())
                 .phone(profile.getUser().getPhone())
                 .imageUrl(profile.getUser().getImageUrl())

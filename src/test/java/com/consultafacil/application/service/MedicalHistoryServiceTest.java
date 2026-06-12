@@ -15,12 +15,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.util.Optional;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -39,7 +42,7 @@ class MedicalHistoryServiceTest {
         User pUser = User.builder().id("u-1").email("p@e.com").name("João").password("x").role(UserRole.PATIENT).build();
         PatientProfile patient = new PatientProfile(); patient.setId("pp-1"); patient.setUser(pUser);
         User dUser = User.builder().id("u-2").email("d@e.com").name("Dra.").password("x").role(UserRole.PROFESSIONAL).build();
-        ProfessionalProfile prof = new ProfessionalProfile(); prof.setId("pr-1"); prof.setUser(dUser); prof.setSpecialty("C");
+        ProfessionalProfile prof = new ProfessionalProfile(); prof.setId("pr-1"); prof.setUser(dUser); prof.setSpecialty(Specialty.CARDIOLOGIA);
 
         appointment = new Appointment();
         appointment.setId("appt-1"); appointment.setPatient(patient); appointment.setProfessional(prof);

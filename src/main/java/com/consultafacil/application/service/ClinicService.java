@@ -163,7 +163,7 @@ public class ClinicService implements ClinicUseCase {
                 .map(m -> ClinicMemberDTO.builder()
                         .professionalProfileId(m.getProfessionalProfile().getId())
                         .professionalName(m.getProfessionalProfile().getUser().getName())
-                        .specialty(m.getProfessionalProfile().getSpecialty())
+                        .specialty(m.getProfessionalProfile().getSpecialty() != null ? m.getProfessionalProfile().getSpecialty().name() : null)
                         .imageUrl(m.getProfessionalProfile().getUser().getImageUrl())
                         .role(m.getRole())
                         .build())
