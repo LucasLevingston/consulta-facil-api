@@ -243,6 +243,20 @@ public class PolicyService {
         return is(auth, UserRole.ADMIN);
     }
 
+    // ── Exam Labs ─────────────────────────────────────────────────────────
+
+    public boolean canManageExamLab(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
+    }
+
+    public boolean canViewExamLabs(Authentication auth) {
+        return auth != null && auth.isAuthenticated();
+    }
+
+    public boolean canScheduleExamAtLab(Authentication auth) {
+        return is(auth, UserRole.PATIENT);
+    }
+
     // ── Walk-in ───────────────────────────────────────────────────────────
 
     public boolean canRegisterWalkIn(Authentication auth) {

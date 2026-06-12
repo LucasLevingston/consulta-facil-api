@@ -2,6 +2,10 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.application.port.in.ProfessionalScheduleUseCase;
 import com.consultafacil.application.service.AppointmentService;
+import com.consultafacil.domain.entity.ExamLab;
+import com.consultafacil.domain.entity.ExamLabHours;
+import com.consultafacil.domain.repository.ExamLabHoursRepository;
+import com.consultafacil.domain.repository.ExamLabRepository;
 import com.consultafacil.application.service.ClinicService;
 import com.consultafacil.application.service.CreateProcedureRequestService;
 import com.consultafacil.application.service.CreateProfessionalServiceService;
@@ -124,6 +128,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final SubscriptionPaymentRepository subscriptionPaymentRepository;
     private final CouponRepository couponRepository;
     private final CouponUseRepository couponUseRepository;
+    private final ExamLabRepository examLabRepository;
+    private final ExamLabHoursRepository examLabHoursRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
@@ -263,6 +269,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             seedSellers(adminUserId, professionalUserId, professionalProfileIds);
             seedCoupons(adminUserId);
             seedSubscriptionPayments();
+            seedExamLabs();
 
         } catch (Exception e) {
             log.error("Erro durante o seed:", e);
@@ -1493,6 +1500,111 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
         }
         log.info("[Seed] Notifications criadas: {}", created);
+    }
+
+    // ─── Exam Labs ───────────────────────────────────────────────────────────────
+
+    private void seedExamLabs() {
+        record LabDef(String name, String description, String phone, String address,
+                String city, String state, double lat, double lng, String imageUrl,
+                List<String> acceptedExams) {
+        }
+
+        List<LabDef> defs = List.of(
+                new LabDef(
+                        "Laboratório Saúde Total",
+                        "Exames laboratoriais completos com resultados online em 24h",
+                        "(83) 3224-1100",
+                        "Av. Epitácio Pessoa, 2490 — Bessa",
+                        "João Pessoa", "PB", -7.1105, -34.8239,
+                        "https://images.unsplash.com/photo-1579165466741-7f35e4755182?w=600",
+                        List.of("Hemograma completo", "Glicemia em jejum", "TSH", "Colesterol total",
+                                "Ureia e creatinina", "TGO/TGP", "PSA", "Vitamina D")),
+                new LabDef(
+                        "Clínica Diagnóstica Paraibana",
+                        "Imagem e análises clínicas de alta precisão",
+                        "(83) 3311-4422",
+                        "Rua Cardoso Vieira, 180 — Miramar",
+                        "João Pessoa", "PB", -7.1158, -34.8611,
+                        "https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=600",
+                        List.of("Raio-X", "Ultrassom abdominal", "Ultrassom pélvico", "Ecocardiograma",
+                                "Holter 24h", "MAPA", "Tomografia computadorizada")),
+                new LabDef(
+                        "LabClin Campina Grande",
+                        "Referência em análises clínicas no Agreste paraibano",
+                        "(83) 3322-5500",
+                        "Av. Assis Chateaubriand, 1200",
+                        "Campina Grande", "PB", -7.2258, -35.8811,
+                        "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=600",
+                        List.of("Hemograma completo", "Glicemia", "HbA1c", "Perfil lipídico",
+                                "Cultura de urina", "Antibiograma", "Teste de HIV")),
+                new LabDef(
+                        "Laboratório Einstein SP",
+                        "Exames de alta complexidade com tecnologia de ponta",
+                        "(11) 3747-1000",
+                        "Av. Albert Einstein, 627 — Morumbi",
+                        "São Paulo", "SP", -23.5978, -46.7195,
+                        "https://images.unsplash.com/photo-1576765608866-5b51046452be?w=600",
+                        List.of("Hemograma completo", "Glicemia", "TSH", "Colesterol total",
+                                "Raio-X", "Ressonância magnética", "Tomografia", "PET-CT")),
+                new LabDef(
+                        "Centro de Imagem Rio",
+                        "Diagnóstico por imagem no Rio de Janeiro",
+                        "(21) 2253-7700",
+                        "Rua Visconde de Pirajá, 550 — Ipanema",
+                        "Rio de Janeiro", "RJ", -22.9840, -43.2053,
+                        "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600",
+                        List.of("Ultrassom", "Raio-X", "Ecocardiograma", "Holter", "MAPA",
+                                "Mamografia", "Densitometria óssea")));
+
+        record DaySlot(String day, LocalTime open, LocalTime close, int duration, boolean isOpen) {
+        }
+
+        List<DaySlot> weekdays = List.of(
+                new DaySlot("MONDAY", LocalTime.of(7, 0), LocalTime.of(18, 0), 30, true),
+                new DaySlot("TUESDAY", LocalTime.of(7, 0), LocalTime.of(18, 0), 30, true),
+                new DaySlot("WEDNESDAY", LocalTime.of(7, 0), LocalTime.of(18, 0), 30, true),
+                new DaySlot("THURSDAY", LocalTime.of(7, 0), LocalTime.of(18, 0), 30, true),
+                new DaySlot("FRIDAY", LocalTime.of(7, 0), LocalTime.of(17, 0), 30, true),
+                new DaySlot("SATURDAY", LocalTime.of(7, 0), LocalTime.of(12, 0), 30, true),
+                new DaySlot("SUNDAY", LocalTime.of(7, 0), LocalTime.of(12, 0), 30, false));
+
+        int created = 0;
+        for (LabDef def : defs) {
+            try {
+                if (!examLabRepository.findByStatus("ACTIVE").stream()
+                        .anyMatch(l -> l.getName().equals(def.name()))) {
+                    ExamLab lab = examLabRepository.save(ExamLab.builder()
+                            .name(def.name())
+                            .description(def.description())
+                            .phone(def.phone())
+                            .address(def.address())
+                            .city(def.city())
+                            .state(def.state())
+                            .latitude(def.lat())
+                            .longitude(def.lng())
+                            .imageUrl(def.imageUrl())
+                            .acceptedExams(new ArrayList<>(def.acceptedExams()))
+                            .status("ACTIVE")
+                            .build());
+
+                    for (DaySlot slot : weekdays) {
+                        examLabHoursRepository.save(ExamLabHours.builder()
+                                .examLab(lab)
+                                .dayOfWeek(slot.day())
+                                .openTime(slot.open())
+                                .closeTime(slot.close())
+                                .slotDurationMinutes(slot.duration())
+                                .isOpen(slot.isOpen())
+                                .build());
+                    }
+                    created++;
+                }
+            } catch (Exception e) {
+                log.warn("Erro ao criar exam lab {}: {}", def.name(), e.getMessage());
+            }
+        }
+        log.info("[Seed] ExamLabs criados: {}", created);
     }
 
     private void seedClinicWorkingHours() {
