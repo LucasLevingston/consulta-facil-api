@@ -63,6 +63,10 @@ public class ExamRequest {
     @Column(columnDefinition = "TEXT")
     private String professionalNotes;
 
+    @OneToOne(mappedBy = "examRequest", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private ExamScheduling scheduling;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -28,4 +28,10 @@ public class ExamRequestResponseDTO {
     private String professionalNotes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    // scheduling info — populated when status = SCHEDULED
+    private String schedulingId;
+    private LocalDateTime scheduledAt;
+    private String labName;
+    private String labAddress;
+    private String labPhone;
 }
