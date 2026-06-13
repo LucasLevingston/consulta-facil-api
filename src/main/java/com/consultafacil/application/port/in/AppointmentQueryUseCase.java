@@ -2,6 +2,7 @@ package com.consultafacil.application.port.in;
 
 import com.consultafacil.api.dto.appointment.AppointmentResponseDTO;
 import com.consultafacil.api.dto.appointment.PatientSummaryDTO;
+import com.consultafacil.api.dto.professional.ProfessionalRatingDTO;
 import com.consultafacil.domain.enums.AppointmentSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,6 @@ public interface AppointmentQueryUseCase {
                                                      String sort, int page, int size);
 
     Page<AppointmentResponseDTO> getAllAppointments(Pageable pageable);
+
+    ProfessionalRatingDTO getProfessionalRatings(String professionalId);
 }

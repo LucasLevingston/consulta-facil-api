@@ -104,4 +104,14 @@ public class AppointmentRepositoryAdapter implements AppointmentRepositoryPort {
     public void delete(Appointment appointment) {
         appointmentRepository.delete(appointment);
     }
+
+    @Override
+    public List<Object[]> findRatingDistributionByProfessionalId(String professionalId) {
+        return appointmentRepository.findRatingDistributionByProfessionalId(professionalId);
+    }
+
+    @Override
+    public Double findAverageRatingByProfessionalId(String professionalId) {
+        return appointmentRepository.findAverageRatingByProfessionalId(professionalId);
+    }
 }

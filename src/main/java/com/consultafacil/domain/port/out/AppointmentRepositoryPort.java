@@ -49,4 +49,8 @@ public interface AppointmentRepositoryPort {
             String professionalId, String search, Pageable pageable);
 
     void delete(Appointment appointment);
+
+    List<Object[]> findRatingDistributionByProfessionalId(String professionalId);
+
+    Double findAverageRatingByProfessionalId(String professionalId);
 }

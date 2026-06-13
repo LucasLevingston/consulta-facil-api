@@ -1,8 +1,10 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
+import com.consultafacil.api.dto.professional.ProfessionalRatingDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdatePaymentSettingsDTO;
+import com.consultafacil.application.port.in.AppointmentQueryUseCase;
 import com.consultafacil.api.dto.schedule.CreateProfessionalScheduleDTO;
 import com.consultafacil.api.dto.schedule.ProfessionalScheduleResponseDTO;
 import com.consultafacil.application.port.in.ProfessionalProfileUseCase;
@@ -37,6 +39,7 @@ public class ProfessionalController {
     private final ProfessionalScheduleUseCase professionalScheduleUseCase;
     private final SetConsultationPriceUseCase setConsultationPriceUseCase;
     private final UpdatePaymentSettingsUseCase updatePaymentSettingsUseCase;
+    private final AppointmentQueryUseCase appointmentQueryUseCase;
 
     @GetMapping
     @Operation(summary = "List professionals", description = "Returns active professionals with optional filters")
@@ -186,5 +189,12 @@ public class ProfessionalController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody List<CreateProfessionalScheduleDTO> dtos) {
         return ResponseEntity.ok(professionalScheduleUseCase.saveMySchedule(userDetails.getUserId(), dtos));
+    }
+
+    @GetMapping("/{professionalId}/ratings")
+    @Operation(summary = "Get rating summary for a professional")
+    public ResponseEntity<ProfessionalRatingDTO> getProfessionalRatings(
+            @PathVariable String professionalId) {
+        return ResponseEntity.ok(appointmentQueryUseCase.getProfessionalRatings(professionalId));
     }
 }

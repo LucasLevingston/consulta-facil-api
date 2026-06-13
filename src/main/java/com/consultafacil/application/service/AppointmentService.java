@@ -174,6 +174,25 @@ public class AppointmentService implements
 
     @Override
     @Transactional(readOnly = true)
+    public com.consultafacil.api.dto.professional.ProfessionalRatingDTO getProfessionalRatings(String professionalId) {
+        Double average = appointmentRepository.findAverageRatingByProfessionalId(professionalId);
+        java.util.List<Object[]> rows = appointmentRepository.findRatingDistributionByProfessionalId(professionalId);
+
+        long total = rows.stream().mapToLong(r -> ((Number) r[1]).longValue()).sum();
+        java.util.Map<Integer, Long> distribution = new java.util.LinkedHashMap<>();
+        for (int i = 5; i >= 1; i--) {
+            distribution.put(i, 0L);
+        }
+        for (Object[] row : rows) {
+            distribution.put(((Number) row[0]).intValue(), ((Number) row[1]).longValue());
+        }
+
+        Double rounded = average != null ? Math.round(average * 10.0) / 10.0 : null;
+        return new com.consultafacil.api.dto.professional.ProfessionalRatingDTO(rounded, total, distribution);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<AppointmentResponseDTO> getProfessionalAppointmentsBySource(String professionalId,
                                                                              AppointmentSource source,
                                                                              Pageable pageable) {
