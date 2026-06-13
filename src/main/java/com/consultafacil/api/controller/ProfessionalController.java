@@ -3,6 +3,7 @@ package com.consultafacil.api.controller;
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalRatingDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
+import com.consultafacil.api.dto.professional.UpdateBioDTO;
 import com.consultafacil.api.dto.professional.UpdatePaymentSettingsDTO;
 import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
 import com.consultafacil.application.port.in.AppointmentQueryUseCase;
@@ -190,6 +191,16 @@ public class ProfessionalController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody List<CreateProfessionalScheduleDTO> dtos) {
         return ResponseEntity.ok(professionalScheduleUseCase.saveMySchedule(userDetails.getUserId(), dtos));
+    }
+
+    @PatchMapping("/me/bio")
+    @PreAuthorize("@policy.canManageProfessionalSchedule(authentication)")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Update my bio")
+    public ResponseEntity<ProfessionalResponseDTO> updateBio(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody UpdateBioDTO dto) {
+        return ResponseEntity.ok(professionalProfileUseCase.updateBio(userDetails.getUserId(), dto));
     }
 
     @PatchMapping("/me/social-links")

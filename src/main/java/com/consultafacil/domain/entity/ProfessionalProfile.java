@@ -88,6 +88,9 @@ public class ProfessionalProfile {
     @ToString.Exclude
     private List<ClinicMember> clinicMemberships = new ArrayList<>();
 
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
     @Column(name = "instagram_url")
     private String instagramUrl;
 

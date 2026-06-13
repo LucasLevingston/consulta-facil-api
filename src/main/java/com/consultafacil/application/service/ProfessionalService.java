@@ -2,6 +2,7 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
+import com.consultafacil.api.dto.professional.UpdateBioDTO;
 import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
 import com.consultafacil.core.exception.DuplicateResourceException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
@@ -192,6 +193,15 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
 
     @Override
     @Transactional
+    public ProfessionalResponseDTO updateBio(String userId, UpdateBioDTO dto) {
+        ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", userId));
+        profile.setBio(dto.bio());
+        return toResponseDTO(professionalProfileRepository.save(profile));
+    }
+
+    @Override
+    @Transactional
     public ProfessionalResponseDTO updateSocialLinks(String userId, UpdateSocialLinksDTO dto) {
         ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professional", userId));
@@ -238,6 +248,7 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .instagramUrl(profile.getInstagramUrl())
                 .linkedinUrl(profile.getLinkedinUrl())
                 .websiteUrl(profile.getWebsiteUrl())
+                .bio(profile.getBio())
                 .build();
     }
 
@@ -275,6 +286,7 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .instagramUrl(profile.getInstagramUrl())
                 .linkedinUrl(profile.getLinkedinUrl())
                 .websiteUrl(profile.getWebsiteUrl())
+                .bio(profile.getBio())
                 .build();
     }
 

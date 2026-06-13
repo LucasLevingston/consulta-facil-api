@@ -42,4 +42,5 @@ public class ProfessionalResponseDTO {
     private String instagramUrl;
     private String linkedinUrl;
     private String websiteUrl;
+    private String bio;
 }
