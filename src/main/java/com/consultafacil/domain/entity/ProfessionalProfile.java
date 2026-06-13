@@ -88,6 +88,15 @@ public class ProfessionalProfile {
     @ToString.Exclude
     private List<ClinicMember> clinicMemberships = new ArrayList<>();
 
+    @Column(name = "instagram_url")
+    private String instagramUrl;
+
+    @Column(name = "linkedin_url")
+    private String linkedinUrl;
+
+    @Column(name = "website_url")
+    private String websiteUrl;
+
 
     // --- Domain behaviour methods ---
 

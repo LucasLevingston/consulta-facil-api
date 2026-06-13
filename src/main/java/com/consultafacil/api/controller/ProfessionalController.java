@@ -4,6 +4,7 @@ import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalRatingDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdatePaymentSettingsDTO;
+import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
 import com.consultafacil.application.port.in.AppointmentQueryUseCase;
 import com.consultafacil.api.dto.schedule.CreateProfessionalScheduleDTO;
 import com.consultafacil.api.dto.schedule.ProfessionalScheduleResponseDTO;
@@ -189,6 +190,16 @@ public class ProfessionalController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody List<CreateProfessionalScheduleDTO> dtos) {
         return ResponseEntity.ok(professionalScheduleUseCase.saveMySchedule(userDetails.getUserId(), dtos));
+    }
+
+    @PatchMapping("/me/social-links")
+    @PreAuthorize("@policy.canManageProfessionalSchedule(authentication)")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Update my social media links")
+    public ResponseEntity<ProfessionalResponseDTO> updateSocialLinks(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody UpdateSocialLinksDTO dto) {
+        return ResponseEntity.ok(professionalProfileUseCase.updateSocialLinks(userDetails.getUserId(), dto));
     }
 
     @GetMapping("/{professionalId}/ratings")

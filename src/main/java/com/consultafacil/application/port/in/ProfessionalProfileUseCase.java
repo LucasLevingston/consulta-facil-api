@@ -2,6 +2,7 @@ package com.consultafacil.application.port.in;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
+import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -33,4 +34,6 @@ public interface ProfessionalProfileUseCase {
     ProfessionalResponseDTO updateProfessional(String professionalId, CreateProfessionalDTO dto);
 
     void deleteProfessional(String professionalId);
+
+    ProfessionalResponseDTO updateSocialLinks(String userId, UpdateSocialLinksDTO dto);
 }

@@ -39,4 +39,7 @@ public class ProfessionalResponseDTO {
     private BigDecimal consultationPrice;
     private Set<PaymentMethod> acceptedPaymentMethods;
     private PaymentTiming paymentTiming;
+    private String instagramUrl;
+    private String linkedinUrl;
+    private String websiteUrl;
 }

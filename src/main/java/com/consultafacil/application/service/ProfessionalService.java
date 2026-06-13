@@ -2,6 +2,7 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
+import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
 import com.consultafacil.core.exception.DuplicateResourceException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Clinic;
@@ -189,6 +190,17 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
         professionalProfileRepository.delete(profile);
     }
 
+    @Override
+    @Transactional
+    public ProfessionalResponseDTO updateSocialLinks(String userId, UpdateSocialLinksDTO dto) {
+        ProfessionalProfile profile = professionalProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Professional", userId));
+        profile.setInstagramUrl(dto.instagramUrl());
+        profile.setLinkedinUrl(dto.linkedinUrl());
+        profile.setWebsiteUrl(dto.websiteUrl());
+        return toResponseDTO(professionalProfileRepository.save(profile));
+    }
+
     // --- bridges ---
     @Override public ProfessionalResponseDTO createProfile(String userId, CreateProfessionalDTO dto) { return createProfessionalProfile(userId, dto); }
     @Override public ProfessionalResponseDTO getById(String id) { return getProfessionalById(id); }
@@ -223,6 +235,9 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .consultationPrice(profile.getConsultationPrice())
                 .acceptedPaymentMethods(profile.getAcceptedPaymentMethods())
                 .paymentTiming(profile.getPaymentTiming())
+                .instagramUrl(profile.getInstagramUrl())
+                .linkedinUrl(profile.getLinkedinUrl())
+                .websiteUrl(profile.getWebsiteUrl())
                 .build();
     }
 
@@ -257,6 +272,9 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .consultationPrice(profile.getConsultationPrice())
                 .acceptedPaymentMethods(profile.getAcceptedPaymentMethods())
                 .paymentTiming(profile.getPaymentTiming())
+                .instagramUrl(profile.getInstagramUrl())
+                .linkedinUrl(profile.getLinkedinUrl())
+                .websiteUrl(profile.getWebsiteUrl())
                 .build();
     }
 
