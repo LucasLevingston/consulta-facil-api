@@ -2,10 +2,14 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.application.port.in.ProfessionalScheduleUseCase;
 import com.consultafacil.application.service.AppointmentService;
+import com.consultafacil.domain.entity.BillingPayment;
 import com.consultafacil.domain.entity.ExamLab;
 import com.consultafacil.domain.entity.ExamLabHours;
+import com.consultafacil.domain.entity.Invoice;
+import com.consultafacil.domain.repository.BillingPaymentRepository;
 import com.consultafacil.domain.repository.ExamLabHoursRepository;
 import com.consultafacil.domain.repository.ExamLabRepository;
+import com.consultafacil.domain.repository.InvoiceRepository;
 import com.consultafacil.application.service.ClinicService;
 import com.consultafacil.application.service.CreateProcedureRequestService;
 import com.consultafacil.application.service.CreateProfessionalServiceService;
@@ -42,7 +46,10 @@ import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.AppointmentModality;
 import com.consultafacil.domain.enums.AppointmentPaymentStatus;
 import com.consultafacil.domain.enums.AppointmentStatus;
+import com.consultafacil.domain.enums.BillingPaymentStatus;
 import com.consultafacil.domain.enums.BillingPeriod;
+import com.consultafacil.domain.enums.OwnerType;
+import com.consultafacil.domain.enums.PaymentType;
 import com.consultafacil.domain.enums.CouponStatus;
 import com.consultafacil.domain.enums.ExamType;
 import com.consultafacil.domain.enums.ProfessionalType;
@@ -133,6 +140,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final CouponUseRepository couponUseRepository;
     private final ExamLabRepository examLabRepository;
     private final ExamLabHoursRepository examLabHoursRepository;
+    private final BillingPaymentRepository billingPaymentRepository;
+    private final InvoiceRepository invoiceRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final Faker faker = new Faker(new Locale("pt-BR"));
@@ -273,6 +282,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             seedCoupons(adminUserId);
             seedSubscriptionPayments();
             seedExamLabs();
+            seedBillingPayments(patientUserId, professionalUserId, patientUserIds);
 
         } catch (Exception e) {
             log.error("Erro durante o seed:", e);
@@ -1614,6 +1624,128 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
         }
         log.info("[Seed] ExamLabs criados: {}", created);
+    }
+
+    // ─── Billing payments ────────────────────────────────────────────────────────
+
+    private void seedBillingPayments(String patientUserId, String professionalUserId,
+            List<String> randomPatientIds) {
+
+        if (billingPaymentRepository.count() > 0) return;
+
+        record PaymentDef(String payerId, String payerName, String payerEmail,
+                PaymentType type, OwnerType ownerType, String ownerId,
+                BigDecimal amount, BigDecimal systemFee, String method,
+                BillingPaymentStatus status, int daysAgo) {
+        }
+
+        List<String> methods = List.of("credit_card", "pix", "credit_card", "debit_card");
+
+        record PaymentTypeConfig(PaymentType type, BigDecimal fixedFee, double pctFee) {
+        }
+        List<PaymentTypeConfig> typeConfigs = List.of(
+                new PaymentTypeConfig(PaymentType.CONSULTATION, new BigDecimal("5.00"), 0.00),
+                new PaymentTypeConfig(PaymentType.PROCEDURE,    new BigDecimal("10.00"), 0.02),
+                new PaymentTypeConfig(PaymentType.EXAM,         new BigDecimal("3.00"),  0.00),
+                new PaymentTypeConfig(PaymentType.SUBSCRIPTION, BigDecimal.ZERO, 0.00));
+
+        List<PaymentDef> defs = new ArrayList<>();
+
+        // Fixed test payments for test users
+        defs.add(new PaymentDef(patientUserId, "Paciente Teste", "patient@example.com",
+                PaymentType.CONSULTATION, OwnerType.DOCTOR, professionalUserId,
+                new BigDecimal("250.00"), new BigDecimal("5.00"), "credit_card",
+                BillingPaymentStatus.PAID, 30));
+        defs.add(new PaymentDef(patientUserId, "Paciente Teste", "patient@example.com",
+                PaymentType.EXAM, OwnerType.DOCTOR, professionalUserId,
+                new BigDecimal("180.00"), new BigDecimal("3.00"), "pix",
+                BillingPaymentStatus.PAID, 15));
+        defs.add(new PaymentDef(patientUserId, "Paciente Teste", "patient@example.com",
+                PaymentType.PROCEDURE, OwnerType.DOCTOR, professionalUserId,
+                new BigDecimal("350.00"), new BigDecimal("17.00"), "credit_card",
+                BillingPaymentStatus.PAID, 7));
+        defs.add(new PaymentDef(patientUserId, "Paciente Teste", "patient@example.com",
+                PaymentType.CONSULTATION, OwnerType.DOCTOR, professionalUserId,
+                new BigDecimal("250.00"), new BigDecimal("5.00"), "pix",
+                BillingPaymentStatus.PENDING, 1));
+        defs.add(new PaymentDef(patientUserId, "Paciente Teste", "patient@example.com",
+                PaymentType.SUBSCRIPTION, null, null,
+                new BigDecimal("129.90"), BigDecimal.ZERO, "credit_card",
+                BillingPaymentStatus.PAID, 45));
+
+        // Random payments for other patients
+        List<String> samplePatients = randomPatientIds.stream().limit(10).toList();
+        List<BillingPaymentStatus> statusPool = List.of(
+                BillingPaymentStatus.PAID, BillingPaymentStatus.PAID, BillingPaymentStatus.PAID,
+                BillingPaymentStatus.PENDING, BillingPaymentStatus.FAILED, BillingPaymentStatus.CANCELED);
+
+        for (int i = 0; i < samplePatients.size(); i++) {
+            String userId = samplePatients.get(i);
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) continue;
+            int numPayments = 2 + faker.random().nextInt(4);
+            for (int j = 0; j < numPayments; j++) {
+                PaymentTypeConfig cfg = typeConfigs.get(faker.random().nextInt(typeConfigs.size() - 1));
+                BigDecimal amount = BigDecimal.valueOf(100 + faker.random().nextInt(400));
+                BigDecimal fee = cfg.fixedFee().add(
+                        amount.multiply(BigDecimal.valueOf(cfg.pctFee()))
+                                .setScale(2, java.math.RoundingMode.HALF_UP));
+                BillingPaymentStatus status = statusPool.get(faker.random().nextInt(statusPool.size()));
+                defs.add(new PaymentDef(userId, user.getName(), user.getEmail(),
+                        cfg.type(), OwnerType.DOCTOR, professionalUserId, amount, fee,
+                        methods.get(faker.random().nextInt(methods.size())), status,
+                        faker.random().nextInt(1, 120)));
+            }
+        }
+
+        int paymentCount = 0;
+        int invoiceCount = 0;
+        int seq = 1;
+
+        for (PaymentDef def : defs) {
+            try {
+                BigDecimal net = def.amount().subtract(def.systemFee());
+                LocalDateTime createdAt = LocalDateTime.now().minusDays(def.daysAgo());
+                LocalDateTime paidAt = def.status() == BillingPaymentStatus.PAID ? createdAt.plusMinutes(5) : null;
+
+                BillingPayment payment = billingPaymentRepository.save(BillingPayment.builder()
+                        .paymentType(def.type())
+                        .ownerType(def.ownerType())
+                        .ownerId(def.ownerId())
+                        .amount(def.amount())
+                        .systemFee(def.systemFee())
+                        .gatewayFee(BigDecimal.ZERO)
+                        .netAmount(net)
+                        .currency("BRL")
+                        .paymentMethod(def.method())
+                        .gateway("MOCK")
+                        .gatewayPaymentId("MOCK-SEED-" + String.format("%06d", seq))
+                        .status(def.status())
+                        .payerId(def.payerId())
+                        .payerName(def.payerName())
+                        .payerEmail(def.payerEmail())
+                        .description(def.type().name().charAt(0)
+                                + def.type().name().substring(1).toLowerCase()
+                                + " — seed data")
+                        .paidAt(paidAt)
+                        .createdAt(createdAt)
+                        .build());
+                paymentCount++;
+
+                if (def.status() == BillingPaymentStatus.PAID) {
+                    invoiceRepository.save(Invoice.builder()
+                            .payment(payment)
+                            .invoiceNumber("INV-" + String.format("%06d", seq))
+                            .createdAt(createdAt.plusMinutes(5))
+                            .build());
+                    invoiceCount++;
+                }
+                seq++;
+            } catch (Exception e) {
+                log.debug("Erro ao criar billing payment seed: {}", e.getMessage());
+            }
+        }
+        log.info("[Seed] BillingPayments criados: {}, Invoices: {}", paymentCount, invoiceCount);
     }
 
     private void seedClinicWorkingHours() {

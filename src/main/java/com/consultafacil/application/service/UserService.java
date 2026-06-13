@@ -11,8 +11,11 @@ import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
 import com.consultafacil.domain.port.out.StoragePort;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.application.port.in.CommissionUseCase;
+import com.consultafacil.application.port.in.ReferralUseCase;
 import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.application.port.in.UserUseCase;
+import com.consultafacil.application.port.in.WalletUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +36,8 @@ public class UserService implements UserUseCase, RegisterUserUseCase {
     private final PatientProfileRepositoryPort patientProfileRepository;
     private final PasswordEncoder passwordEncoder;
     private final StoragePort storagePort;
+    private final WalletUseCase walletUseCase;
+    private final ReferralUseCase referralUseCase;
 
     @Override
     @Transactional
@@ -58,6 +63,8 @@ public class UserService implements UserUseCase, RegisterUserUseCase {
 
         User savedUser = userRepository.save(user);
         patientProfileRepository.save(PatientProfile.builder().user(savedUser).build());
+        walletUseCase.createWallet(savedUser.getId());
+        referralUseCase.getOrCreateReferralCode(savedUser.getId());
 
         return toResponseDTO(savedUser);
     }

@@ -8,6 +8,7 @@ import com.consultafacil.domain.entity.Invoice;
 import com.consultafacil.domain.entity.SystemFee;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
 import com.consultafacil.domain.enums.PaymentType;
+import com.consultafacil.application.port.in.CommissionUseCase;
 import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
 import com.consultafacil.domain.port.out.InvoiceRepositoryPort;
 import com.consultafacil.domain.port.out.PaymentGatewayPort;
@@ -38,6 +39,7 @@ class BillingPaymentServiceTest {
     @Mock SystemFeeRepositoryPort systemFeeRepository;
     @Mock InvoiceRepositoryPort invoiceRepository;
     @Mock PaymentGatewayPort paymentGateway;
+    @Mock CommissionUseCase commissionUseCase;
 
     @InjectMocks BillingPaymentService service;
 

@@ -3,6 +3,7 @@ package com.consultafacil.application.service;
 import com.consultafacil.api.dto.billing.payment.BillingPaymentResponseDTO;
 import com.consultafacil.api.dto.billing.payment.CreateBillingPaymentDTO;
 import com.consultafacil.application.port.in.BillingPaymentUseCase;
+import com.consultafacil.application.port.in.CommissionUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.BillingPayment;
 import com.consultafacil.domain.entity.Invoice;
@@ -30,6 +31,7 @@ public class BillingPaymentService implements BillingPaymentUseCase {
     private final SystemFeeRepositoryPort systemFeeRepository;
     private final InvoiceRepositoryPort invoiceRepository;
     private final PaymentGatewayPort paymentGateway;
+    private final CommissionUseCase commissionUseCase;
 
     @Override
     @Transactional
@@ -79,7 +81,9 @@ public class BillingPaymentService implements BillingPaymentUseCase {
         BillingPayment payment = findOrThrow(id);
         BillingPayment refunded = paymentGateway.refundPayment(payment.getGatewayPaymentId(), payment.getAmount());
         payment.setStatus(refunded.getStatus());
-        return toDTO(paymentRepository.save(payment));
+        BillingPayment saved = paymentRepository.save(payment);
+        commissionUseCase.cancelCommission(saved.getId());
+        return toDTO(saved);
     }
 
     @Override
@@ -109,10 +113,15 @@ public class BillingPaymentService implements BillingPaymentUseCase {
             payment.setStatus(BillingPaymentStatus.valueOf(newStatus.toUpperCase()));
         } catch (IllegalArgumentException ignored) {
         }
+        boolean wasPending = payment.getStatus() != BillingPaymentStatus.PAID;
         if (payment.getStatus() == BillingPaymentStatus.PAID && payment.getPaidAt() == null) {
             payment.setPaidAt(LocalDateTime.now());
         }
-        return toDTO(paymentRepository.save(payment));
+        BillingPayment saved = paymentRepository.save(payment);
+        if (wasPending && saved.getStatus() == BillingPaymentStatus.PAID && saved.getPayerId() != null) {
+            commissionUseCase.onPaymentPaid(saved.getId(), saved.getAmount(), saved.getPayerId());
+        }
+        return toDTO(saved);
     }
 
     private void generateInvoice(BillingPayment payment) {

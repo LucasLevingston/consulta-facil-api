@@ -237,6 +237,16 @@ public class PolicyService {
         return auth != null && auth.isAuthenticated();
     }
 
+    // ── Referrals & Wallets ───────────────────────────────────────────────
+
+    public boolean canManageReferrals(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
+    }
+
+    public boolean canManageWallets(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
+    }
+
     // ── Plans ─────────────────────────────────────────────────────────────
 
     public boolean canManagePlans(Authentication auth) {
@@ -261,6 +271,12 @@ public class PolicyService {
 
     public boolean canRegisterWalkIn(Authentication auth) {
         return is(auth, UserRole.PROFESSIONAL, UserRole.RECEPTIONIST, UserRole.ADMIN);
+    }
+
+    // ── Analytics ────────────────────────────────────────────────────────
+
+    public boolean canViewAnalytics(Authentication auth) {
+        return is(auth, UserRole.ADMIN);
     }
 
     // ── Admin ─────────────────────────────────────────────────────────────
