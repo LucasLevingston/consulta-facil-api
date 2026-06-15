@@ -289,6 +289,12 @@ public class PolicyService {
         return is(auth, UserRole.PROFESSIONAL, UserRole.ADMIN);
     }
 
+    // ── Dependents ───────────────────────────────────────────────────────
+
+    public boolean canManageDependents(Authentication auth) {
+        return is(auth, UserRole.PATIENT);
+    }
+
     // ── Helper ───────────────────────────────────────────────────────────
 
     private boolean is(Authentication auth, UserRole... roles) {

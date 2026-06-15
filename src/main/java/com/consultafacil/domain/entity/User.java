@@ -9,6 +9,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users", indexes = {
@@ -80,6 +82,11 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private ProfessionalProfile professionalProfile;
+
+    @OneToMany(mappedBy = "guardian", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @ToString.Exclude
+    private List<Dependent> dependents = new ArrayList<>();
 
     // --- Domain behaviour methods ---
 
