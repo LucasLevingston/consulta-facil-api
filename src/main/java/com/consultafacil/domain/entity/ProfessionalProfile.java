@@ -1,5 +1,6 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.domain.enums.CouncilType;
 import com.consultafacil.domain.enums.PaymentMethod;
 import com.consultafacil.domain.enums.PaymentTiming;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
@@ -99,6 +100,46 @@ public class ProfessionalProfile {
 
     @Column(name = "website_url")
     private String websiteUrl;
+
+    @Column(name = "facebook_url")
+    private String facebookUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "council_type")
+    private CouncilType councilType;
+
+    @Column(name = "council_state", length = 2)
+    private String councilState;
+
+    @Column(name = "zip_code")
+    private String zipCode;
+
+    @Column(name = "neighborhood")
+    private String neighborhood;
+
+    @Column(name = "street_number")
+    private String streetNumber;
+
+    @Column(name = "complement")
+    private String complement;
+
+    @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
+    @Builder.Default
+    @ToString.Exclude
+    private List<ProfessionalEducation> education = new ArrayList<>();
+
+    @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
+    @Builder.Default
+    @ToString.Exclude
+    private List<ProfessionalExperience> experience = new ArrayList<>();
+
+    @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
+    @Builder.Default
+    @ToString.Exclude
+    private List<ProfessionalCertificate> certificates = new ArrayList<>();
 
 
     // --- Domain behaviour methods ---

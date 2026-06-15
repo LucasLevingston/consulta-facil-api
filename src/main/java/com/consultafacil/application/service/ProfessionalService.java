@@ -1,6 +1,9 @@
 package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
+import com.consultafacil.api.dto.professional.ProfessionalCertificateDTO;
+import com.consultafacil.api.dto.professional.ProfessionalEducationDTO;
+import com.consultafacil.api.dto.professional.ProfessionalExperienceDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdateBioDTO;
 import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -208,6 +212,7 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
         profile.setInstagramUrl(dto.instagramUrl());
         profile.setLinkedinUrl(dto.linkedinUrl());
         profile.setWebsiteUrl(dto.websiteUrl());
+        profile.setFacebookUrl(dto.facebookUrl());
         return toResponseDTO(professionalProfileRepository.save(profile));
     }
 
@@ -248,7 +253,14 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .instagramUrl(profile.getInstagramUrl())
                 .linkedinUrl(profile.getLinkedinUrl())
                 .websiteUrl(profile.getWebsiteUrl())
+                .facebookUrl(profile.getFacebookUrl())
                 .bio(profile.getBio())
+                .councilType(profile.getCouncilType() != null ? profile.getCouncilType().name() : null)
+                .councilState(profile.getCouncilState())
+                .zipCode(profile.getZipCode())
+                .neighborhood(profile.getNeighborhood())
+                .streetNumber(profile.getStreetNumber())
+                .complement(profile.getComplement())
                 .build();
     }
 
@@ -286,7 +298,23 @@ public class ProfessionalService implements ProfessionalProfileUseCase {
                 .instagramUrl(profile.getInstagramUrl())
                 .linkedinUrl(profile.getLinkedinUrl())
                 .websiteUrl(profile.getWebsiteUrl())
+                .facebookUrl(profile.getFacebookUrl())
                 .bio(profile.getBio())
+                .councilType(profile.getCouncilType() != null ? profile.getCouncilType().name() : null)
+                .councilState(profile.getCouncilState())
+                .zipCode(profile.getZipCode())
+                .neighborhood(profile.getNeighborhood())
+                .streetNumber(profile.getStreetNumber())
+                .complement(profile.getComplement())
+                .education(profile.getEducation().stream()
+                        .map(e -> new ProfessionalEducationDTO(e.getId(), e.getDegree(), e.getInstitution(), e.getFieldOfStudy(), e.getGraduationYear()))
+                        .collect(Collectors.toList()))
+                .experience(profile.getExperience().stream()
+                        .map(e -> new ProfessionalExperienceDTO(e.getId(), e.getPosition(), e.getInstitution(), e.getStartYear(), e.getEndYear(), e.getDescription()))
+                        .collect(Collectors.toList()))
+                .certificates(profile.getCertificates().stream()
+                        .map(c -> new ProfessionalCertificateDTO(c.getId(), c.getTitle(), c.getIssuingOrganization(), c.getIssueYear(), c.getCertificateUrl()))
+                        .collect(Collectors.toList()))
                 .build();
     }
 

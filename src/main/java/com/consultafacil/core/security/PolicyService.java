@@ -295,6 +295,28 @@ public class PolicyService {
         return is(auth, UserRole.PATIENT);
     }
 
+    // ── Professional Enrichment ───────────────────────────────────────────
+
+    public boolean canManageOwnEducation(Authentication auth) {
+        return is(auth, UserRole.PROFESSIONAL);
+    }
+
+    public boolean canManageOwnExperience(Authentication auth) {
+        return is(auth, UserRole.PROFESSIONAL);
+    }
+
+    public boolean canManageOwnCertificate(Authentication auth) {
+        return is(auth, UserRole.PROFESSIONAL);
+    }
+
+    public boolean canUpdateOwnCouncil(Authentication auth) {
+        return is(auth, UserRole.PROFESSIONAL);
+    }
+
+    public boolean canUpdateOwnAddress(Authentication auth) {
+        return is(auth, UserRole.PROFESSIONAL);
+    }
+
     // ── Helper ───────────────────────────────────────────────────────────
 
     private boolean is(Authentication auth, UserRole... roles) {

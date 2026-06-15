@@ -10,5 +10,8 @@ public record UpdateSocialLinksDTO(
         String linkedinUrl,
 
         @Pattern(regexp = "^(https?://.*)?$", message = "websiteUrl must be a valid URL")
-        String websiteUrl
+        String websiteUrl,
+
+        @Pattern(regexp = "^(https?://.*)?$", message = "facebookUrl must be a valid URL")
+        String facebookUrl
 ) {}
