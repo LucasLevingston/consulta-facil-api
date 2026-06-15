@@ -1,18 +1,15 @@
 -- Conselho profissional
-ALTER TABLE professional_profiles
-    ADD COLUMN IF NOT EXISTS council_type  VARCHAR(20),
-    ADD COLUMN IF NOT EXISTS council_state VARCHAR(2);
+ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS council_type  VARCHAR(20);
+ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS council_state VARCHAR(2);
 
 -- Facebook (social links V47 already has instagram/linkedin/website)
-ALTER TABLE professional_profiles
-    ADD COLUMN IF NOT EXISTS facebook_url VARCHAR(255);
+ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS facebook_url VARCHAR(255);
 
 -- Endereço estruturado
-ALTER TABLE professional_profiles
-    ADD COLUMN IF NOT EXISTS zip_code      VARCHAR(9),
-    ADD COLUMN IF NOT EXISTS neighborhood  VARCHAR(100),
-    ADD COLUMN IF NOT EXISTS street_number VARCHAR(20),
-    ADD COLUMN IF NOT EXISTS complement    VARCHAR(100);
+ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS zip_code      VARCHAR(9);
+ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS neighborhood  VARCHAR(100);
+ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS street_number VARCHAR(20);
+ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS complement    VARCHAR(100);
 
 -- Formação acadêmica
 CREATE TABLE IF NOT EXISTS professional_education (

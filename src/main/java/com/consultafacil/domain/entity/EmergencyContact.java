@@ -1,5 +1,6 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.domain.enums.EmergencyContactRelationship;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,8 +23,13 @@ public class EmergencyContact {
     @Column(nullable = false)
     private String phone;
 
-    @OneToOne
-    @JoinColumn(name = "patient_profile_id", nullable = false, unique = true)
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    private EmergencyContactRelationship relationship;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_profile_id", nullable = false)
     @ToString.Exclude
     private PatientProfile patientProfile;
 }

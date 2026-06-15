@@ -295,6 +295,20 @@ public class PolicyService {
         return is(auth, UserRole.PATIENT);
     }
 
+    // ── Patient Health ────────────────────────────────────────────────────
+
+    public boolean canManageOwnEmergencyContacts(Authentication auth) {
+        return is(auth, UserRole.PATIENT);
+    }
+
+    public boolean canManageOwnVaccines(Authentication auth) {
+        return is(auth, UserRole.PATIENT);
+    }
+
+    public boolean canManageOwnDocuments(Authentication auth) {
+        return is(auth, UserRole.PATIENT);
+    }
+
     // ── Professional Enrichment ───────────────────────────────────────────
 
     public boolean canManageOwnEducation(Authentication auth) {

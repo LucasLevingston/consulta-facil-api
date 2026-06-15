@@ -4,6 +4,7 @@ import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.MedicalRecord;
 import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.entity.User;
+import com.consultafacil.domain.enums.BloodType;
 import com.consultafacil.domain.port.out.MedicalRecordRepositoryPort;
 import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
 import com.consultafacil.domain.port.out.UserRepositoryPort;
@@ -107,6 +108,19 @@ public class PatientProfileService implements PatientProfileUseCase {
         if (updates.containsKey("disclosureConsent")) {
             medicalRecord.setDisclosureConsent((Boolean) updates.get("disclosureConsent"));
         }
+        if (updates.containsKey("bloodType") && updates.get("bloodType") != null) {
+            medicalRecord.setBloodType(BloodType.valueOf((String) updates.get("bloodType")));
+        } else if (updates.containsKey("bloodType")) {
+            medicalRecord.setBloodType(null);
+        }
+        if (updates.containsKey("height")) {
+            Object h = updates.get("height");
+            medicalRecord.setHeight(h != null ? new java.math.BigDecimal(h.toString()) : null);
+        }
+        if (updates.containsKey("weight")) {
+            Object w = updates.get("weight");
+            medicalRecord.setWeight(w != null ? new java.math.BigDecimal(w.toString()) : null);
+        }
 
         MedicalRecord updated = medicalRecordRepository.save(medicalRecord);
 
@@ -147,6 +161,9 @@ public class PatientProfileService implements PatientProfileUseCase {
         response.put("privacyConsent", record.getPrivacyConsent());
         response.put("treatmentConsent", record.getTreatmentConsent());
         response.put("disclosureConsent", record.getDisclosureConsent());
+        response.put("bloodType", record.getBloodType() != null ? record.getBloodType().name() : null);
+        response.put("height", record.getHeight());
+        response.put("weight", record.getWeight());
         response.put("createdAt", record.getCreatedAt());
         response.put("updatedAt", record.getUpdatedAt());
         return response;

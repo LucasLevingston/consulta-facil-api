@@ -438,7 +438,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             try {
                 var profile = patientProfileRepository.findByUserId(userId).orElse(null);
                 if (profile == null) continue;
-                if (emergencyContactRepository.findByPatientProfileId(profile.getId()).isPresent()) continue;
+                if (!emergencyContactRepository.findByPatientProfileId(profile.getId()).isEmpty()) continue;
                 emergencyContactRepository.save(EmergencyContact.builder()
                         .patientProfile(profile)
                         .name(faker.name().fullName())

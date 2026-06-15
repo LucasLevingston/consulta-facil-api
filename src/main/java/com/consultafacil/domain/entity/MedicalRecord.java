@@ -1,10 +1,12 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.domain.enums.BloodType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,6 +42,16 @@ public class MedicalRecord {
 
     @Builder.Default
     private Boolean disclosureConsent = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "blood_type")
+    private BloodType bloodType;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal height;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal weight;
 
     @OneToOne
     @JoinColumn(name = "patient_profile_id", nullable = false, unique = true)
