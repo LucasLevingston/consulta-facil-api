@@ -109,6 +109,7 @@ public class PlanService implements PlanUseCase {
                 .frequency(p.getFrequency())
                 .frequencyType(p.getFrequencyType())
                 .features(featureList)
+                .consultationFeeRate(p.getConsultationFeeRate())
                 .maxAppointments(p.getMaxAppointments())
                 .status(p.getStatus())
                 .displayOrder(p.getDisplayOrder())

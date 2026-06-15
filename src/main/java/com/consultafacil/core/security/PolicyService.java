@@ -285,6 +285,10 @@ public class PolicyService {
         return is(auth, UserRole.ADMIN);
     }
 
+    public boolean canCalculateFees(Authentication auth) {
+        return is(auth, UserRole.PROFESSIONAL, UserRole.ADMIN);
+    }
+
     // ── Helper ───────────────────────────────────────────────────────────
 
     private boolean is(Authentication auth, UserRole... roles) {
