@@ -48,7 +48,7 @@ for file in $staged; do
     *Utils.java|*Helper.java|*Util.java)
       ;;
     *)
-      n=$(printf '%s\n' "$content" | grep -E "private static [a-zA-Z]" | wc -l)
+      n=$(printf '%s\n' "$content" | grep -E "private static [a-zA-Z]" | grep -v "static final" | wc -l)
       if [ "$n" -gt 2 ]; then
         echo "  BLOCKED [FUNCTIONS] $file — $n métodos static privados em classe de negócio"
         echo "    Extraia para <Feature>Utils.java ou <Feature>Helper.java"

@@ -1,5 +1,6 @@
 package com.consultafacil.adapter.out.oauth;
 
+import com.consultafacil.core.config.GoogleOAuthProperties;
 import com.consultafacil.core.exception.UnauthorizedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedConstruction;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,11 +20,12 @@ import static org.mockito.Mockito.*;
 class GoogleOAuthAdapterTest {
 
     GoogleOAuthAdapter adapter;
+    GoogleOAuthProperties googleProps;
 
     @BeforeEach
     void setUp() {
-        adapter = new GoogleOAuthAdapter(new ObjectMapper());
-        ReflectionTestUtils.setField(adapter, "expectedClientId", "");
+        googleProps = new GoogleOAuthProperties();
+        adapter = new GoogleOAuthAdapter(new ObjectMapper(), googleProps);
     }
 
     @Test
@@ -74,7 +75,7 @@ class GoogleOAuthAdapterTest {
 
     @Test
     void verifyIdToken_clientIdMismatch_shouldThrowUnauthorized() throws Exception {
-        ReflectionTestUtils.setField(adapter, "expectedClientId", "correct-client-id");
+        googleProps.setClientId("correct-client-id");
         String json = """
                 {"sub":"123","email":"user@gmail.com","aud":"different-client-id"}
                 """;

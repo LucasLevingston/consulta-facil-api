@@ -47,7 +47,7 @@ jobs:
             esac
 
             case "$file" in *Utils.java|*Helper.java|*Util.java) ;; *)
-              n=$(printf '%s\n' "$content" | grep -cE "private static [a-zA-Z]" || true)
+              n=$(printf '%s\n' "$content" | grep -E "private static [a-zA-Z]" | grep -vc "static final" || true)
               if [ "$n" -gt 2 ]; then
                 echo "BLOCKED [FUNCTIONS] $file — $n métodos static privados em classe de negócio"
                 FOUND=1
