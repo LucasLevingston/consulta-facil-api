@@ -25,10 +25,56 @@ jobs:
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x gradlew
 
-      - name: Run tests
+      - name: '[0/4] Verificar estrutura dos arquivos (SOLID)'
+        run: |
+          MAX_LINES=300
+          FOUND=0
+          while IFS= read -r file; do
+            content=$(cat "$file" 2>/dev/null)
+
+            lines=$(printf '%s\n' "$content" | wc -l)
+            if [ "$lines" -gt "$MAX_LINES" ]; then
+              echo "BLOCKED [TAMANHO] $file ($lines > $MAX_LINES linhas)"
+              FOUND=1
+            fi
+
+            case "$file" in *Constants.java) ;; *)
+              n=$(printf '%s\n' "$content" | grep -cE "public static final [A-Z]" || true)
+              if [ "$n" -gt 0 ]; then
+                echo "BLOCKED [CONSTANTS] $file — $n constante(s) estática(s) inline"
+                FOUND=1
+              fi ;;
+            esac
+
+            case "$file" in *Utils.java|*Helper.java|*Util.java) ;; *)
+              n=$(printf '%s\n' "$content" | grep -cE "private static [a-zA-Z]" || true)
+              if [ "$n" -gt 2 ]; then
+                echo "BLOCKED [FUNCTIONS] $file — $n métodos static privados em classe de negócio"
+                FOUND=1
+              fi ;;
+            esac
+          done < <(find src/main -name "*.java")
+
+          if [ "$FOUND" -eq 1 ]; then
+            echo ""
+            echo "SOLID violations found. Fix before merging."
+            exit 1
+          fi
+          echo "✓ Estrutura OK"
+
+      - name: '[1/4] Compilar'
+        run: ./gradlew compileJava compileTestJava --no-daemon
+
+      - name: '[2/4] Rodar testes'
         run: ./gradlew test --no-daemon
         env:
           SPRING_PROFILES_ACTIVE: test
+
+      - name: '[3/4] Verificar cobertura (mínimo 30%)'
+        run: ./gradlew jacocoTestCoverageVerification --no-daemon
+
+      - name: '[4/4] Build'
+        run: ./gradlew build -x test --no-daemon
 
       - name: Upload test reports
         if: always()
