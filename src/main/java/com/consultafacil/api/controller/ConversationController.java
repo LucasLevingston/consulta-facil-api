@@ -2,7 +2,10 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.messaging.ConversationResponseDTO;
 import com.consultafacil.api.dto.messaging.MessageResponseDTO;
-import com.consultafacil.application.port.in.ConversationUseCase;
+import com.consultafacil.application.port.in.GetConversationHistoryUseCase;
+import com.consultafacil.application.port.in.GetOrCreateConversationUseCase;
+import com.consultafacil.application.port.in.ListConversationsUseCase;
+import com.consultafacil.application.port.in.MarkConversationAsReadUseCase;
 import com.consultafacil.core.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,20 +22,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ConversationController {
 
-    private final ConversationUseCase conversationUseCase;
+    private final ListConversationsUseCase listConversationsUseCase;
+    private final GetOrCreateConversationUseCase getOrCreateConversationUseCase;
+    private final GetConversationHistoryUseCase getConversationHistoryUseCase;
+    private final MarkConversationAsReadUseCase markConversationAsReadUseCase;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ConversationResponseDTO>> listConversations() {
         String userId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(conversationUseCase.listConversations(userId));
+        return ResponseEntity.ok(listConversationsUseCase.execute(userId));
     }
 
     @PostMapping("/{professionalId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ConversationResponseDTO> getOrCreate(@PathVariable String professionalId) {
         String userId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(conversationUseCase.getOrCreateConversation(userId, professionalId));
+        return ResponseEntity.ok(getOrCreateConversationUseCase.execute(userId, professionalId));
     }
 
     @GetMapping("/{id}/messages")
@@ -41,14 +47,14 @@ public class ConversationController {
             @PathVariable String id,
             @PageableDefault(size = 30) Pageable pageable) {
         String userId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(conversationUseCase.getHistory(id, userId, pageable));
+        return ResponseEntity.ok(getConversationHistoryUseCase.execute(id, userId, pageable));
     }
 
     @PostMapping("/{id}/read")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> markAsRead(@PathVariable String id) {
         String userId = SecurityUtils.getCurrentUserId();
-        conversationUseCase.markAsRead(id, userId);
+        markConversationAsReadUseCase.execute(id, userId);
         return ResponseEntity.noContent().build();
     }
 }

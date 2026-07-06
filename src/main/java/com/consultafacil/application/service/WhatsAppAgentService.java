@@ -29,8 +29,11 @@ public class WhatsAppAgentService implements WhatsAppWebhookUseCase {
     private final AnthropicMessagesClient anthropicClient;
     private final WhatsAppToolSchemaBuilder toolSchemaBuilder;
     private final WhatsAppToolExecutor toolExecutor;
-    private final WhatsAppHistoryManager historyManager;
-    private final WhatsAppPromptFormatter promptFormatter;
+    private final WhatsAppHistoryDeserializer historyDeserializer;
+    private final WhatsAppHistoryTrimmer historyTrimmer;
+    private final WhatsAppHistorySerializer historySerializer;
+    private final WhatsAppSystemPromptBuilder systemPromptBuilder;
+    private final WhatsAppResponseTextExtractor responseTextExtractor;
     private final ObjectMapper objectMapper;
 
     @Transactional
@@ -45,14 +48,14 @@ public class WhatsAppAgentService implements WhatsAppWebhookUseCase {
         WhatsAppConversation conversation = conversationRepository.findByPhoneNumber(phone)
                 .orElseGet(() -> WhatsAppConversation.builder().phoneNumber(phone).build());
 
-        List<Map<String, Object>> history = historyManager.deserialize(conversation.getHistoryJson());
+        List<Map<String, Object>> history = historyDeserializer.deserialize(conversation.getHistoryJson());
         history.add(Map.of("role", "user", "content", messageBody));
 
         try {
             String reply = callClaude(userId, history);
             history.add(Map.of("role", "assistant", "content", reply));
-            history = historyManager.trim(history);
-            conversation.setHistoryJson(historyManager.serialize(history));
+            history = historyTrimmer.trim(history);
+            conversation.setHistoryJson(historySerializer.serialize(history));
             conversationRepository.save(conversation);
             return reply;
         } catch (Exception e) {
@@ -64,11 +67,11 @@ public class WhatsAppAgentService implements WhatsAppWebhookUseCase {
     private String callClaude(String userId, List<Map<String, Object>> history) throws Exception {
         String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         JsonNode response = anthropicClient.send(
-                promptFormatter.buildSystemPrompt(userId, today), history, toolSchemaBuilder.build());
+                systemPromptBuilder.buildSystemPrompt(userId, today), history, toolSchemaBuilder.build());
         if ("tool_use".equals(response.path("stop_reason").asText())) {
             return handleToolUse(userId, response, history, today);
         }
-        return promptFormatter.extractText(response);
+        return responseTextExtractor.extractText(response);
     }
 
     private String handleToolUse(String userId, JsonNode response,
@@ -90,7 +93,7 @@ public class WhatsAppAgentService implements WhatsAppWebhookUseCase {
         }
         updatedHistory.add(Map.of("role", "user", "content", toolResults));
 
-        JsonNode followUp = anthropicClient.send(promptFormatter.buildSystemPrompt(userId, today), updatedHistory, null);
-        return promptFormatter.extractText(followUp);
+        JsonNode followUp = anthropicClient.send(systemPromptBuilder.buildSystemPrompt(userId, today), updatedHistory, null);
+        return responseTextExtractor.extractText(followUp);
     }
 }

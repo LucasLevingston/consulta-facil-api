@@ -32,7 +32,7 @@ class AuthServiceTest {
     @Mock UserRepositoryPort userRepository;
     @Mock PasswordEncoder passwordEncoder;
     @Mock JwtTokenProvider jwtTokenProvider;
-    @Mock RefreshTokenService refreshTokenService;
+    @Mock CreateRefreshTokenService createRefreshTokenService;
 
     @InjectMocks AuthService service;
 
@@ -49,7 +49,7 @@ class AuthServiceTest {
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(jwtTokenProvider.generateToken(any())).thenReturn("jwt-token");
         when(jwtTokenProvider.getExpiresIn()).thenReturn(86400L);
-        when(refreshTokenService.createFor(any())).thenReturn(
+        when(createRefreshTokenService.createFor(any())).thenReturn(
                 RefreshToken.builder().token("refresh-token").build());
     }
 
@@ -62,7 +62,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("j@e.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("pass123", "hashed-pass")).thenReturn(true);
 
-        var result = service.login(req("j@e.com", "pass123"));
+        var result = service.execute(req("j@e.com", "pass123"));
 
         assertThat(result.getToken()).isEqualTo("jwt-token");
         assertThat(result.getUserId()).isEqualTo("u-1");
@@ -73,7 +73,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("j@e.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
-        assertThatThrownBy(() -> service.login(req("j@e.com", "wrong")))
+        assertThatThrownBy(() -> service.execute(req("j@e.com", "wrong")))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessageContaining("Invalid email or password");
     }
@@ -83,7 +83,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("unknown@e.com")).thenReturn(Optional.empty());
         when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
-        assertThatThrownBy(() -> service.login(req("unknown@e.com", "pass")))
+        assertThatThrownBy(() -> service.execute(req("unknown@e.com", "pass")))
                 .isInstanceOf(UnauthorizedException.class);
     }
 
@@ -92,7 +92,7 @@ class AuthServiceTest {
         user.setLockedUntil(LocalDateTime.now().plusMinutes(10));
         when(userRepository.findByEmail("j@e.com")).thenReturn(Optional.of(user));
 
-        assertThatThrownBy(() -> service.login(req("j@e.com", "pass")))
+        assertThatThrownBy(() -> service.execute(req("j@e.com", "pass")))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessageContaining("locked");
     }
@@ -103,7 +103,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("j@e.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
-        assertThatThrownBy(() -> service.login(req("j@e.com", "pass")))
+        assertThatThrownBy(() -> service.execute(req("j@e.com", "pass")))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessageContaining("Google");
     }
@@ -113,7 +113,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("j@e.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
-        try { service.login(req("j@e.com", "wrong")); } catch (Exception ignored) {}
+        try { service.execute(req("j@e.com", "wrong")); } catch (Exception ignored) {}
 
         assertThat(user.getFailedLoginAttempts()).isEqualTo(1);
     }
@@ -124,7 +124,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("j@e.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("pass123", "hashed-pass")).thenReturn(true);
 
-        service.login(req("j@e.com", "pass123"));
+        service.execute(req("j@e.com", "pass123"));
 
         assertThat(user.getFailedLoginAttempts()).isEqualTo(0);
     }

@@ -18,7 +18,7 @@ import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.application.port.in.RequestMagicLinkUseCase;
 import com.consultafacil.application.port.in.ResetPasswordUseCase;
 import com.consultafacil.application.port.in.VerifyMagicLinkUseCase;
-import com.consultafacil.application.service.RefreshTokenService;
+import com.consultafacil.application.service.RotateRefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -45,7 +45,7 @@ public class AuthController {
     private final GoogleLoginUseCase googleLogin;
     private final GoogleOAuthRedirectUseCase googleOAuthRedirect;
     private final GoogleOAuthCallbackUseCase googleOAuthCallback;
-    private final RefreshTokenService refreshTokenService;
+    private final RotateRefreshTokenService rotateRefreshTokenService;
 
     @Value("${app.url:http://localhost:3000}")
     private String appUrl;
@@ -117,6 +117,6 @@ public class AuthController {
     @PostMapping("/refresh")
     @Operation(summary = "Refresh token", description = "Rotates a refresh token and issues new access + refresh tokens")
     public ResponseEntity<LoginResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
-        return ResponseEntity.ok(refreshTokenService.rotate(request.refreshToken()));
+        return ResponseEntity.ok(rotateRefreshTokenService.rotate(request.refreshToken()));
     }
 }

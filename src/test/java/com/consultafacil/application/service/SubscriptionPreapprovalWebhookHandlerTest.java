@@ -1,6 +1,6 @@
 package com.consultafacil.application.service;
 
-import com.consultafacil.application.port.in.CouponUseCase;
+import com.consultafacil.application.port.in.RecordCouponUseUseCase;
 import com.consultafacil.domain.port.out.PlanRepositoryPort;
 import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ class SubscriptionPreapprovalWebhookHandlerTest {
 
     @Mock SubscriptionRepositoryPort subscriptionRepository;
     @Mock PlanRepositoryPort planRepository;
-    @Mock CouponUseCase couponUseCase;
+    @Mock RecordCouponUseUseCase couponUseCase;
     @Mock SubscriptionSellerSaleLinker sellerSaleLinker;
     @Mock SubscriptionPaymentRecorder paymentRecorder;
 

@@ -2,7 +2,6 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.examlab.ExamLabResponseDTO;
 import com.consultafacil.application.port.in.GetExamLabsUseCase;
-import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.port.out.ExamLabRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,13 +21,5 @@ public class GetExamLabsService implements GetExamLabsUseCase {
         return examLabRepository.findByStatus("ACTIVE").stream()
                 .map(CreateExamLabService::toDTO)
                 .toList();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public ExamLabResponseDTO executeById(String id) {
-        return examLabRepository.findById(id)
-                .map(CreateExamLabService::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("ExamLab", id));
     }
 }

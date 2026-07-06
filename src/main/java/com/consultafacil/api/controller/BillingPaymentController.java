@@ -2,7 +2,13 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.payment.BillingPaymentResponseDTO;
 import com.consultafacil.api.dto.billing.payment.CreateBillingPaymentDTO;
-import com.consultafacil.application.port.in.BillingPaymentUseCase;
+import com.consultafacil.application.port.in.CancelBillingPaymentUseCase;
+import com.consultafacil.application.port.in.CreateBillingPaymentUseCase;
+import com.consultafacil.application.port.in.GetBillingPaymentByIdUseCase;
+import com.consultafacil.application.port.in.HandleBillingPaymentWebhookUseCase;
+import com.consultafacil.application.port.in.ListAllBillingPaymentsUseCase;
+import com.consultafacil.application.port.in.ListMyBillingPaymentsUseCase;
+import com.consultafacil.application.port.in.RefundBillingPaymentUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,44 +22,50 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BillingPaymentController {
 
-    private final BillingPaymentUseCase billingPaymentUseCase;
+    private final CreateBillingPaymentUseCase createPayment;
+    private final ListMyBillingPaymentsUseCase listMyPayments;
+    private final GetBillingPaymentByIdUseCase getById;
+    private final CancelBillingPaymentUseCase cancelPayment;
+    private final RefundBillingPaymentUseCase refundPayment;
+    private final ListAllBillingPaymentsUseCase listAll;
+    private final HandleBillingPaymentWebhookUseCase handleWebhook;
 
     @PostMapping("/billing/payments")
     public ResponseEntity<BillingPaymentResponseDTO> createPayment(@Valid @RequestBody CreateBillingPaymentDTO dto) {
-        return ResponseEntity.ok(billingPaymentUseCase.createPayment(dto));
+        return ResponseEntity.ok(createPayment.execute(dto));
     }
 
     @GetMapping("/billing/payments/me")
     public ResponseEntity<List<BillingPaymentResponseDTO>> myPayments(@RequestParam String payerId) {
-        return ResponseEntity.ok(billingPaymentUseCase.listMyPayments(payerId));
+        return ResponseEntity.ok(listMyPayments.execute(payerId));
     }
 
     @GetMapping("/billing/payments/{id}")
     public ResponseEntity<BillingPaymentResponseDTO> getById(@PathVariable String id) {
-        return ResponseEntity.ok(billingPaymentUseCase.getById(id));
+        return ResponseEntity.ok(getById.execute(id));
     }
 
     @PostMapping("/billing/payments/{id}/cancel")
     public ResponseEntity<BillingPaymentResponseDTO> cancel(@PathVariable String id) {
-        return ResponseEntity.ok(billingPaymentUseCase.cancelPayment(id));
+        return ResponseEntity.ok(cancelPayment.execute(id));
     }
 
     @PostMapping("/billing/payments/{id}/refund")
     public ResponseEntity<BillingPaymentResponseDTO> refund(@PathVariable String id) {
-        return ResponseEntity.ok(billingPaymentUseCase.refundPayment(id));
+        return ResponseEntity.ok(refundPayment.execute(id));
     }
 
     @GetMapping("/admin/billing/payments")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<BillingPaymentResponseDTO>> listAll() {
-        return ResponseEntity.ok(billingPaymentUseCase.listAll());
+        return ResponseEntity.ok(listAll.execute());
     }
 
     @PostMapping("/billing/payments/webhook")
     public ResponseEntity<Void> webhook(@RequestBody Map<String, Object> payload) {
         String gatewayPaymentId = String.valueOf(payload.getOrDefault("gateway_payment_id", ""));
         String status = String.valueOf(payload.getOrDefault("status", "PAID"));
-        billingPaymentUseCase.handleWebhook(gatewayPaymentId, status);
+        handleWebhook.execute(gatewayPaymentId, status);
         return ResponseEntity.ok().build();
     }
 }

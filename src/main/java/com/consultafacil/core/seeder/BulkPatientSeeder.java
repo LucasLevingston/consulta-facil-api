@@ -1,7 +1,7 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.user.CreateUserDTO;
-import com.consultafacil.application.service.UserService;
+import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.repository.PatientProfileRepository;
 import com.github.javafaker.Faker;
@@ -19,7 +19,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class BulkPatientSeeder {
 
-    private final UserService userService;
+    private final RegisterUserUseCase registerUser;
     private final PatientProfileRepository patientProfileRepository;
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -37,7 +37,7 @@ public class BulkPatientSeeder {
                         .gender(faker.bool().bool() ? Gender.MALE : Gender.FEMALE)
                         .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70))
                         .build();
-                var userResponse = userService.createUser(patientDTO);
+                var userResponse = registerUser.execute(patientDTO);
                 patientProfileRepository.findByUserId(userResponse.getId()).ifPresent(profile -> {
                     profile.setOccupation(faker.job().title());
                     patientProfileRepository.save(profile);

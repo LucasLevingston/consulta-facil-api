@@ -2,7 +2,7 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.coupon.CouponValidationResponseDTO;
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
-import com.consultafacil.application.port.in.CouponUseCase;
+import com.consultafacil.application.port.in.ValidateCouponUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Plan;
@@ -31,7 +31,7 @@ public class SubscriptionCheckoutService {
     private final PlanRepositoryPort planRepository;
     private final UserRepositoryPort userRepository;
     private final SubscriptionRepositoryPort subscriptionRepository;
-    private final CouponUseCase couponUseCase;
+    private final ValidateCouponUseCase validateCouponUseCase;
     private final MercadoPagoConfig mpConfig;
 
     public CheckoutResponseDTO createCheckout(String userId, String planId, String referralSlug, String couponCode) {
@@ -46,7 +46,7 @@ public class SubscriptionCheckoutService {
         BigDecimal discountApplied = null;
 
         if (couponCode != null && !couponCode.isBlank()) {
-            CouponValidationResponseDTO coupon = couponUseCase.validate(couponCode, userId, planId, plan.getPrice());
+            CouponValidationResponseDTO coupon = validateCouponUseCase.execute(couponCode, userId, planId, plan.getPrice());
             finalPrice = coupon.getFinalPrice();
             couponId = coupon.getCouponId();
             discountApplied = coupon.getDiscountAmount();

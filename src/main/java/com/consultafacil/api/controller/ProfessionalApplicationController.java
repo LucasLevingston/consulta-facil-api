@@ -2,7 +2,7 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.professional.ProfessionalRatingDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
-import com.consultafacil.application.port.in.AppointmentQueryUseCase;
+import com.consultafacil.application.port.in.GetProfessionalRatingsUseCase;
 import com.consultafacil.application.port.in.ProfessionalProfileUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProfessionalApplicationController {
 
     private final ProfessionalProfileUseCase professionalProfileUseCase;
-    private final AppointmentQueryUseCase appointmentQueryUseCase;
+    private final GetProfessionalRatingsUseCase getProfessionalRatings;
 
     @GetMapping("/applications")
     @PreAuthorize("@carePolicy.canAdminManageProfessional(authentication)")
@@ -60,6 +60,6 @@ public class ProfessionalApplicationController {
     @GetMapping("/{professionalId}/ratings")
     @Operation(summary = "Get rating summary for a professional")
     public ResponseEntity<ProfessionalRatingDTO> getProfessionalRatings(@PathVariable String professionalId) {
-        return ResponseEntity.ok(appointmentQueryUseCase.getProfessionalRatings(professionalId));
+        return ResponseEntity.ok(getProfessionalRatings.execute(professionalId));
     }
 }

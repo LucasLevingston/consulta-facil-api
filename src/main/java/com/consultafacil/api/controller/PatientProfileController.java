@@ -4,9 +4,13 @@ import com.consultafacil.api.dto.appointment.PatientSummaryDTO;
 import com.consultafacil.api.dto.patient.EmergencyContactDTO;
 import com.consultafacil.api.dto.patient.PatientDocumentResponseDTO;
 import com.consultafacil.api.dto.patient.PatientVaccineDTO;
-import com.consultafacil.application.port.in.AppointmentQueryUseCase;
+import com.consultafacil.application.port.in.GetAllPatientsUseCase;
+import com.consultafacil.application.port.in.GetPatientMedicalRecordsUseCase;
+import com.consultafacil.application.port.in.GetPatientProfileUseCase;
+import com.consultafacil.application.port.in.GetProfessionalPatientsUseCase;
 import com.consultafacil.application.port.in.PatientHealthUseCase;
-import com.consultafacil.application.port.in.PatientProfileUseCase;
+import com.consultafacil.application.port.in.UpdatePatientMedicalRecordsUseCase;
+import com.consultafacil.application.port.in.UpdatePatientProfileUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.SecurityUtils;
 import com.consultafacil.domain.enums.DocumentType;
@@ -33,9 +37,13 @@ import java.util.Map;
 @Tag(name = "Patients", description = "Patient profile management endpoints")
 public class PatientProfileController {
 
-    private final PatientProfileUseCase patientProfileUseCase;
+    private final GetPatientProfileUseCase getPatientProfile;
+    private final UpdatePatientProfileUseCase updatePatientProfile;
+    private final GetPatientMedicalRecordsUseCase getPatientMedicalRecords;
+    private final UpdatePatientMedicalRecordsUseCase updatePatientMedicalRecords;
+    private final GetAllPatientsUseCase getAllPatients;
     private final PatientHealthUseCase patientHealthUseCase;
-    private final AppointmentQueryUseCase appointmentQueryUseCase;
+    private final GetProfessionalPatientsUseCase getProfessionalPatients;
     private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @GetMapping("/professional/{userId}")
@@ -51,20 +59,20 @@ public class PatientProfileController {
                 .orElseThrow(() -> new ResourceNotFoundException("Professional profile not found for user: " + userId))
                 .getId();
         return ResponseEntity.ok(
-                appointmentQueryUseCase.getProfessionalPatients(professionalProfileId, search, sort, page, size));
+                getProfessionalPatients.execute(professionalProfileId, search, sort, page, size));
     }
 
     @GetMapping("/me")
     @PreAuthorize("@carePolicy.canManagePatientProfile(authentication)")
     @Operation(summary = "Get my patient profile")
     public ResponseEntity<?> getMyProfile() {
-        return ResponseEntity.ok(patientProfileUseCase.getPatientProfile(SecurityUtils.getCurrentUserId()));
+        return ResponseEntity.ok(getPatientProfile.execute(SecurityUtils.getCurrentUserId()));
     }
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get patient profile by user ID")
     public ResponseEntity<?> getPatientProfile(@PathVariable String userId) {
-        return ResponseEntity.ok(patientProfileUseCase.getPatientProfile(userId));
+        return ResponseEntity.ok(getPatientProfile.execute(userId));
     }
 
     @PutMapping("/me")
@@ -72,13 +80,13 @@ public class PatientProfileController {
     @Operation(summary = "Update my patient profile")
     public ResponseEntity<?> updateMyProfile(@RequestBody Map<String, Object> updates) {
         return ResponseEntity.ok(
-                patientProfileUseCase.updatePatientProfile(SecurityUtils.getCurrentUserId(), updates));
+                updatePatientProfile.execute(SecurityUtils.getCurrentUserId(), updates));
     }
 
     @GetMapping("/{userId}/medical-records")
     @Operation(summary = "Get patient medical records")
     public ResponseEntity<?> getPatientMedicalRecords(@PathVariable String userId) {
-        return ResponseEntity.ok(patientProfileUseCase.getPatientMedicalRecords(userId));
+        return ResponseEntity.ok(getPatientMedicalRecords.execute(userId));
     }
 
     @PutMapping("/{userId}/medical-records")
@@ -86,14 +94,14 @@ public class PatientProfileController {
     @Operation(summary = "Update patient medical records")
     public ResponseEntity<?> updatePatientMedicalRecords(
             @PathVariable String userId, @RequestBody Map<String, Object> updates) {
-        return ResponseEntity.ok(patientProfileUseCase.updatePatientMedicalRecords(userId, updates));
+        return ResponseEntity.ok(updatePatientMedicalRecords.execute(userId, updates));
     }
 
     @GetMapping
     @PreAuthorize("@carePolicy.canAdminListPatients(authentication)")
     @Operation(summary = "List all patients (admin)")
     public ResponseEntity<Page<Map<String, Object>>> getAllPatients(Pageable pageable) {
-        return ResponseEntity.ok(patientProfileUseCase.getAllPatients(pageable));
+        return ResponseEntity.ok(getAllPatients.execute(pageable));
     }
 
     // ── Emergency Contacts ────────────────────────────────────────────────

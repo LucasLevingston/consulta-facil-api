@@ -1,7 +1,7 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.messaging.SendMessageDTO;
-import com.consultafacil.application.port.in.ConversationUseCase;
+import com.consultafacil.application.port.in.SendMessageUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final ConversationUseCase conversationUseCase;
+    private final SendMessageUseCase sendMessageUseCase;
 
     @MessageMapping("/chat/{conversationId}")
     public void handleMessage(
@@ -29,6 +29,6 @@ public class ChatController {
             return;
         }
         String senderId = ((CustomUserDetails) ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) principal).getPrincipal()).getUserId();
-        conversationUseCase.sendMessage(conversationId, senderId, dto.content());
+        sendMessageUseCase.execute(conversationId, senderId, dto.content());
     }
 }

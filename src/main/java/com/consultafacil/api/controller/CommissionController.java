@@ -1,7 +1,7 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.commission.ReferralCommissionDTO;
-import com.consultafacil.application.port.in.CommissionUseCase;
+import com.consultafacil.application.port.in.GetAllCommissionsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,11 +14,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommissionController {
 
-    private final CommissionUseCase commissionUseCase;
+    private final GetAllCommissionsUseCase getAllCommissionsUseCase;
 
     @GetMapping("/admin/billing/commissions")
     @PreAuthorize("@adminPolicy.canManageReferrals(authentication)")
     public ResponseEntity<List<ReferralCommissionDTO>> listAll() {
-        return ResponseEntity.ok(commissionUseCase.getAllCommissions());
+        return ResponseEntity.ok(getAllCommissionsUseCase.execute());
     }
 }

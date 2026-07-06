@@ -32,7 +32,7 @@ class GoogleOAuthCallbackServiceTest {
     @Mock UserRepositoryPort userRepository;
     @Mock PatientProfileRepositoryPort patientProfileRepository;
     @Mock JwtTokenProvider jwtTokenProvider;
-    @Mock RefreshTokenService refreshTokenService;
+    @Mock CreateRefreshTokenService createRefreshTokenService;
     @Mock GoogleOAuthProperties googleProps;
 
     @InjectMocks GoogleOAuthCallbackService service;
@@ -49,7 +49,7 @@ class GoogleOAuthCallbackServiceTest {
         when(googleProps.getRedirectUri()).thenReturn("http://localhost:8080/v1/auth/google/callback");
         when(jwtTokenProvider.generateToken(any())).thenReturn("jwt");
         when(jwtTokenProvider.getExpiresIn()).thenReturn(86400L);
-        when(refreshTokenService.createFor(any())).thenReturn(
+        when(createRefreshTokenService.createFor(any())).thenReturn(
                 RefreshToken.builder().token("refresh").build());
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }

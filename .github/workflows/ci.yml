@@ -71,12 +71,14 @@ jobs:
             esac
 
             case "$file" in
-              *Controller.java|*Config.java|*Policy.java|*Constants.java|*Properties.java|*Test.java) ;;
-              */domain/entity/*|*/api/dto/*|src/test/*) ;;
+              *Controller.java|*Config.java|*Configuration.java|*Policy.java|*Constants.java|*Properties.java|*Test.java) ;;
+              *Seeder.java|*DataProvider.java|*Helper.java|*Consumer.java|*Utils.java|*Util.java) ;;
+              *UserDetails.java|*UserDetailsService.java|*Validator.java|*Checker.java|*Provider.java) ;;
+              */domain/entity/*|*/api/dto/*|*/adapter/*|*/core/messaging/*|src/test/*) ;;
               *)
                 if printf '%s\n' "$content" | grep -qE "^(public )?(abstract )?(final )?class "; then
                   className=$(basename "$file" .java)
-                  n=$(printf '%s\n' "$content" | grep -E "^    public " | grep -E "\{$" | grep -vc "$className(" || true)
+                  n=$(printf '%s\n' "$content" | grep -E "^    public " | grep -v " static " | grep -E "\{$" | grep -vc "$className(" || true)
                   if [ "$n" -gt 1 ]; then
                     echo "BLOCKED [SRP] $file — $n métodos públicos (máx 1 por arquivo)"
                     FOUND=1

@@ -1,7 +1,9 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.invoice.InvoiceResponseDTO;
-import com.consultafacil.application.port.in.InvoiceUseCase;
+import com.consultafacil.application.port.in.GetInvoiceByIdUseCase;
+import com.consultafacil.application.port.in.GetInvoiceByPaymentIdUseCase;
+import com.consultafacil.application.port.in.ListInvoicesUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,22 +15,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InvoiceController {
 
-    private final InvoiceUseCase invoiceUseCase;
+    private final ListInvoicesUseCase listInvoicesUseCase;
+    private final GetInvoiceByIdUseCase getInvoiceByIdUseCase;
+    private final GetInvoiceByPaymentIdUseCase getInvoiceByPaymentIdUseCase;
 
     @GetMapping("/admin/billing/invoices")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<InvoiceResponseDTO>> listAll() {
-        return ResponseEntity.ok(invoiceUseCase.listAll());
+        return ResponseEntity.ok(listInvoicesUseCase.execute());
     }
 
     @GetMapping("/admin/billing/invoices/{id}")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<InvoiceResponseDTO> getById(@PathVariable String id) {
-        return ResponseEntity.ok(invoiceUseCase.getById(id));
+        return ResponseEntity.ok(getInvoiceByIdUseCase.execute(id));
     }
 
     @GetMapping("/billing/invoices/by-payment/{paymentId}")
     public ResponseEntity<InvoiceResponseDTO> getByPaymentId(@PathVariable String paymentId) {
-        return ResponseEntity.ok(invoiceUseCase.getByPaymentId(paymentId));
+        return ResponseEntity.ok(getInvoiceByPaymentIdUseCase.execute(paymentId));
     }
 }

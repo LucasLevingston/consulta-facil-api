@@ -1,6 +1,6 @@
 package com.consultafacil.application.service;
 
-import com.consultafacil.application.port.in.CouponUseCase;
+import com.consultafacil.application.port.in.ValidateCouponUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Plan;
@@ -32,7 +32,7 @@ class SubscriptionCheckoutServiceTest {
     @Mock PlanRepositoryPort planRepository;
     @Mock UserRepositoryPort userRepository;
     @Mock SubscriptionRepositoryPort subscriptionRepository;
-    @Mock CouponUseCase couponUseCase;
+    @Mock ValidateCouponUseCase couponUseCase;
     @Mock MercadoPagoConfig mpConfig;
 
     @InjectMocks SubscriptionCheckoutService service;

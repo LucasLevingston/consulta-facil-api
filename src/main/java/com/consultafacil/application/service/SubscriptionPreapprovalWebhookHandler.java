@@ -1,6 +1,6 @@
 package com.consultafacil.application.service;
 
-import com.consultafacil.application.port.in.CouponUseCase;
+import com.consultafacil.application.port.in.RecordCouponUseUseCase;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.port.out.PlanRepositoryPort;
 import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
@@ -19,7 +19,7 @@ public class SubscriptionPreapprovalWebhookHandler {
 
     private final SubscriptionRepositoryPort subscriptionRepository;
     private final PlanRepositoryPort planRepository;
-    private final CouponUseCase couponUseCase;
+    private final RecordCouponUseUseCase recordCouponUseUseCase;
     private final SubscriptionSellerSaleLinker sellerSaleLinker;
     private final SubscriptionPaymentRecorder paymentRecorder;
 
@@ -49,7 +49,7 @@ public class SubscriptionPreapprovalWebhookHandler {
         log.info("[Subscription] Preapproval {} authorized for userId={}", preapprovalId, sub.getUser().getId());
         sellerSaleLinker.createSellerSaleIfPresent(sub);
         if (sub.getCouponId() != null) {
-            couponUseCase.recordUse(sub.getCouponId(), sub.getUser().getId(), sub.getId(), sub.getDiscountApplied());
+            recordCouponUseUseCase.execute(sub.getCouponId(), sub.getUser().getId(), sub.getId(), sub.getDiscountApplied());
         }
         planRepository.findBySlug(sub.getPlanId()).ifPresent(plan -> {
             BigDecimal gross = sub.getDiscountApplied() != null

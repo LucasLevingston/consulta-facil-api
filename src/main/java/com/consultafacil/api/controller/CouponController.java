@@ -5,8 +5,14 @@ import com.consultafacil.api.dto.billing.coupon.CouponValidationResultDTO;
 import com.consultafacil.api.dto.coupon.CouponResponseDTO;
 import com.consultafacil.api.dto.coupon.CreateCouponDTO;
 import com.consultafacil.api.dto.coupon.UpdateCouponDTO;
-import com.consultafacil.application.port.in.CouponUseCase;
-import com.consultafacil.application.port.in.CouponValidationUseCase;
+import com.consultafacil.application.port.in.ApplyCouponUseCase;
+import com.consultafacil.application.port.in.CreateCouponUseCase;
+import com.consultafacil.application.port.in.GetAllCouponUsagesUseCase;
+import com.consultafacil.application.port.in.GetCouponUsagesByCouponIdUseCase;
+import com.consultafacil.application.port.in.GetUserCouponHistoryUseCase;
+import com.consultafacil.application.port.in.ListCouponsUseCase;
+import com.consultafacil.application.port.in.UpdateCouponUseCase;
+import com.consultafacil.application.port.in.ValidateCouponUsageUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +30,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CouponController {
 
-    private final CouponValidationUseCase couponValidationUseCase;
-    private final CouponUseCase couponUseCase;
+    private final ValidateCouponUsageUseCase validateCouponUsageUseCase;
+    private final ApplyCouponUseCase applyCouponUseCase;
+    private final GetUserCouponHistoryUseCase getUserCouponHistoryUseCase;
+    private final GetAllCouponUsagesUseCase getAllCouponUsagesUseCase;
+    private final GetCouponUsagesByCouponIdUseCase getCouponUsagesByCouponIdUseCase;
+    private final ListCouponsUseCase listCouponsUseCase;
+    private final CreateCouponUseCase createCouponUseCase;
+    private final UpdateCouponUseCase updateCouponUseCase;
 
     @PostMapping("/billing/coupons/validate")
     @PreAuthorize("isAuthenticated()")
@@ -33,7 +45,7 @@ public class CouponController {
         String code = String.valueOf(body.get("code"));
         String userId = String.valueOf(body.get("userId"));
         BigDecimal amount = new BigDecimal(String.valueOf(body.get("amount")));
-        return ResponseEntity.ok(couponValidationUseCase.validateCoupon(code, userId, amount));
+        return ResponseEntity.ok(validateCouponUsageUseCase.execute(code, userId, amount));
     }
 
     @PostMapping("/billing/coupons/apply")
@@ -43,31 +55,31 @@ public class CouponController {
         String userId = String.valueOf(body.get("userId"));
         String paymentId = body.get("paymentId") != null ? String.valueOf(body.get("paymentId")) : null;
         BigDecimal amount = new BigDecimal(String.valueOf(body.get("amount")));
-        return ResponseEntity.ok(couponValidationUseCase.applyCoupon(code, userId, paymentId, amount));
+        return ResponseEntity.ok(applyCouponUseCase.execute(code, userId, paymentId, amount));
     }
 
     @GetMapping("/billing/coupons/history")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<CouponUsageResponseDTO>> history(@RequestParam String userId) {
-        return ResponseEntity.ok(couponValidationUseCase.getUserCouponHistory(userId));
+        return ResponseEntity.ok(getUserCouponHistoryUseCase.execute(userId));
     }
 
     @GetMapping("/admin/billing/coupons")
     @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<List<CouponUsageResponseDTO>> adminListAll() {
-        return ResponseEntity.ok(couponValidationUseCase.getAllCouponUsages());
+        return ResponseEntity.ok(getAllCouponUsagesUseCase.execute());
     }
 
     @GetMapping("/admin/billing/coupons/{couponId}/usages")
     @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<List<CouponUsageResponseDTO>> adminListByCoupon(@PathVariable String couponId) {
-        return ResponseEntity.ok(couponValidationUseCase.getCouponUsagesByCouponId(couponId));
+        return ResponseEntity.ok(getCouponUsagesByCouponIdUseCase.execute(couponId));
     }
 
     @GetMapping("/admin/billing/coupons/codes")
     @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<List<CouponResponseDTO>> adminListCoupons() {
-        return ResponseEntity.ok(couponUseCase.listCoupons());
+        return ResponseEntity.ok(listCouponsUseCase.execute());
     }
 
     @PostMapping("/admin/billing/coupons/codes")
@@ -76,7 +88,7 @@ public class CouponController {
             @Valid @RequestBody CreateCouponDTO dto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(couponUseCase.createCoupon(dto, userDetails.getUserId()));
+                .body(createCouponUseCase.execute(dto, userDetails.getUserId()));
     }
 
     @PatchMapping("/admin/billing/coupons/codes/{id}")
@@ -84,6 +96,6 @@ public class CouponController {
     public ResponseEntity<CouponResponseDTO> adminUpdateCoupon(
             @PathVariable String id,
             @Valid @RequestBody UpdateCouponDTO dto) {
-        return ResponseEntity.ok(couponUseCase.updateCoupon(id, dto));
+        return ResponseEntity.ok(updateCouponUseCase.execute(id, dto));
     }
 }

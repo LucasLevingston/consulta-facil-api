@@ -3,7 +3,7 @@ package com.consultafacil.core.seeder;
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.user.CreateUserDTO;
 import com.consultafacil.application.service.ProfessionalService;
-import com.consultafacil.application.service.UserService;
+import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.ProfessionalType;
 import com.consultafacil.domain.enums.Specialty;
@@ -19,7 +19,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class TestUserSeeder {
 
-    private final UserService userService;
+    private final RegisterUserUseCase registerUser;
     private final ProfessionalService professionalService;
     private final ProfessionalProfileRepository professionalProfileRepository;
     private final Faker faker = new Faker(new Locale("pt-BR"));
@@ -29,7 +29,7 @@ public class TestUserSeeder {
                 .name(name).email(email).password(password).cpf(cpf)
                 .phone("11900000001").birthDate(LocalDate.of(1990, 1, 15))
                 .gender(Gender.MALE).imageUrl(imageUrl).build();
-        return userService.createUser(dto).getId();
+        return registerUser.execute(dto).getId();
     }
 
     public String createProfessional(String email, String password, String name, String cpf,
@@ -39,7 +39,7 @@ public class TestUserSeeder {
                 .phone("11900000002").birthDate(LocalDate.of(1985, 6, 20))
                 .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70))
                 .gender(Gender.MALE).build();
-        var userResponse = userService.createUser(dto);
+        var userResponse = registerUser.execute(dto);
         var profResponse = professionalService.createProfile(userResponse.getId(),
                 CreateProfessionalDTO.builder().profession(profession).specialty(specialty)
                         .licenseNumber(licenseNumber).build());

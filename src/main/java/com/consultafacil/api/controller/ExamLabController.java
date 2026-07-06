@@ -6,6 +6,7 @@ import com.consultafacil.api.dto.examlab.ExamLabHoursDTO;
 import com.consultafacil.api.dto.examlab.ExamLabResponseDTO;
 import com.consultafacil.application.port.in.CreateExamLabUseCase;
 import com.consultafacil.application.port.in.GetAvailableSlotsUseCase;
+import com.consultafacil.application.port.in.GetExamLabByIdUseCase;
 import com.consultafacil.application.port.in.GetExamLabsUseCase;
 import com.consultafacil.application.port.in.GetNearbyExamLabsUseCase;
 import com.consultafacil.application.port.in.SetExamLabHoursUseCase;
@@ -32,6 +33,7 @@ public class ExamLabController {
 
     private final CreateExamLabUseCase createExamLab;
     private final GetExamLabsUseCase getExamLabs;
+    private final GetExamLabByIdUseCase getExamLabById;
     private final GetNearbyExamLabsUseCase getNearbyExamLabs;
     private final SetExamLabHoursUseCase setExamLabHours;
     private final GetAvailableSlotsUseCase getAvailableSlots;
@@ -54,7 +56,7 @@ public class ExamLabController {
     @PreAuthorize("@requestPolicy.canViewExamLabs(authentication)")
     @Operation(summary = "Get exam lab by ID")
     public ResponseEntity<ExamLabResponseDTO> getById(@PathVariable String id) {
-        return ResponseEntity.ok(getExamLabs.executeById(id));
+        return ResponseEntity.ok(getExamLabById.execute(id));
     }
 
     @GetMapping("/nearby")

@@ -3,7 +3,11 @@ package com.consultafacil.api.controller;
 import com.consultafacil.api.dto.billing.feature.CreateFeatureDTO;
 import com.consultafacil.api.dto.billing.feature.FeatureResponseDTO;
 import com.consultafacil.api.dto.billing.feature.UpdateFeatureDTO;
-import com.consultafacil.application.port.in.FeatureUseCase;
+import com.consultafacil.application.port.in.CreateFeatureUseCase;
+import com.consultafacil.application.port.in.DeleteFeatureUseCase;
+import com.consultafacil.application.port.in.GetFeatureByIdUseCase;
+import com.consultafacil.application.port.in.ListFeaturesUseCase;
+import com.consultafacil.application.port.in.UpdateFeatureUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,36 +21,40 @@ import java.util.List;
 @RequestMapping("/admin/billing/features")
 public class FeatureController {
 
-    private final FeatureUseCase featureUseCase;
+    private final ListFeaturesUseCase listFeaturesUseCase;
+    private final GetFeatureByIdUseCase getFeatureByIdUseCase;
+    private final CreateFeatureUseCase createFeatureUseCase;
+    private final UpdateFeatureUseCase updateFeatureUseCase;
+    private final DeleteFeatureUseCase deleteFeatureUseCase;
 
     @GetMapping
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<FeatureResponseDTO>> listAll() {
-        return ResponseEntity.ok(featureUseCase.listAll());
+        return ResponseEntity.ok(listFeaturesUseCase.execute());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<FeatureResponseDTO> getById(@PathVariable String id) {
-        return ResponseEntity.ok(featureUseCase.getById(id));
+        return ResponseEntity.ok(getFeatureByIdUseCase.execute(id));
     }
 
     @PostMapping
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<FeatureResponseDTO> create(@Valid @RequestBody CreateFeatureDTO dto) {
-        return ResponseEntity.ok(featureUseCase.create(dto));
+        return ResponseEntity.ok(createFeatureUseCase.execute(dto));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<FeatureResponseDTO> update(@PathVariable String id, @RequestBody UpdateFeatureDTO dto) {
-        return ResponseEntity.ok(featureUseCase.update(id, dto));
+        return ResponseEntity.ok(updateFeatureUseCase.execute(id, dto));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        featureUseCase.delete(id);
+        deleteFeatureUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -20,7 +20,7 @@ public class VerifyMagicLinkService implements VerifyMagicLinkUseCase {
 
     private final MagicLinkTokenRepositoryPort tokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final com.consultafacil.application.service.RefreshTokenService refreshTokenService;
+    private final com.consultafacil.application.service.CreateRefreshTokenService createRefreshTokenService;
 
     @Override
     @Transactional
@@ -40,7 +40,7 @@ public class VerifyMagicLinkService implements VerifyMagicLinkUseCase {
 
         User user = magicToken.getUser();
         String jwt = jwtTokenProvider.generateToken(user);
-        String refreshToken = refreshTokenService.createFor(user).getToken();
+        String refreshToken = createRefreshTokenService.createFor(user).getToken();
         log.info("[MagicLink] Login via magic link userId={}", user.getId());
 
         return LoginResponseDTO.of(jwt, refreshToken, jwtTokenProvider.getExpiresIn(),

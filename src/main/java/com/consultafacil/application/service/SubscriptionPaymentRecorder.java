@@ -15,7 +15,8 @@ import java.math.BigDecimal;
 public class SubscriptionPaymentRecorder {
 
     private final SubscriptionPaymentRepositoryPort subscriptionPaymentRepository;
-    private final TaxCalculationService taxCalculationService;
+    private final TaxBreakdownCalculator taxBreakdownCalculator;
+    private final TaxSnapshotBuilder taxSnapshotBuilder;
 
     public void recordPayment(String subscriptionId, String mpPaymentId,
                                BigDecimal grossAmount, String paymentMethod) {
@@ -24,7 +25,7 @@ public class SubscriptionPaymentRecorder {
                 log.info("[Tax] Payment {} already recorded — skipping duplicate", mpPaymentId);
                 return;
             }
-            TaxBreakdown tax = taxCalculationService.calculate(grossAmount, paymentMethod);
+            TaxBreakdown tax = taxBreakdownCalculator.calculate(grossAmount, paymentMethod);
             SubscriptionPayment payment = SubscriptionPayment.builder()
                     .subscriptionId(subscriptionId)
                     .mpPaymentId(mpPaymentId)
@@ -36,7 +37,7 @@ public class SubscriptionPaymentRecorder {
                     .taxRateApplied(tax.taxRateApplied())
                     .taxRegime(tax.taxRegime())
                     .paymentMethod(tax.paymentMethod())
-                    .taxSnapshot(taxCalculationService.buildSnapshot(tax))
+                    .taxSnapshot(taxSnapshotBuilder.buildSnapshot(tax))
                     .build();
             subscriptionPaymentRepository.save(payment);
             log.info("[Tax] Payment recorded subscriptionId={} gross={} net={}",

@@ -26,7 +26,7 @@ public class GoogleOAuthCallbackService implements GoogleOAuthCallbackUseCase {
     private final UserRepositoryPort userRepository;
     private final PatientProfileRepositoryPort patientProfileRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenService refreshTokenService;
+    private final CreateRefreshTokenService createRefreshTokenService;
     private final GoogleOAuthProperties googleProps;
 
     @Override
@@ -43,7 +43,7 @@ public class GoogleOAuthCallbackService implements GoogleOAuthCallbackUseCase {
         }
 
         String jwt = jwtTokenProvider.generateToken(user);
-        String refreshToken = refreshTokenService.createFor(user).getToken();
+        String refreshToken = createRefreshTokenService.createFor(user).getToken();
         log.info("[GoogleOAuth] Callback login userId={} email={}", user.getId(), PiiMask.maskEmail(user.getEmail()));
         return LoginResponseDTO.of(jwt, refreshToken, jwtTokenProvider.getExpiresIn(),
                 user.getId(), user.getEmail(), user.getRole());
