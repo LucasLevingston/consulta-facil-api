@@ -29,7 +29,7 @@ import com.consultafacil.domain.enums.Specialty;
 class UpdatePaymentSettingsServiceTest {
 
     @Mock ProfessionalProfileRepositoryPort professionalProfileRepository;
-    @Mock ProfessionalService professionalService;
+    @Mock ProfessionalProfileMapper mapper;
     @InjectMocks UpdatePaymentSettingsService service;
 
     ProfessionalProfile professional;
@@ -41,7 +41,7 @@ class UpdatePaymentSettingsServiceTest {
         professional.setId("pr-1"); professional.setUser(user); professional.setSpecialty(Specialty.CARDIOLOGIA);
 
         when(professionalProfileRepository.save(any())).thenReturn(professional);
-        when(professionalService.toResponseDTO(any())).thenReturn(null);
+        when(mapper.toResponseDTO(any())).thenReturn(null);
     }
 
     @Test void execute_validSettings_savesAndReturns() {

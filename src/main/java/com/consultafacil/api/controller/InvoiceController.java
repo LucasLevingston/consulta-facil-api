@@ -16,13 +16,13 @@ public class InvoiceController {
     private final InvoiceUseCase invoiceUseCase;
 
     @GetMapping("/admin/billing/invoices")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<InvoiceResponseDTO>> listAll() {
         return ResponseEntity.ok(invoiceUseCase.listAll());
     }
 
     @GetMapping("/admin/billing/invoices/{id}")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<InvoiceResponseDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(invoiceUseCase.getById(id));
     }

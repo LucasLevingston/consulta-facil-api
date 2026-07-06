@@ -29,31 +29,31 @@ public class AnalyticsController {
     private final SubscriptionAnalyticsUseCase subscriptionAnalyticsUseCase;
 
     @GetMapping("/financial")
-    @PreAuthorize("@policy.canViewAnalytics(authentication)")
+    @PreAuthorize("@adminPolicy.canViewAnalytics(authentication)")
     public ResponseEntity<FinancialAnalyticsDTO> financial() {
         return ResponseEntity.ok(financialAnalyticsUseCase.getFinancialAnalytics());
     }
 
     @GetMapping("/users")
-    @PreAuthorize("@policy.canViewAnalytics(authentication)")
+    @PreAuthorize("@adminPolicy.canViewAnalytics(authentication)")
     public ResponseEntity<UserAnalyticsDTO> users() {
         return ResponseEntity.ok(userAnalyticsUseCase.getUserAnalytics());
     }
 
     @GetMapping("/appointments")
-    @PreAuthorize("@policy.canViewAnalytics(authentication)")
+    @PreAuthorize("@adminPolicy.canViewAnalytics(authentication)")
     public ResponseEntity<AppointmentAnalyticsDTO> appointments() {
         return ResponseEntity.ok(appointmentAnalyticsUseCase.getAppointmentAnalytics());
     }
 
     @GetMapping("/referrals")
-    @PreAuthorize("@policy.canViewAnalytics(authentication)")
+    @PreAuthorize("@adminPolicy.canViewAnalytics(authentication)")
     public ResponseEntity<ReferralAnalyticsDTO> referrals() {
         return ResponseEntity.ok(referralAnalyticsUseCase.getReferralAnalytics());
     }
 
     @GetMapping("/subscriptions")
-    @PreAuthorize("@policy.canViewAnalytics(authentication)")
+    @PreAuthorize("@adminPolicy.canViewAnalytics(authentication)")
     public ResponseEntity<SubscriptionAnalyticsDTO> subscriptions() {
         return ResponseEntity.ok(subscriptionAnalyticsUseCase.getSubscriptionAnalytics());
     }

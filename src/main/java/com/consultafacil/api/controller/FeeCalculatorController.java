@@ -28,7 +28,7 @@ public class FeeCalculatorController {
     private final CalculateFeesUseCase calculateFees;
 
     @GetMapping("/config")
-    @PreAuthorize("@policy.canCalculateFees(authentication)")
+    @PreAuthorize("@adminPolicy.canCalculateFees(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get fee config for the authenticated professional's plan")
     public ResponseEntity<FeeConfigDTO> getConfig(
@@ -37,7 +37,7 @@ public class FeeCalculatorController {
     }
 
     @GetMapping("/calculate")
-    @PreAuthorize("@policy.canCalculateFees(authentication)")
+    @PreAuthorize("@adminPolicy.canCalculateFees(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Calculate fee breakdown for a given amount and payment method")
     public ResponseEntity<FeeCalculationResponseDTO> calculate(

@@ -29,19 +29,19 @@ public class PlanController {
     }
 
     @GetMapping("/admin/plans")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<PlanResponseDTO>> listAllPlans() {
         return ResponseEntity.ok(planUseCase.listAllPlans());
     }
 
     @PostMapping("/admin/plans")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<PlanResponseDTO> createPlan(@Valid @RequestBody CreatePlanDTO dto) {
         return ResponseEntity.ok(planUseCase.createPlan(dto));
     }
 
     @PatchMapping("/admin/plans/{id}")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<PlanResponseDTO> updatePlan(
             @PathVariable String id,
             @RequestBody UpdatePlanDTO dto) {

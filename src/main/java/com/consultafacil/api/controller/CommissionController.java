@@ -17,7 +17,7 @@ public class CommissionController {
     private final CommissionUseCase commissionUseCase;
 
     @GetMapping("/admin/billing/commissions")
-    @PreAuthorize("@policy.canManageReferrals(authentication)")
+    @PreAuthorize("@adminPolicy.canManageReferrals(authentication)")
     public ResponseEntity<List<ReferralCommissionDTO>> listAll() {
         return ResponseEntity.ok(commissionUseCase.getAllCommissions());
     }

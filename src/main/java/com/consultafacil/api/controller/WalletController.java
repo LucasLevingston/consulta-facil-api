@@ -30,19 +30,19 @@ public class WalletController {
     }
 
     @GetMapping("/admin/billing/wallets")
-    @PreAuthorize("@policy.canManageWallets(authentication)")
+    @PreAuthorize("@adminPolicy.canManageWallets(authentication)")
     public ResponseEntity<List<WalletDTO>> adminListAll() {
         return ResponseEntity.ok(walletUseCase.getAllWallets());
     }
 
     @GetMapping("/admin/billing/wallets/{userId}")
-    @PreAuthorize("@policy.canManageWallets(authentication)")
+    @PreAuthorize("@adminPolicy.canManageWallets(authentication)")
     public ResponseEntity<WalletDTO> adminGetWallet(@PathVariable String userId) {
         return ResponseEntity.ok(walletUseCase.getWallet(userId));
     }
 
     @GetMapping("/admin/billing/wallets/{userId}/transactions")
-    @PreAuthorize("@policy.canManageWallets(authentication)")
+    @PreAuthorize("@adminPolicy.canManageWallets(authentication)")
     public ResponseEntity<List<WalletTransactionDTO>> adminGetTransactions(@PathVariable String userId) {
         return ResponseEntity.ok(walletUseCase.getTransactions(userId));
     }

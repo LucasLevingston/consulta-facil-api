@@ -39,7 +39,7 @@ public class ReferralController {
     }
 
     @GetMapping("/admin/billing/referrals")
-    @PreAuthorize("@policy.canManageReferrals(authentication)")
+    @PreAuthorize("@adminPolicy.canManageReferrals(authentication)")
     public ResponseEntity<List<ReferralDTO>> adminListAll() {
         return ResponseEntity.ok(referralUseCase.getAllReferrals());
     }

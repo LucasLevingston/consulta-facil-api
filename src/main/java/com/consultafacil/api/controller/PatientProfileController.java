@@ -39,7 +39,7 @@ public class PatientProfileController {
     private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
     @GetMapping("/professional/{userId}")
-    @PreAuthorize("@policy.canViewPatientProfile(authentication)")
+    @PreAuthorize("@carePolicy.canViewPatientProfile(authentication)")
     @Operation(summary = "List professional's patients")
     public ResponseEntity<Page<PatientSummaryDTO>> getProfessionalPatients(
             @PathVariable String userId,
@@ -55,7 +55,7 @@ public class PatientProfileController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("@policy.canManagePatientProfile(authentication)")
+    @PreAuthorize("@carePolicy.canManagePatientProfile(authentication)")
     @Operation(summary = "Get my patient profile")
     public ResponseEntity<?> getMyProfile() {
         return ResponseEntity.ok(patientProfileUseCase.getPatientProfile(SecurityUtils.getCurrentUserId()));
@@ -68,7 +68,7 @@ public class PatientProfileController {
     }
 
     @PutMapping("/me")
-    @PreAuthorize("@policy.canManagePatientProfile(authentication)")
+    @PreAuthorize("@carePolicy.canManagePatientProfile(authentication)")
     @Operation(summary = "Update my patient profile")
     public ResponseEntity<?> updateMyProfile(@RequestBody Map<String, Object> updates) {
         return ResponseEntity.ok(
@@ -82,7 +82,7 @@ public class PatientProfileController {
     }
 
     @PutMapping("/{userId}/medical-records")
-    @PreAuthorize("@policy.canManagePatientProfile(authentication)")
+    @PreAuthorize("@carePolicy.canManagePatientProfile(authentication)")
     @Operation(summary = "Update patient medical records")
     public ResponseEntity<?> updatePatientMedicalRecords(
             @PathVariable String userId, @RequestBody Map<String, Object> updates) {
@@ -90,7 +90,7 @@ public class PatientProfileController {
     }
 
     @GetMapping
-    @PreAuthorize("@policy.canAdminListPatients(authentication)")
+    @PreAuthorize("@carePolicy.canAdminListPatients(authentication)")
     @Operation(summary = "List all patients (admin)")
     public ResponseEntity<Page<Map<String, Object>>> getAllPatients(Pageable pageable) {
         return ResponseEntity.ok(patientProfileUseCase.getAllPatients(pageable));
@@ -99,14 +99,14 @@ public class PatientProfileController {
     // ── Emergency Contacts ────────────────────────────────────────────────
 
     @GetMapping("/me/emergency-contacts")
-    @PreAuthorize("@policy.canManageOwnEmergencyContacts(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnEmergencyContacts(authentication)")
     @Operation(summary = "List my emergency contacts")
     public ResponseEntity<List<EmergencyContactDTO>> listEmergencyContacts() {
         return ResponseEntity.ok(patientHealthUseCase.listEmergencyContacts(SecurityUtils.getCurrentUserId()));
     }
 
     @PostMapping("/me/emergency-contacts")
-    @PreAuthorize("@policy.canManageOwnEmergencyContacts(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnEmergencyContacts(authentication)")
     @Operation(summary = "Add an emergency contact")
     public ResponseEntity<EmergencyContactDTO> addEmergencyContact(
             @Valid @RequestBody EmergencyContactDTO dto) {
@@ -114,7 +114,7 @@ public class PatientProfileController {
     }
 
     @PutMapping("/me/emergency-contacts/{contactId}")
-    @PreAuthorize("@policy.canManageOwnEmergencyContacts(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnEmergencyContacts(authentication)")
     @Operation(summary = "Update an emergency contact")
     public ResponseEntity<EmergencyContactDTO> updateEmergencyContact(
             @PathVariable String contactId, @Valid @RequestBody EmergencyContactDTO dto) {
@@ -123,7 +123,7 @@ public class PatientProfileController {
     }
 
     @DeleteMapping("/me/emergency-contacts/{contactId}")
-    @PreAuthorize("@policy.canManageOwnEmergencyContacts(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnEmergencyContacts(authentication)")
     @Operation(summary = "Delete an emergency contact")
     public ResponseEntity<Void> deleteEmergencyContact(@PathVariable String contactId) {
         patientHealthUseCase.deleteEmergencyContact(SecurityUtils.getCurrentUserId(), contactId);
@@ -133,21 +133,21 @@ public class PatientProfileController {
     // ── Vaccines ──────────────────────────────────────────────────────────
 
     @GetMapping("/me/vaccines")
-    @PreAuthorize("@policy.canManageOwnVaccines(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnVaccines(authentication)")
     @Operation(summary = "List my vaccines")
     public ResponseEntity<List<PatientVaccineDTO>> listVaccines() {
         return ResponseEntity.ok(patientHealthUseCase.listVaccines(SecurityUtils.getCurrentUserId()));
     }
 
     @PostMapping("/me/vaccines")
-    @PreAuthorize("@policy.canManageOwnVaccines(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnVaccines(authentication)")
     @Operation(summary = "Add a vaccine")
     public ResponseEntity<PatientVaccineDTO> addVaccine(@Valid @RequestBody PatientVaccineDTO dto) {
         return ResponseEntity.ok(patientHealthUseCase.addVaccine(SecurityUtils.getCurrentUserId(), dto));
     }
 
     @DeleteMapping("/me/vaccines/{vaccineId}")
-    @PreAuthorize("@policy.canManageOwnVaccines(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnVaccines(authentication)")
     @Operation(summary = "Delete a vaccine")
     public ResponseEntity<Void> deleteVaccine(@PathVariable String vaccineId) {
         patientHealthUseCase.deleteVaccine(SecurityUtils.getCurrentUserId(), vaccineId);
@@ -157,14 +157,14 @@ public class PatientProfileController {
     // ── Documents ─────────────────────────────────────────────────────────
 
     @GetMapping("/me/documents")
-    @PreAuthorize("@policy.canManageOwnDocuments(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnDocuments(authentication)")
     @Operation(summary = "List my documents")
     public ResponseEntity<List<PatientDocumentResponseDTO>> listDocuments() {
         return ResponseEntity.ok(patientHealthUseCase.listDocuments(SecurityUtils.getCurrentUserId()));
     }
 
     @PostMapping("/me/documents")
-    @PreAuthorize("@policy.canManageOwnDocuments(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnDocuments(authentication)")
     @Operation(summary = "Upload a document")
     public ResponseEntity<PatientDocumentResponseDTO> uploadDocument(
             @RequestParam("file") MultipartFile file,
@@ -175,7 +175,7 @@ public class PatientProfileController {
     }
 
     @DeleteMapping("/me/documents/{documentId}")
-    @PreAuthorize("@policy.canManageOwnDocuments(authentication)")
+    @PreAuthorize("@carePolicy.canManageOwnDocuments(authentication)")
     @Operation(summary = "Delete a document")
     public ResponseEntity<Void> deleteDocument(@PathVariable String documentId) {
         patientHealthUseCase.deleteDocument(SecurityUtils.getCurrentUserId(), documentId);

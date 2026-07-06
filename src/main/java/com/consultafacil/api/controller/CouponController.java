@@ -53,25 +53,25 @@ public class CouponController {
     }
 
     @GetMapping("/admin/billing/coupons")
-    @PreAuthorize("@policy.canManageCoupons(authentication)")
+    @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<List<CouponUsageResponseDTO>> adminListAll() {
         return ResponseEntity.ok(couponValidationUseCase.getAllCouponUsages());
     }
 
     @GetMapping("/admin/billing/coupons/{couponId}/usages")
-    @PreAuthorize("@policy.canManageCoupons(authentication)")
+    @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<List<CouponUsageResponseDTO>> adminListByCoupon(@PathVariable String couponId) {
         return ResponseEntity.ok(couponValidationUseCase.getCouponUsagesByCouponId(couponId));
     }
 
     @GetMapping("/admin/billing/coupons/codes")
-    @PreAuthorize("@policy.canManageCoupons(authentication)")
+    @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<List<CouponResponseDTO>> adminListCoupons() {
         return ResponseEntity.ok(couponUseCase.listCoupons());
     }
 
     @PostMapping("/admin/billing/coupons/codes")
-    @PreAuthorize("@policy.canManageCoupons(authentication)")
+    @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<CouponResponseDTO> adminCreateCoupon(
             @Valid @RequestBody CreateCouponDTO dto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -80,7 +80,7 @@ public class CouponController {
     }
 
     @PatchMapping("/admin/billing/coupons/codes/{id}")
-    @PreAuthorize("@policy.canManageCoupons(authentication)")
+    @PreAuthorize("@adminPolicy.canManageCoupons(authentication)")
     public ResponseEntity<CouponResponseDTO> adminUpdateCoupon(
             @PathVariable String id,
             @Valid @RequestBody UpdateCouponDTO dto) {

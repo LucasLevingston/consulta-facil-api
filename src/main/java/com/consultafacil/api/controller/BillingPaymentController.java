@@ -44,7 +44,7 @@ public class BillingPaymentController {
     }
 
     @GetMapping("/admin/billing/payments")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<BillingPaymentResponseDTO>> listAll() {
         return ResponseEntity.ok(billingPaymentUseCase.listAll());
     }

@@ -22,7 +22,7 @@ public class DependentController {
     private final DependentUseCase dependentUseCase;
 
     @PostMapping("/users/me/dependents")
-    @PreAuthorize("@policy.canManageDependents(authentication)")
+    @PreAuthorize("@carePolicy.canManageDependents(authentication)")
     public ResponseEntity<DependentResponseDTO> create(
             @Valid @RequestBody CreateDependentDTO dto,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -31,14 +31,14 @@ public class DependentController {
     }
 
     @GetMapping("/users/me/dependents")
-    @PreAuthorize("@policy.canManageDependents(authentication)")
+    @PreAuthorize("@carePolicy.canManageDependents(authentication)")
     public ResponseEntity<List<DependentResponseDTO>> list(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(dependentUseCase.listByGuardian(userDetails.getUsername()));
     }
 
     @PutMapping("/dependents/{dependentId}")
-    @PreAuthorize("@policy.canManageDependents(authentication)")
+    @PreAuthorize("@carePolicy.canManageDependents(authentication)")
     public ResponseEntity<DependentResponseDTO> update(
             @PathVariable String dependentId,
             @Valid @RequestBody UpdateDependentDTO dto,
@@ -47,7 +47,7 @@ public class DependentController {
     }
 
     @DeleteMapping("/dependents/{dependentId}")
-    @PreAuthorize("@policy.canManageDependents(authentication)")
+    @PreAuthorize("@carePolicy.canManageDependents(authentication)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @PathVariable String dependentId,

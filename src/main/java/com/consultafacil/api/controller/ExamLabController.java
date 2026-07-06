@@ -37,28 +37,28 @@ public class ExamLabController {
     private final GetAvailableSlotsUseCase getAvailableSlots;
 
     @PostMapping
-    @PreAuthorize("@policy.canManageExamLab(authentication)")
+    @PreAuthorize("@requestPolicy.canManageExamLab(authentication)")
     @Operation(summary = "Create an exam lab (admin)")
     public ResponseEntity<ExamLabResponseDTO> create(@Valid @RequestBody CreateExamLabDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createExamLab.execute(dto));
     }
 
     @GetMapping
-    @PreAuthorize("@policy.canViewExamLabs(authentication)")
+    @PreAuthorize("@requestPolicy.canViewExamLabs(authentication)")
     @Operation(summary = "List all active exam labs")
     public ResponseEntity<List<ExamLabResponseDTO>> getAll() {
         return ResponseEntity.ok(getExamLabs.execute());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@policy.canViewExamLabs(authentication)")
+    @PreAuthorize("@requestPolicy.canViewExamLabs(authentication)")
     @Operation(summary = "Get exam lab by ID")
     public ResponseEntity<ExamLabResponseDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(getExamLabs.executeById(id));
     }
 
     @GetMapping("/nearby")
-    @PreAuthorize("@policy.canViewExamLabs(authentication)")
+    @PreAuthorize("@requestPolicy.canViewExamLabs(authentication)")
     @Operation(summary = "Find nearby exam labs")
     public ResponseEntity<List<ExamLabResponseDTO>> getNearby(
             @RequestParam double lat,
@@ -68,7 +68,7 @@ public class ExamLabController {
     }
 
     @PutMapping("/{id}/hours")
-    @PreAuthorize("@policy.canManageExamLab(authentication)")
+    @PreAuthorize("@requestPolicy.canManageExamLab(authentication)")
     @Operation(summary = "Set operating hours for an exam lab (admin)")
     public ResponseEntity<ExamLabResponseDTO> setHours(
             @PathVariable String id,
@@ -77,7 +77,7 @@ public class ExamLabController {
     }
 
     @GetMapping("/{id}/available-slots")
-    @PreAuthorize("@policy.canViewExamLabs(authentication)")
+    @PreAuthorize("@requestPolicy.canViewExamLabs(authentication)")
     @Operation(summary = "Get available time slots for an exam lab on a given date")
     public ResponseEntity<List<AvailableSlotDTO>> getAvailableSlots(
             @PathVariable String id,

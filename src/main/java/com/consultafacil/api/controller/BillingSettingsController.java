@@ -16,13 +16,13 @@ public class BillingSettingsController {
     private final BillingSettingsUseCase billingSettingsUseCase;
 
     @GetMapping
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<BillingSettingsResponseDTO> get() {
         return ResponseEntity.ok(billingSettingsUseCase.get());
     }
 
     @PatchMapping
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<BillingSettingsResponseDTO> update(@RequestBody UpdateBillingSettingsDTO dto) {
         return ResponseEntity.ok(billingSettingsUseCase.update(dto));
     }

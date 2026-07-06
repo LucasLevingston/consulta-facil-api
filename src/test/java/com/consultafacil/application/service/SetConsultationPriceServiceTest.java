@@ -41,7 +41,7 @@ class SetConsultationPriceServiceTest {
         professional.setId("pr-1"); professional.setUser(user); professional.setSpecialty(Specialty.CARDIOLOGIA);
 
         when(professionalProfileRepository.save(any())).thenReturn(professional);
-        when(professionalService.getProfessionalByUserId(any())).thenReturn(null);
+        when(professionalService.getByUserId(any())).thenReturn(null);
     }
 
     @Test

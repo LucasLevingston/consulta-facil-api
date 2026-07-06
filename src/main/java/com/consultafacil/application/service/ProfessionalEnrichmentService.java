@@ -30,7 +30,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
     private final ProfessionalEducationRepositoryPort educationRepository;
     private final ProfessionalExperienceRepositoryPort experienceRepository;
     private final ProfessionalCertificateRepositoryPort certificateRepository;
-    private final ProfessionalService professionalService;
+    private final ProfessionalProfileMapper mapper;
 
     @Override
     @Transactional
@@ -38,7 +38,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
         ProfessionalProfile profile = findByUserId(userId);
         profile.setCouncilType(dto.councilType());
         profile.setCouncilState(dto.councilState());
-        return professionalService.toResponseDTO(professionalProfileRepository.save(profile));
+        return mapper.toResponseDTO(professionalProfileRepository.save(profile));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
         if (dto.complement() != null) profile.setComplement(dto.complement());
         if (dto.latitude() != null) profile.setLatitude(dto.latitude());
         if (dto.longitude() != null) profile.setLongitude(dto.longitude());
-        return professionalService.toResponseDTO(professionalProfileRepository.save(profile));
+        return mapper.toResponseDTO(professionalProfileRepository.save(profile));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
                 .graduationYear(dto.graduationYear())
                 .build();
         educationRepository.save(education);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
         education.setFieldOfStudy(dto.fieldOfStudy());
         education.setGraduationYear(dto.graduationYear());
         educationRepository.save(education);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
                 .orElseThrow(() -> new ResourceNotFoundException("Education", educationId));
         assertOwnership(education.getProfessionalProfile().getId(), profile.getId());
         educationRepository.delete(education);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
                 .description(dto.description())
                 .build();
         experienceRepository.save(experience);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
         experience.setEndYear(dto.endYear());
         experience.setDescription(dto.description());
         experienceRepository.save(experience);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -138,7 +138,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
                 .orElseThrow(() -> new ResourceNotFoundException("Experience", experienceId));
         assertOwnership(experience.getProfessionalProfile().getId(), profile.getId());
         experienceRepository.delete(experience);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -153,7 +153,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
                 .certificateUrl(dto.certificateUrl())
                 .build();
         certificateRepository.save(certificate);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -168,7 +168,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
         certificate.setIssueYear(dto.issueYear());
         certificate.setCertificateUrl(dto.certificateUrl());
         certificateRepository.save(certificate);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     @Override
@@ -179,7 +179,7 @@ public class ProfessionalEnrichmentService implements ProfessionalEnrichmentUseC
                 .orElseThrow(() -> new ResourceNotFoundException("Certificate", certificateId));
         assertOwnership(certificate.getProfessionalProfile().getId(), profile.getId());
         certificateRepository.delete(certificate);
-        return professionalService.toResponseDTO(findById(profile.getId()));
+        return mapper.toResponseDTO(findById(profile.getId()));
     }
 
     private ProfessionalProfile findByUserId(String userId) {

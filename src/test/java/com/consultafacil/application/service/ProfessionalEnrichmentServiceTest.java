@@ -40,7 +40,7 @@ class ProfessionalEnrichmentServiceTest {
     @Mock ProfessionalEducationRepositoryPort educationRepository;
     @Mock ProfessionalExperienceRepositoryPort experienceRepository;
     @Mock ProfessionalCertificateRepositoryPort certificateRepository;
-    @Mock ProfessionalService professionalService;
+    @Mock ProfessionalProfileMapper mapper;
 
     @InjectMocks ProfessionalEnrichmentService service;
 
@@ -56,7 +56,7 @@ class ProfessionalEnrichmentServiceTest {
 
     private ProfessionalResponseDTO stubResponse(ProfessionalProfile p) {
         ProfessionalResponseDTO dto = ProfessionalResponseDTO.builder().id(p.getId()).build();
-        when(professionalService.toResponseDTO(p)).thenReturn(dto);
+        when(mapper.toResponseDTO(p)).thenReturn(dto);
         return dto;
     }
 

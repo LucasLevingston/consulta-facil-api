@@ -38,7 +38,7 @@ public class ExamRequestController {
     private final GetMyExamsUseCase getMyExams;
 
     @PostMapping("/appointments/{appointmentId}/exams")
-    @PreAuthorize("@policy.canManageExamRequest(authentication)")
+    @PreAuthorize("@requestPolicy.canManageExamRequest(authentication)")
     @Operation(summary = "Request an exam for an appointment")
     public ResponseEntity<ExamRequestResponseDTO> requestExam(
             @PathVariable String appointmentId,
@@ -49,7 +49,7 @@ public class ExamRequestController {
     }
 
     @GetMapping("/appointments/{appointmentId}/exams")
-    @PreAuthorize("@policy.canViewExamRequests(authentication)")
+    @PreAuthorize("@requestPolicy.canViewExamRequests(authentication)")
     @Operation(summary = "List exam requests for an appointment")
     public ResponseEntity<List<ExamRequestResponseDTO>> getExamsByAppointment(
             @PathVariable String appointmentId) {
@@ -57,7 +57,7 @@ public class ExamRequestController {
     }
 
     @GetMapping("/exams/my")
-    @PreAuthorize("@policy.canViewOwnExams(authentication)")
+    @PreAuthorize("@requestPolicy.canViewOwnExams(authentication)")
     @Operation(summary = "List all exam requests for the authenticated user")
     public ResponseEntity<List<ExamRequestResponseDTO>> getMyExams(
             @RequestParam(required = false) ExamRequestStatus status,
@@ -66,7 +66,7 @@ public class ExamRequestController {
     }
 
     @PutMapping(value = "/exams/{examId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("@policy.canReviewExamRequestAsPatient(authentication)")
+    @PreAuthorize("@requestPolicy.canReviewExamRequestAsPatient(authentication)")
     @Operation(summary = "Upload exam result file")
     public ResponseEntity<ExamRequestResponseDTO> uploadExam(
             @PathVariable String examId,
@@ -76,7 +76,7 @@ public class ExamRequestController {
     }
 
     @PutMapping("/exams/{examId}/review")
-    @PreAuthorize("@policy.canReviewExamRequestAsProfessional(authentication)")
+    @PreAuthorize("@requestPolicy.canReviewExamRequestAsProfessional(authentication)")
     @Operation(summary = "Review an uploaded exam and add professional notes")
     public ResponseEntity<ExamRequestResponseDTO> reviewExam(
             @PathVariable String examId,

@@ -27,7 +27,7 @@ public class ExamSchedulingController {
     private final CancelExamSchedulingUseCase cancelExamScheduling;
 
     @PostMapping
-    @PreAuthorize("@policy.canScheduleExamAtLab(authentication)")
+    @PreAuthorize("@requestPolicy.canScheduleExamAtLab(authentication)")
     @Operation(summary = "Schedule an exam at a lab")
     public ResponseEntity<ExamSchedulingResponseDTO> schedule(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -37,7 +37,7 @@ public class ExamSchedulingController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@policy.canScheduleExamAtLab(authentication)")
+    @PreAuthorize("@requestPolicy.canScheduleExamAtLab(authentication)")
     @Operation(summary = "Cancel an exam scheduling")
     public ResponseEntity<Void> cancel(
             @PathVariable String id,

@@ -26,7 +26,7 @@ public class UserController {
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAdminListUsers(authentication)")
+    @PreAuthorize("@adminPolicy.canAdminListUsers(authentication)")
     @Operation(summary = "List all users (admin only)")
     public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -37,7 +37,7 @@ public class UserController {
 
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canViewUserProfile(authentication)")
+    @PreAuthorize("@adminPolicy.canViewUserProfile(authentication)")
     @Operation(summary = "Get current user")
     public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(userUseCase.getById(userDetails.getUserId()));
@@ -45,7 +45,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAdminListUsers(authentication)")
+    @PreAuthorize("@adminPolicy.canAdminListUsers(authentication)")
     @Operation(summary = "Get user by ID")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String userId) {
         return ResponseEntity.ok(userUseCase.getById(userId));
@@ -53,7 +53,7 @@ public class UserController {
 
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canUpdateUserProfile(authentication)")
+    @PreAuthorize("@adminPolicy.canUpdateUserProfile(authentication)")
     @Operation(summary = "Upload avatar do usuário autenticado")
     public ResponseEntity<UserResponseDTO> uploadAvatar(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    @PreAuthorize("@policy.canAdminUpdateUser(authentication)")
+    @PreAuthorize("@adminPolicy.canAdminUpdateUser(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete user")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {

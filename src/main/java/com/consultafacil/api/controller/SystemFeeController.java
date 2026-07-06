@@ -18,19 +18,19 @@ public class SystemFeeController {
     private final SystemFeeUseCase systemFeeUseCase;
 
     @GetMapping
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<SystemFeeResponseDTO>> listAll() {
         return ResponseEntity.ok(systemFeeUseCase.listAll());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<SystemFeeResponseDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(systemFeeUseCase.getById(id));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<SystemFeeResponseDTO> update(@PathVariable String id, @RequestBody UpdateSystemFeeDTO dto) {
         return ResponseEntity.ok(systemFeeUseCase.update(id, dto));
     }

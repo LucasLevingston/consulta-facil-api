@@ -25,6 +25,6 @@ public class SetConsultationPriceService implements SetConsultationPriceUseCase 
 
         profile.updateConsultationPrice(price);
         professionalProfileRepository.save(profile);
-        return professionalService.getProfessionalByUserId(userId);
+        return professionalService.getByUserId(userId);
     }
 }

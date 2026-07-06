@@ -20,31 +20,31 @@ public class FeatureController {
     private final FeatureUseCase featureUseCase;
 
     @GetMapping
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<FeatureResponseDTO>> listAll() {
         return ResponseEntity.ok(featureUseCase.listAll());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<FeatureResponseDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(featureUseCase.getById(id));
     }
 
     @PostMapping
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<FeatureResponseDTO> create(@Valid @RequestBody CreateFeatureDTO dto) {
         return ResponseEntity.ok(featureUseCase.create(dto));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<FeatureResponseDTO> update(@PathVariable String id, @RequestBody UpdateFeatureDTO dto) {
         return ResponseEntity.ok(featureUseCase.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@policy.canManagePlans(authentication)")
+    @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         featureUseCase.delete(id);
         return ResponseEntity.noContent().build();

@@ -24,7 +24,7 @@ public class NotificationController {
     private final NotificationUseCase notificationUseCase;
 
     @GetMapping("/me")
-    @PreAuthorize("@policy.canAccessNotifications(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessNotifications(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get my notifications")
     public ResponseEntity<List<NotificationResponseDTO>> getMyNotifications(
@@ -33,7 +33,7 @@ public class NotificationController {
     }
 
     @GetMapping("/me/unread-count")
-    @PreAuthorize("@policy.canAccessNotifications(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessNotifications(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get unread notification count")
     public ResponseEntity<Map<String, Long>> getUnreadCount(
@@ -42,7 +42,7 @@ public class NotificationController {
     }
 
     @PutMapping("/{notificationId}/read")
-    @PreAuthorize("@policy.canAccessNotifications(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessNotifications(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Mark a notification as read")
     public ResponseEntity<NotificationResponseDTO> markAsRead(
@@ -52,7 +52,7 @@ public class NotificationController {
     }
 
     @PutMapping("/read-all")
-    @PreAuthorize("@policy.canAccessNotifications(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessNotifications(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Mark all notifications as read")
     public ResponseEntity<Void> markAllAsRead(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -61,7 +61,7 @@ public class NotificationController {
     }
 
     @PutMapping("/{notificationId}/accept")
-    @PreAuthorize("@policy.canAccessNotifications(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessNotifications(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Accept a clinic invite notification")
     public ResponseEntity<NotificationResponseDTO> acceptInvite(
@@ -71,7 +71,7 @@ public class NotificationController {
     }
 
     @PutMapping("/{notificationId}/decline")
-    @PreAuthorize("@policy.canAccessNotifications(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessNotifications(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Decline a clinic invite notification")
     public ResponseEntity<NotificationResponseDTO> declineInvite(

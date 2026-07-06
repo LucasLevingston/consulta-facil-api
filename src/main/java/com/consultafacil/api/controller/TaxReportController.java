@@ -21,7 +21,7 @@ public class TaxReportController {
     private final TaxCalculationService taxCalculationService;
 
     @GetMapping("/tax")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     public ResponseEntity<TaxReportDTO> taxReport(
             @RequestParam(required = false) String month) {
         YearMonth ym = parseMonth(month);

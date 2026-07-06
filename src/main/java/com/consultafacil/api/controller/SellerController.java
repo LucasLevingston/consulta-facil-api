@@ -35,7 +35,7 @@ public class SellerController {
 
     @PostMapping("/admin/sellers")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Criar vendedor")
     public ResponseEntity<SellerResponseDTO> createSeller(@Valid @RequestBody CreateSellerDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sellerUseCase.createSeller(dto));
@@ -43,7 +43,7 @@ public class SellerController {
 
     @GetMapping("/admin/sellers")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Listar todos os vendedores com métricas")
     public ResponseEntity<List<SellerResponseDTO>> listSellers() {
         return ResponseEntity.ok(sellerUseCase.listSellers());
@@ -51,7 +51,7 @@ public class SellerController {
 
     @GetMapping("/admin/sellers/{sellerId}")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Detalhe do vendedor")
     public ResponseEntity<SellerResponseDTO> getSeller(@PathVariable String sellerId) {
         return ResponseEntity.ok(sellerUseCase.getSeller(sellerId));
@@ -59,7 +59,7 @@ public class SellerController {
 
     @PatchMapping("/admin/sellers/{sellerId}/commission-rate")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Atualizar taxa de comissão do vendedor")
     public ResponseEntity<SellerResponseDTO> updateCommissionRate(
             @PathVariable String sellerId,
@@ -69,7 +69,7 @@ public class SellerController {
 
     @PatchMapping("/admin/sellers/{sellerId}/deactivate")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Desativar vendedor")
     public ResponseEntity<SellerResponseDTO> deactivateSeller(@PathVariable String sellerId) {
         return ResponseEntity.ok(sellerUseCase.deactivateSeller(sellerId));
@@ -77,7 +77,7 @@ public class SellerController {
 
     @PatchMapping("/admin/sellers/{sellerId}/activate")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Reativar vendedor")
     public ResponseEntity<SellerResponseDTO> activateSeller(@PathVariable String sellerId) {
         return ResponseEntity.ok(sellerUseCase.activateSeller(sellerId));
@@ -85,7 +85,7 @@ public class SellerController {
 
     @GetMapping("/admin/sellers/{sellerId}/commissions")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Histórico de comissões do vendedor")
     public ResponseEntity<List<SellerSaleResponseDTO>> getCommissions(@PathVariable String sellerId) {
         return ResponseEntity.ok(sellerUseCase.getCommissions(sellerId));
@@ -93,7 +93,7 @@ public class SellerController {
 
     @PatchMapping("/admin/sellers/commissions/{saleId}/status")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canAccessAdminPanel(authentication)")
+    @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Atualizar status da comissão (PENDING → PAID / REVERSED)")
     public ResponseEntity<SellerSaleResponseDTO> updateCommissionStatus(
             @PathVariable String saleId,
@@ -105,7 +105,7 @@ public class SellerController {
 
     @GetMapping("/sellers/me/dashboard")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canViewSellerDashboard(authentication)")
+    @PreAuthorize("@adminPolicy.canViewSellerDashboard(authentication)")
     @Operation(summary = "Dashboard do próprio vendedor")
     public ResponseEntity<SellerDashboardDTO> getMyDashboard(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -114,7 +114,7 @@ public class SellerController {
 
     @GetMapping("/sellers/me/commissions")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("@policy.canViewSellerDashboard(authentication)")
+    @PreAuthorize("@adminPolicy.canViewSellerDashboard(authentication)")
     @Operation(summary = "Comissões do próprio vendedor")
     public ResponseEntity<List<SellerSaleResponseDTO>> getMyCommissions(
             @AuthenticationPrincipal CustomUserDetails userDetails) {

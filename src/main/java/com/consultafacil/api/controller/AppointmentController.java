@@ -73,7 +73,7 @@ public class AppointmentController {
     private final ClinicalNoteUseCase clinicalNoteUseCase;
 
     @PostMapping
-    @PreAuthorize("@policy.canScheduleAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canScheduleAppointment(authentication)")
     @Operation(summary = "Schedule appointment")
     public ResponseEntity<AppointmentResponseDTO> scheduleAppointment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -91,7 +91,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}")
-    @PreAuthorize("@policy.canViewAnamnesis(authentication)")
+    @PreAuthorize("@appointmentPolicy.canViewAnamnesis(authentication)")
     @Operation(summary = "Get appointment by ID")
     public ResponseEntity<AppointmentResponseDTO> getAppointmentById(
             @PathVariable String appointmentId,
@@ -100,7 +100,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{userId}")
-    @PreAuthorize("@policy.canViewPatientAppointments(authentication)")
+    @PreAuthorize("@appointmentPolicy.canViewPatientAppointments(authentication)")
     @Operation(summary = "List patient appointments")
     public ResponseEntity<Page<AppointmentResponseDTO>> getPatientAppointments(
             @PathVariable String userId,
@@ -113,14 +113,14 @@ public class AppointmentController {
     }
 
     @GetMapping
-    @PreAuthorize("@policy.canDeleteAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canDeleteAppointment(authentication)")
     @Operation(summary = "List all appointments (admin)")
     public ResponseEntity<Page<AppointmentResponseDTO>> getAllAppointments(Pageable pageable) {
         return ResponseEntity.ok(appointmentQuery.getAllAppointments(pageable));
     }
 
     @GetMapping("/professional/{professionalId}")
-    @PreAuthorize("@policy.canViewProfessionalAppointments(authentication)")
+    @PreAuthorize("@appointmentPolicy.canViewProfessionalAppointments(authentication)")
     @Operation(summary = "List professional appointments")
     public ResponseEntity<Page<AppointmentResponseDTO>> getProfessionalAppointments(
             @PathVariable String professionalId,
@@ -133,7 +133,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/confirm")
-    @PreAuthorize("@policy.canConfirmAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canConfirmAppointment(authentication)")
     @Operation(summary = "Confirm appointment")
     public ResponseEntity<AppointmentResponseDTO> confirmAppointment(
             @PathVariable String appointmentId,
@@ -142,7 +142,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/reschedule")
-    @PreAuthorize("@policy.canRescheduleAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canRescheduleAppointment(authentication)")
     @Operation(summary = "Reschedule appointment")
     public ResponseEntity<AppointmentResponseDTO> rescheduleAppointment(
             @PathVariable String appointmentId,
@@ -154,7 +154,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/cancel")
-    @PreAuthorize("@policy.canCancelAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canCancelAppointment(authentication)")
     @Operation(summary = "Cancel appointment")
     public ResponseEntity<AppointmentResponseDTO> cancelAppointment(
             @PathVariable String appointmentId,
@@ -166,7 +166,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/complete")
-    @PreAuthorize("@policy.canCompleteAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canCompleteAppointment(authentication)")
     @Operation(summary = "Complete appointment")
     public ResponseEntity<AppointmentResponseDTO> completeAppointment(
             @PathVariable String appointmentId,
@@ -175,7 +175,7 @@ public class AppointmentController {
     }
 
     @PostMapping("/{appointmentId}/rate")
-    @PreAuthorize("@policy.canRateAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canRateAppointment(authentication)")
     @Operation(summary = "Rate a completed appointment")
     public ResponseEntity<AppointmentResponseDTO> rateAppointment(
             @PathVariable String appointmentId,
@@ -187,7 +187,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}/checkin-token")
-    @PreAuthorize("@policy.canGenerateCheckInToken(authentication)")
+    @PreAuthorize("@appointmentPolicy.canGenerateCheckInToken(authentication)")
     @Operation(summary = "Generate QR check-in token for patient")
     public ResponseEntity<QrCheckInTokenDTO> generateCheckInToken(
             @PathVariable String appointmentId,
@@ -196,14 +196,14 @@ public class AppointmentController {
     }
 
     @PostMapping("/checkin")
-    @PreAuthorize("@policy.canCheckIn(authentication)")
+    @PreAuthorize("@appointmentPolicy.canCheckIn(authentication)")
     @Operation(summary = "Check in patient via QR token")
     public ResponseEntity<AppointmentResponseDTO> checkInByQr(@RequestParam String token) {
         return ResponseEntity.ok(checkInByQr.execute(token));
     }
 
     @GetMapping("/queue")
-    @PreAuthorize("@policy.canViewQueue(authentication)")
+    @PreAuthorize("@appointmentPolicy.canViewQueue(authentication)")
     @Operation(summary = "Get today's queue for the professional")
     public ResponseEntity<List<AppointmentResponseDTO>> getQueue(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -215,7 +215,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/call")
-    @PreAuthorize("@policy.canCallPatient(authentication)")
+    @PreAuthorize("@appointmentPolicy.canCallPatient(authentication)")
     @Operation(summary = "Call next patient (move to IN_PROGRESS)")
     public ResponseEntity<AppointmentResponseDTO> callNextPatient(
             @PathVariable String appointmentId,
@@ -224,7 +224,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/modality")
-    @PreAuthorize("@policy.canSetModality(authentication)")
+    @PreAuthorize("@appointmentPolicy.canSetModality(authentication)")
     @Operation(summary = "Set appointment modality (IN_PERSON / ONLINE)")
     public ResponseEntity<AppointmentResponseDTO> setModalityEndpoint(
             @PathVariable String appointmentId,
@@ -234,7 +234,7 @@ public class AppointmentController {
     }
 
     @PostMapping("/{appointmentId}/meet-link")
-    @PreAuthorize("@policy.canGenerateMeetLink(authentication)")
+    @PreAuthorize("@appointmentPolicy.canGenerateMeetLink(authentication)")
     @Operation(summary = "Generate Google Meet link for an ONLINE appointment")
     public ResponseEntity<AppointmentResponseDTO> generateMeetLink(
             @PathVariable String appointmentId,
@@ -243,7 +243,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/{appointmentId}")
-    @PreAuthorize("@policy.canDeleteAppointment(authentication)")
+    @PreAuthorize("@appointmentPolicy.canDeleteAppointment(authentication)")
     @Operation(summary = "Delete appointment")
     public ResponseEntity<Void> deleteAppointment(@PathVariable String appointmentId) {
         deleteAppointment.delete(appointmentId);
@@ -251,7 +251,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}/anamnesis")
-    @PreAuthorize("@policy.canViewAnamnesis(authentication)")
+    @PreAuthorize("@appointmentPolicy.canViewAnamnesis(authentication)")
     @Operation(summary = "Get anamnesis for an appointment")
     public ResponseEntity<MedicalHistoryResponseDTO> getAnamnesis(
             @PathVariable String appointmentId,
@@ -262,7 +262,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/anamnesis")
-    @PreAuthorize("@policy.canSaveAnamnesis(authentication)")
+    @PreAuthorize("@appointmentPolicy.canSaveAnamnesis(authentication)")
     @Operation(summary = "Save anamnesis for an appointment")
     public ResponseEntity<MedicalHistoryResponseDTO> saveAnamnesis(
             @PathVariable String appointmentId,
@@ -272,7 +272,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}/clinicalNote")
-    @PreAuthorize("@policy.canViewClinicalNote(authentication)")
+    @PreAuthorize("@appointmentPolicy.canViewClinicalNote(authentication)")
     @Operation(summary = "Get clinical note for an appointment")
     public ResponseEntity<ClinicalNoteResponseDTO> getClinicalNote(
             @PathVariable String appointmentId,
@@ -283,7 +283,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/clinicalNote")
-    @PreAuthorize("@policy.canSaveClinicalNote(authentication)")
+    @PreAuthorize("@appointmentPolicy.canSaveClinicalNote(authentication)")
     @Operation(summary = "Save clinicalNote for an appointment")
     public ResponseEntity<ClinicalNoteResponseDTO> saveClinicalNote(
             @PathVariable String appointmentId,
