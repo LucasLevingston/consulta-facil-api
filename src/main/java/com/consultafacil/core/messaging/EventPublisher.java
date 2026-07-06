@@ -21,23 +21,23 @@ public class EventPublisher {
     }
 
     public void publishAppointmentCreated(AppointmentCreatedEvent event) {
-        publish(RabbitMQConfig.RK_APPOINTMENTS_CREATED, event);
+        publish(RabbitMQConstants.RK_APPOINTMENTS_CREATED, event);
     }
 
     public void publishAppointmentCanceled(AppointmentCanceledEvent event) {
-        publish(RabbitMQConfig.RK_APPOINTMENTS_CANCELED, event);
+        publish(RabbitMQConstants.RK_APPOINTMENTS_CANCELED, event);
     }
 
     public void publishAppointmentConfirmed(AppointmentConfirmedEvent event) {
-        publish(RabbitMQConfig.RK_APPOINTMENTS_CONFIRMED, event);
+        publish(RabbitMQConstants.RK_APPOINTMENTS_CONFIRMED, event);
     }
 
     public void publishPaymentSucceeded(PaymentSucceededEvent event) {
-        publish(RabbitMQConfig.RK_PAYMENTS_SUCCEEDED, event);
+        publish(RabbitMQConstants.RK_PAYMENTS_SUCCEEDED, event);
     }
 
     public void publishPaymentFailed(PaymentFailedEvent event) {
-        publish(RabbitMQConfig.RK_PAYMENTS_FAILED, event);
+        publish(RabbitMQConstants.RK_PAYMENTS_FAILED, event);
     }
 
     private void publish(String routingKey, Object event) {
@@ -46,7 +46,7 @@ public class EventPublisher {
             return;
         }
         try {
-            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, event);
+            rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE, routingKey, event);
             log.debug("[Messaging] Published: {}", routingKey);
         } catch (Exception e) {
             log.error("[Messaging] Failed to publish {}: {}", routingKey, e.getMessage());

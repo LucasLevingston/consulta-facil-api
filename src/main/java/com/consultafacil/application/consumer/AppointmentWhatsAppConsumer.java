@@ -1,7 +1,7 @@
 package com.consultafacil.application.consumer;
 
 import com.consultafacil.application.service.WhatsAppService;
-import com.consultafacil.core.messaging.RabbitMQConfig;
+import com.consultafacil.core.messaging.RabbitMQConstants;
 import com.consultafacil.domain.event.AppointmentCanceledEvent;
 import com.consultafacil.domain.event.AppointmentConfirmedEvent;
 import com.consultafacil.domain.event.AppointmentCreatedEvent;
@@ -26,7 +26,7 @@ public class AppointmentWhatsAppConsumer {
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm", Locale.forLanguageTag("pt-BR"));
 
-    @RabbitListener(queues = RabbitMQConfig.Q_APPOINTMENTS_CREATED_WHATSAPP)
+    @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CREATED_WHATSAPP)
     public void onAppointmentCreated(AppointmentCreatedEvent event) {
         log.info("[WhatsApp] Processing appointments.created for appointment {}", event.appointmentId());
         String dateStr = event.scheduledAt().format(FMT);
@@ -35,7 +35,7 @@ public class AppointmentWhatsAppConsumer {
                 " foi agendada para " + dateStr + ". Aguardamos você!");
     }
 
-    @RabbitListener(queues = RabbitMQConfig.Q_APPOINTMENTS_CANCELED_WHATSAPP)
+    @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CANCELED_WHATSAPP)
     public void onAppointmentCanceled(AppointmentCanceledEvent event) {
         log.info("[WhatsApp] Processing appointments.canceled for appointment {}", event.appointmentId());
         String dateStr = event.scheduledAt().format(FMT);
@@ -46,7 +46,7 @@ public class AppointmentWhatsAppConsumer {
                 "A consulta com " + event.patientName() + " em " + dateStr + " foi cancelada.");
     }
 
-    @RabbitListener(queues = RabbitMQConfig.Q_APPOINTMENTS_CONFIRMED_WHATSAPP)
+    @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CONFIRMED_WHATSAPP)
     public void onAppointmentConfirmed(AppointmentConfirmedEvent event) {
         log.info("[WhatsApp] Processing appointments.confirmed for appointment {}", event.appointmentId());
         String dateStr = event.scheduledAt().format(FMT);
