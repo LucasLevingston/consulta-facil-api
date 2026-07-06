@@ -1,7 +1,7 @@
 package com.consultafacil.application.service;
 
 import com.consultafacil.application.port.in.CancelCommissionUseCase;
-import com.consultafacil.application.port.in.WalletUseCase;
+import com.consultafacil.application.port.in.ReleasePendingWalletCommissionUseCase;
 import com.consultafacil.domain.enums.CommissionStatus;
 import com.consultafacil.domain.port.out.ReferralCommissionRepositoryPort;
 import com.consultafacil.domain.port.out.ReferralRepositoryPort;
@@ -15,7 +15,7 @@ public class CancelCommissionService implements CancelCommissionUseCase {
 
     private final ReferralCommissionRepositoryPort commissionRepository;
     private final ReferralRepositoryPort referralRepository;
-    private final WalletUseCase walletUseCase;
+    private final ReleasePendingWalletCommissionUseCase releasePendingWalletCommissionUseCase;
 
     @Override
     @Transactional
@@ -25,7 +25,7 @@ public class CancelCommissionService implements CancelCommissionUseCase {
 
             if (commission.getStatus() == CommissionStatus.PENDING) {
                 referralRepository.findById(commission.getReferralId()).ifPresent(referral ->
-                        walletUseCase.releasePending(referral.getReferrerId(), commission.getAmount()));
+                        releasePendingWalletCommissionUseCase.execute(referral.getReferrerId(), commission.getAmount()));
             }
 
             commission.setStatus(CommissionStatus.CANCELED);

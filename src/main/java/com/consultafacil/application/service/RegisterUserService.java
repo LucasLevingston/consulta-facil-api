@@ -2,9 +2,9 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.user.CreateUserDTO;
 import com.consultafacil.api.dto.user.UserResponseDTO;
+import com.consultafacil.application.port.in.CreateWalletUseCase;
+import com.consultafacil.application.port.in.GetOrCreateReferralCodeUseCase;
 import com.consultafacil.application.port.in.RegisterUserUseCase;
-import com.consultafacil.application.port.in.ReferralUseCase;
-import com.consultafacil.application.port.in.WalletUseCase;
 import com.consultafacil.core.exception.DuplicateResourceException;
 import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.entity.User;
@@ -23,8 +23,8 @@ public class RegisterUserService implements RegisterUserUseCase {
     private final UserRepositoryPort userRepository;
     private final PatientProfileRepositoryPort patientProfileRepository;
     private final PasswordEncoder passwordEncoder;
-    private final WalletUseCase walletUseCase;
-    private final ReferralUseCase referralUseCase;
+    private final CreateWalletUseCase createWalletUseCase;
+    private final GetOrCreateReferralCodeUseCase getOrCreateReferralCodeUseCase;
     private final UserMapper mapper;
 
     @Override
@@ -51,8 +51,8 @@ public class RegisterUserService implements RegisterUserUseCase {
 
         User savedUser = userRepository.save(user);
         patientProfileRepository.save(PatientProfile.builder().user(savedUser).build());
-        walletUseCase.createWallet(savedUser.getId());
-        referralUseCase.getOrCreateReferralCode(savedUser.getId());
+        createWalletUseCase.execute(savedUser.getId());
+        getOrCreateReferralCodeUseCase.execute(savedUser.getId());
 
         return mapper.toResponseDTO(savedUser);
     }

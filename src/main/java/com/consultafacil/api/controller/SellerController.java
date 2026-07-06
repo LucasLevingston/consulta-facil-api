@@ -5,7 +5,15 @@ import com.consultafacil.api.dto.seller.SellerDashboardDTO;
 import com.consultafacil.api.dto.seller.SellerResponseDTO;
 import com.consultafacil.api.dto.seller.SellerSaleResponseDTO;
 import com.consultafacil.api.dto.seller.UpdateCommissionStatusDTO;
-import com.consultafacil.application.port.in.SellerUseCase;
+import com.consultafacil.application.port.in.ActivateSellerUseCase;
+import com.consultafacil.application.port.in.CreateSellerUseCase;
+import com.consultafacil.application.port.in.DeactivateSellerUseCase;
+import com.consultafacil.application.port.in.GetSellerCommissionsUseCase;
+import com.consultafacil.application.port.in.GetSellerDashboardUseCase;
+import com.consultafacil.application.port.in.GetSellerUseCase;
+import com.consultafacil.application.port.in.ListSellersUseCase;
+import com.consultafacil.application.port.in.UpdateSellerCommissionRateUseCase;
+import com.consultafacil.application.port.in.UpdateSellerCommissionStatusUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,7 +37,15 @@ import java.util.List;
 @Tag(name = "Sellers", description = "Seller affiliate management")
 public class SellerController {
 
-    private final SellerUseCase sellerUseCase;
+    private final CreateSellerUseCase createSellerUseCase;
+    private final ListSellersUseCase listSellersUseCase;
+    private final GetSellerUseCase getSellerUseCase;
+    private final UpdateSellerCommissionRateUseCase updateSellerCommissionRateUseCase;
+    private final DeactivateSellerUseCase deactivateSellerUseCase;
+    private final ActivateSellerUseCase activateSellerUseCase;
+    private final GetSellerCommissionsUseCase getSellerCommissionsUseCase;
+    private final UpdateSellerCommissionStatusUseCase updateSellerCommissionStatusUseCase;
+    private final GetSellerDashboardUseCase getSellerDashboardUseCase;
 
     // ── Admin endpoints ────────────────────────────────────────────────────
 
@@ -38,7 +54,7 @@ public class SellerController {
     @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Criar vendedor")
     public ResponseEntity<SellerResponseDTO> createSeller(@Valid @RequestBody CreateSellerDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(sellerUseCase.createSeller(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(createSellerUseCase.execute(dto));
     }
 
     @GetMapping("/admin/sellers")
@@ -46,7 +62,7 @@ public class SellerController {
     @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Listar todos os vendedores com métricas")
     public ResponseEntity<List<SellerResponseDTO>> listSellers() {
-        return ResponseEntity.ok(sellerUseCase.listSellers());
+        return ResponseEntity.ok(listSellersUseCase.execute());
     }
 
     @GetMapping("/admin/sellers/{sellerId}")
@@ -54,7 +70,7 @@ public class SellerController {
     @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Detalhe do vendedor")
     public ResponseEntity<SellerResponseDTO> getSeller(@PathVariable String sellerId) {
-        return ResponseEntity.ok(sellerUseCase.getSeller(sellerId));
+        return ResponseEntity.ok(getSellerUseCase.execute(sellerId));
     }
 
     @PatchMapping("/admin/sellers/{sellerId}/commission-rate")
@@ -64,7 +80,7 @@ public class SellerController {
     public ResponseEntity<SellerResponseDTO> updateCommissionRate(
             @PathVariable String sellerId,
             @RequestParam @NotNull @DecimalMin("0.01") @DecimalMax("100.00") BigDecimal commissionRate) {
-        return ResponseEntity.ok(sellerUseCase.updateCommissionRate(sellerId, commissionRate));
+        return ResponseEntity.ok(updateSellerCommissionRateUseCase.execute(sellerId, commissionRate));
     }
 
     @PatchMapping("/admin/sellers/{sellerId}/deactivate")
@@ -72,7 +88,7 @@ public class SellerController {
     @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Desativar vendedor")
     public ResponseEntity<SellerResponseDTO> deactivateSeller(@PathVariable String sellerId) {
-        return ResponseEntity.ok(sellerUseCase.deactivateSeller(sellerId));
+        return ResponseEntity.ok(deactivateSellerUseCase.execute(sellerId));
     }
 
     @PatchMapping("/admin/sellers/{sellerId}/activate")
@@ -80,7 +96,7 @@ public class SellerController {
     @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Reativar vendedor")
     public ResponseEntity<SellerResponseDTO> activateSeller(@PathVariable String sellerId) {
-        return ResponseEntity.ok(sellerUseCase.activateSeller(sellerId));
+        return ResponseEntity.ok(activateSellerUseCase.execute(sellerId));
     }
 
     @GetMapping("/admin/sellers/{sellerId}/commissions")
@@ -88,7 +104,7 @@ public class SellerController {
     @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     @Operation(summary = "Histórico de comissões do vendedor")
     public ResponseEntity<List<SellerSaleResponseDTO>> getCommissions(@PathVariable String sellerId) {
-        return ResponseEntity.ok(sellerUseCase.getCommissions(sellerId));
+        return ResponseEntity.ok(getSellerCommissionsUseCase.execute(sellerId));
     }
 
     @PatchMapping("/admin/sellers/commissions/{saleId}/status")
@@ -98,7 +114,7 @@ public class SellerController {
     public ResponseEntity<SellerSaleResponseDTO> updateCommissionStatus(
             @PathVariable String saleId,
             @Valid @RequestBody UpdateCommissionStatusDTO dto) {
-        return ResponseEntity.ok(sellerUseCase.updateCommissionStatus(saleId, dto.getStatus()));
+        return ResponseEntity.ok(updateSellerCommissionStatusUseCase.execute(saleId, dto.getStatus()));
     }
 
     // ── Seller self-service endpoints ─────────────────────────────────────
@@ -109,7 +125,7 @@ public class SellerController {
     @Operation(summary = "Dashboard do próprio vendedor")
     public ResponseEntity<SellerDashboardDTO> getMyDashboard(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(sellerUseCase.getMyDashboard(userDetails.getUserId()));
+        return ResponseEntity.ok(getSellerDashboardUseCase.execute(userDetails.getUserId()));
     }
 
     @GetMapping("/sellers/me/commissions")
@@ -118,7 +134,7 @@ public class SellerController {
     @Operation(summary = "Comissões do próprio vendedor")
     public ResponseEntity<List<SellerSaleResponseDTO>> getMyCommissions(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        SellerDashboardDTO dashboard = sellerUseCase.getMyDashboard(userDetails.getUserId());
+        SellerDashboardDTO dashboard = getSellerDashboardUseCase.execute(userDetails.getUserId());
         return ResponseEntity.ok(dashboard.getRecentSales());
     }
 }

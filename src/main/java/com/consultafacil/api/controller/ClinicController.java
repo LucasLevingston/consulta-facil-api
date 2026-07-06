@@ -7,13 +7,20 @@ import com.consultafacil.api.dto.receptionist.InviteReceptionistDTO;
 import com.consultafacil.api.dto.receptionist.ReceptionistResponseDTO;
 import com.consultafacil.api.dto.schedule.ClinicWorkingHoursResponseDTO;
 import com.consultafacil.api.dto.schedule.CreateClinicWorkingHoursDTO;
-import com.consultafacil.application.port.in.ClinicUseCase;
+import com.consultafacil.application.port.in.AddClinicMemberUseCase;
 import com.consultafacil.application.port.in.ClinicWorkingHoursUseCase;
+import com.consultafacil.application.port.in.CreateClinicUseCase;
+import com.consultafacil.application.port.in.GetAllClinicsUseCase;
+import com.consultafacil.application.port.in.GetClinicByIdUseCase;
 import com.consultafacil.application.port.in.GetClinicQueueUseCase;
 import com.consultafacil.application.port.in.GetClinicReceptionistsUseCase;
+import com.consultafacil.application.port.in.GetClinicsNearbyUseCase;
+import com.consultafacil.application.port.in.GetMyClinicUseCase;
 import com.consultafacil.application.port.in.InviteReceptionistUseCase;
-import com.consultafacil.application.port.in.NotificationUseCase;
+import com.consultafacil.application.port.in.RemoveClinicMemberUseCase;
 import com.consultafacil.application.port.in.RemoveReceptionistUseCase;
+import com.consultafacil.application.port.in.SendClinicInviteUseCase;
+import com.consultafacil.application.port.in.UpdateClinicUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -34,9 +41,16 @@ import java.util.List;
 @Tag(name = "Clinics", description = "Clinic management endpoints")
 public class ClinicController {
 
-    private final ClinicUseCase clinicUseCase;
+    private final GetAllClinicsUseCase getAllClinicsUseCase;
+    private final GetClinicsNearbyUseCase getClinicsNearbyUseCase;
+    private final GetMyClinicUseCase getMyClinicUseCase;
+    private final GetClinicByIdUseCase getClinicByIdUseCase;
+    private final CreateClinicUseCase createClinicUseCase;
+    private final UpdateClinicUseCase updateClinicUseCase;
+    private final AddClinicMemberUseCase addClinicMemberUseCase;
+    private final RemoveClinicMemberUseCase removeClinicMemberUseCase;
+    private final SendClinicInviteUseCase sendClinicInviteUseCase;
     private final ClinicWorkingHoursUseCase clinicWorkingHoursUseCase;
-    private final NotificationUseCase notificationUseCase;
     private final InviteReceptionistUseCase inviteReceptionistUseCase;
     private final RemoveReceptionistUseCase removeReceptionistUseCase;
     private final GetClinicReceptionistsUseCase getClinicReceptionistsUseCase;
@@ -45,7 +59,7 @@ public class ClinicController {
     @GetMapping
     @Operation(summary = "List all active clinics")
     public ResponseEntity<List<ClinicResponseDTO>> getAllClinics() {
-        return ResponseEntity.ok(clinicUseCase.getAllClinics());
+        return ResponseEntity.ok(getAllClinicsUseCase.execute());
     }
 
     @GetMapping("/nearby")
@@ -54,7 +68,7 @@ public class ClinicController {
             @RequestParam double lat,
             @RequestParam double lng,
             @RequestParam(defaultValue = "50") double radiusKm) {
-        return ResponseEntity.ok(clinicUseCase.getClinicsNearby(lat, lng, radiusKm));
+        return ResponseEntity.ok(getClinicsNearbyUseCase.execute(lat, lng, radiusKm));
     }
 
     @GetMapping("/my")
@@ -63,13 +77,13 @@ public class ClinicController {
     @Operation(summary = "Get my clinic")
     public ResponseEntity<List<ClinicResponseDTO>> getMyClinic(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(clinicUseCase.getMyClinic(userDetails.getUserId()));
+        return ResponseEntity.ok(getMyClinicUseCase.execute(userDetails.getUserId()));
     }
 
     @GetMapping("/{clinicId}")
     @Operation(summary = "Get clinic by ID")
     public ResponseEntity<ClinicResponseDTO> getClinicById(@PathVariable String clinicId) {
-        return ResponseEntity.ok(clinicUseCase.getClinicById(clinicId));
+        return ResponseEntity.ok(getClinicByIdUseCase.execute(clinicId));
     }
 
     @PostMapping
@@ -80,7 +94,7 @@ public class ClinicController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateClinicDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(clinicUseCase.createClinic(userDetails.getUserId(), dto));
+                .body(createClinicUseCase.execute(userDetails.getUserId(), dto));
     }
 
     @PutMapping("/{clinicId}")
@@ -91,7 +105,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateClinicDTO dto) {
-        return ResponseEntity.ok(clinicUseCase.updateClinic(clinicId, userDetails.getUserId(), dto));
+        return ResponseEntity.ok(updateClinicUseCase.execute(clinicId, userDetails.getUserId(), dto));
     }
 
     @PostMapping("/{clinicId}/members/{professionalProfileId}")
@@ -102,7 +116,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clinicUseCase.addMember(clinicId, professionalProfileId, userDetails.getUserId());
+        addClinicMemberUseCase.execute(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -114,7 +128,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clinicUseCase.removeMember(clinicId, professionalProfileId, userDetails.getUserId());
+        removeClinicMemberUseCase.execute(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -126,7 +140,7 @@ public class ClinicController {
             @PathVariable String clinicId,
             @PathVariable String professionalProfileId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        notificationUseCase.sendClinicInvite(clinicId, professionalProfileId, userDetails.getUserId());
+        sendClinicInviteUseCase.execute(clinicId, professionalProfileId, userDetails.getUserId());
         return ResponseEntity.noContent().build();
     }
 

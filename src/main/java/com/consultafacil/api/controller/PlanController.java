@@ -3,7 +3,11 @@ package com.consultafacil.api.controller;
 import com.consultafacil.api.dto.plan.CreatePlanDTO;
 import com.consultafacil.api.dto.plan.PlanResponseDTO;
 import com.consultafacil.api.dto.plan.UpdatePlanDTO;
-import com.consultafacil.application.port.in.PlanUseCase;
+import com.consultafacil.application.port.in.CreatePlanUseCase;
+import com.consultafacil.application.port.in.GetPlanBySlugUseCase;
+import com.consultafacil.application.port.in.ListActivePlansUseCase;
+import com.consultafacil.application.port.in.ListAllPlansUseCase;
+import com.consultafacil.application.port.in.UpdatePlanUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,28 +20,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlanController {
 
-    private final PlanUseCase planUseCase;
+    private final ListActivePlansUseCase listActivePlansUseCase;
+    private final ListAllPlansUseCase listAllPlansUseCase;
+    private final GetPlanBySlugUseCase getPlanBySlugUseCase;
+    private final CreatePlanUseCase createPlanUseCase;
+    private final UpdatePlanUseCase updatePlanUseCase;
 
     @GetMapping("/plans")
     public ResponseEntity<List<PlanResponseDTO>> listActivePlans() {
-        return ResponseEntity.ok(planUseCase.listActivePlans());
+        return ResponseEntity.ok(listActivePlansUseCase.execute());
     }
 
     @GetMapping("/plans/{slug}")
     public ResponseEntity<PlanResponseDTO> getBySlug(@PathVariable String slug) {
-        return ResponseEntity.ok(planUseCase.getBySlug(slug));
+        return ResponseEntity.ok(getPlanBySlugUseCase.execute(slug));
     }
 
     @GetMapping("/admin/plans")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<List<PlanResponseDTO>> listAllPlans() {
-        return ResponseEntity.ok(planUseCase.listAllPlans());
+        return ResponseEntity.ok(listAllPlansUseCase.execute());
     }
 
     @PostMapping("/admin/plans")
     @PreAuthorize("@adminPolicy.canManagePlans(authentication)")
     public ResponseEntity<PlanResponseDTO> createPlan(@Valid @RequestBody CreatePlanDTO dto) {
-        return ResponseEntity.ok(planUseCase.createPlan(dto));
+        return ResponseEntity.ok(createPlanUseCase.execute(dto));
     }
 
     @PatchMapping("/admin/plans/{id}")
@@ -45,6 +53,6 @@ public class PlanController {
     public ResponseEntity<PlanResponseDTO> updatePlan(
             @PathVariable String id,
             @RequestBody UpdatePlanDTO dto) {
-        return ResponseEntity.ok(planUseCase.updatePlan(id, dto));
+        return ResponseEntity.ok(updatePlanUseCase.execute(id, dto));
     }
 }

@@ -1,7 +1,8 @@
 package com.consultafacil.application.service;
 
+import com.consultafacil.application.port.in.CreditWalletFromCommissionUseCase;
 import com.consultafacil.application.port.in.ProcessAvailableCommissionsUseCase;
-import com.consultafacil.application.port.in.WalletUseCase;
+import com.consultafacil.application.port.in.ReleasePendingWalletCommissionUseCase;
 import com.consultafacil.domain.entity.ReferralCommission;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
 import com.consultafacil.domain.enums.CommissionStatus;
@@ -24,7 +25,8 @@ public class ProcessAvailableCommissionsService implements ProcessAvailableCommi
     private final ReferralCommissionRepositoryPort commissionRepository;
     private final ReferralRepositoryPort referralRepository;
     private final BillingPaymentRepositoryPort billingPaymentRepository;
-    private final WalletUseCase walletUseCase;
+    private final CreditWalletFromCommissionUseCase creditWalletFromCommissionUseCase;
+    private final ReleasePendingWalletCommissionUseCase releasePendingWalletCommissionUseCase;
 
     @Override
     @Transactional
@@ -46,8 +48,8 @@ public class ProcessAvailableCommissionsService implements ProcessAvailableCommi
             commissionRepository.save(commission);
 
             referralRepository.findById(commission.getReferralId()).ifPresent(referral -> {
-                walletUseCase.creditFromCommission(referral.getReferrerId(), commission.getAmount(), commission.getId());
-                walletUseCase.releasePending(referral.getReferrerId(), commission.getAmount());
+                creditWalletFromCommissionUseCase.execute(referral.getReferrerId(), commission.getAmount(), commission.getId());
+                releasePendingWalletCommissionUseCase.execute(referral.getReferrerId(), commission.getAmount());
             });
             processed++;
         }

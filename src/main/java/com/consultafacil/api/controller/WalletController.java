@@ -2,7 +2,9 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.wallet.WalletDTO;
 import com.consultafacil.api.dto.billing.wallet.WalletTransactionDTO;
-import com.consultafacil.application.port.in.WalletUseCase;
+import com.consultafacil.application.port.in.GetAllWalletsUseCase;
+import com.consultafacil.application.port.in.GetWalletTransactionsUseCase;
+import com.consultafacil.application.port.in.GetWalletUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,35 +17,37 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WalletController {
 
-    private final WalletUseCase walletUseCase;
+    private final GetWalletUseCase getWalletUseCase;
+    private final GetWalletTransactionsUseCase getWalletTransactionsUseCase;
+    private final GetAllWalletsUseCase getAllWalletsUseCase;
 
     @GetMapping("/wallet/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<WalletDTO> myWallet(Authentication authentication) {
-        return ResponseEntity.ok(walletUseCase.getWallet(authentication.getName()));
+        return ResponseEntity.ok(getWalletUseCase.execute(authentication.getName()));
     }
 
     @GetMapping("/wallet/me/transactions")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<WalletTransactionDTO>> myTransactions(Authentication authentication) {
-        return ResponseEntity.ok(walletUseCase.getTransactions(authentication.getName()));
+        return ResponseEntity.ok(getWalletTransactionsUseCase.execute(authentication.getName()));
     }
 
     @GetMapping("/admin/billing/wallets")
     @PreAuthorize("@adminPolicy.canManageWallets(authentication)")
     public ResponseEntity<List<WalletDTO>> adminListAll() {
-        return ResponseEntity.ok(walletUseCase.getAllWallets());
+        return ResponseEntity.ok(getAllWalletsUseCase.execute());
     }
 
     @GetMapping("/admin/billing/wallets/{userId}")
     @PreAuthorize("@adminPolicy.canManageWallets(authentication)")
     public ResponseEntity<WalletDTO> adminGetWallet(@PathVariable String userId) {
-        return ResponseEntity.ok(walletUseCase.getWallet(userId));
+        return ResponseEntity.ok(getWalletUseCase.execute(userId));
     }
 
     @GetMapping("/admin/billing/wallets/{userId}/transactions")
     @PreAuthorize("@adminPolicy.canManageWallets(authentication)")
     public ResponseEntity<List<WalletTransactionDTO>> adminGetTransactions(@PathVariable String userId) {
-        return ResponseEntity.ok(walletUseCase.getTransactions(userId));
+        return ResponseEntity.ok(getWalletTransactionsUseCase.execute(userId));
     }
 }

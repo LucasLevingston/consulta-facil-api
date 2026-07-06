@@ -1,7 +1,8 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.clinic.CreateClinicDTO;
-import com.consultafacil.application.service.ClinicService;
+import com.consultafacil.application.port.in.AddClinicMemberUseCase;
+import com.consultafacil.application.port.in.CreateClinicUseCase;
 import com.consultafacil.domain.repository.ProfessionalProfileRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,8 @@ import java.util.Locale;
 public class ClinicSeeder {
 
     private final ProfessionalProfileRepository professionalProfileRepository;
-    private final ClinicService clinicService;
+    private final CreateClinicUseCase createClinicUseCase;
+    private final AddClinicMemberUseCase addClinicMemberUseCase;
     private final ClinicDataProvider clinicDataProvider;
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -51,7 +53,7 @@ public class ClinicSeeder {
                 dto.setLongitude(def.location().lng());
                 dto.setImageUrl(def.imageUrl());
 
-                var clinic = clinicService.createClinic(ownerUserId, dto);
+                var clinic = createClinicUseCase.execute(ownerUserId, dto);
                 if (firstClinicId == null) firstClinicId = clinic.getId();
 
                 addExtraMembers(clinic.getId(), def, extraIds, ownerUserId);
@@ -70,7 +72,7 @@ public class ClinicSeeder {
             if (added >= 2) break;
             if (extraId.equals(def.ownerProfileId())) continue;
             try {
-                clinicService.addMember(clinicId, extraId, ownerUserId);
+                addClinicMemberUseCase.execute(clinicId, extraId, ownerUserId);
                 professionalProfileRepository.findById(extraId).ifPresent(p -> {
                     if (p.getLatitude() == null) {
                         p.setCity(def.location().city());
