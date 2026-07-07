@@ -2,9 +2,9 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.procedurerequest.CreateProcedureRequestDTO;
 import com.consultafacil.api.dto.professionalservice.CreateProfessionalServiceDTO;
-import com.consultafacil.application.service.CreateProcedureRequestService;
-import com.consultafacil.application.service.CreateProfessionalServiceService;
-import com.consultafacil.application.service.SetConsultationPriceService;
+import com.consultafacil.application.service.procedurerequest.CreateProcedureRequestService;
+import com.consultafacil.application.service.professional.service.CreateProfessionalServiceService;
+import com.consultafacil.application.service.professional.profile.SetConsultationPriceService;
 import com.consultafacil.domain.repository.PatientProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
