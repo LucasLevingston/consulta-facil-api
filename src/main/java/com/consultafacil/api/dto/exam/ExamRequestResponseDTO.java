@@ -1,6 +1,7 @@
 package com.consultafacil.api.dto.exam;
 
 import com.consultafacil.domain.enums.ExamRequestStatus;
+import com.consultafacil.domain.enums.ExamType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class ExamRequestResponseDTO {
     private String professionalName;
     private String patientId;
     private String patientName;
-    private String examName;
+    private ExamType examName;
     private String instructions;
     private ExamRequestStatus status;
     private String fileUrl;
@@ -27,4 +28,10 @@ public class ExamRequestResponseDTO {
     private String professionalNotes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    // scheduling info — populated when status = SCHEDULED
+    private String schedulingId;
+    private LocalDateTime scheduledAt;
+    private String labName;
+    private String labAddress;
+    private String labPhone;
 }

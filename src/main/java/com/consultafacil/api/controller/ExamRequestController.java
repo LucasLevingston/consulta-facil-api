@@ -4,10 +4,12 @@ import com.consultafacil.api.dto.exam.CreateExamRequestDTO;
 import com.consultafacil.api.dto.exam.ExamRequestResponseDTO;
 import com.consultafacil.api.dto.exam.ReviewExamRequestDTO;
 import com.consultafacil.application.port.in.GetExamsByAppointmentUseCase;
+import com.consultafacil.application.port.in.GetMyExamsUseCase;
 import com.consultafacil.application.port.in.RequestExamUseCase;
 import com.consultafacil.application.port.in.ReviewExamUseCase;
 import com.consultafacil.application.port.in.UploadExamUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
+import com.consultafacil.domain.enums.ExamRequestStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,9 +35,10 @@ public class ExamRequestController {
     private final UploadExamUseCase uploadExam;
     private final ReviewExamUseCase reviewExam;
     private final GetExamsByAppointmentUseCase getExamsByAppointment;
+    private final GetMyExamsUseCase getMyExams;
 
     @PostMapping("/appointments/{appointmentId}/exams")
-    @PreAuthorize("@policy.canManageExamRequest(authentication)")
+    @PreAuthorize("@requestPolicy.canManageExamRequest(authentication)")
     @Operation(summary = "Request an exam for an appointment")
     public ResponseEntity<ExamRequestResponseDTO> requestExam(
             @PathVariable String appointmentId,
@@ -46,15 +49,24 @@ public class ExamRequestController {
     }
 
     @GetMapping("/appointments/{appointmentId}/exams")
-    @PreAuthorize("@policy.canViewExamRequests(authentication)")
+    @PreAuthorize("@requestPolicy.canViewExamRequests(authentication)")
     @Operation(summary = "List exam requests for an appointment")
     public ResponseEntity<List<ExamRequestResponseDTO>> getExamsByAppointment(
             @PathVariable String appointmentId) {
         return ResponseEntity.ok(getExamsByAppointment.execute(appointmentId));
     }
 
+    @GetMapping("/exams/my")
+    @PreAuthorize("@requestPolicy.canViewOwnExams(authentication)")
+    @Operation(summary = "List all exam requests for the authenticated user")
+    public ResponseEntity<List<ExamRequestResponseDTO>> getMyExams(
+            @RequestParam(required = false) ExamRequestStatus status,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(getMyExams.execute(userDetails.getUserId(), status));
+    }
+
     @PutMapping(value = "/exams/{examId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("@policy.canReviewExamRequestAsPatient(authentication)")
+    @PreAuthorize("@requestPolicy.canReviewExamRequestAsPatient(authentication)")
     @Operation(summary = "Upload exam result file")
     public ResponseEntity<ExamRequestResponseDTO> uploadExam(
             @PathVariable String examId,
@@ -64,7 +76,7 @@ public class ExamRequestController {
     }
 
     @PutMapping("/exams/{examId}/review")
-    @PreAuthorize("@policy.canReviewExamRequestAsProfessional(authentication)")
+    @PreAuthorize("@requestPolicy.canReviewExamRequestAsProfessional(authentication)")
     @Operation(summary = "Review an uploaded exam and add professional notes")
     public ResponseEntity<ExamRequestResponseDTO> reviewExam(
             @PathVariable String examId,

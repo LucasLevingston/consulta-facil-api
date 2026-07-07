@@ -2,6 +2,7 @@ package com.consultafacil.domain.repository;
 
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
+import com.consultafacil.domain.enums.Specialty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,17 +17,31 @@ import java.util.Optional;
 public interface ProfessionalProfileRepository extends JpaRepository<ProfessionalProfile, String> {
     Optional<ProfessionalProfile> findByUserId(String userId);
     Page<ProfessionalProfile> findByStatus(ProfessionalProfileStatus status, Pageable pageable);
-    Page<ProfessionalProfile> findBySpecialtyContainingIgnoreCaseAndStatus(String specialty, ProfessionalProfileStatus status, Pageable pageable);
     boolean existsByLicenseNumber(String licenseNumber);
 
-    @Query(value = "SELECT p FROM ProfessionalProfile p JOIN FETCH p.user u WHERE p.status = 'ACTIVE' " +
-           "AND ('' = :profession OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%'))) " +
-           "AND ('' = :specialty OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%'))) " +
-           "AND ('' = :name OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))",
-           countQuery = "SELECT COUNT(p) FROM ProfessionalProfile p JOIN p.user u WHERE p.status = 'ACTIVE' " +
-           "AND ('' = :profession OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%'))) " +
-           "AND ('' = :specialty OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%'))) " +
-           "AND ('' = :name OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))")
+    @Query("SELECT p FROM ProfessionalProfile p JOIN FETCH p.user u WHERE p.specialty = :specialty AND p.status = :status")
+    Page<ProfessionalProfile> findBySpecialtyAndStatus(
+            @Param("specialty") Specialty specialty,
+            @Param("status") ProfessionalProfileStatus status,
+            Pageable pageable);
+
+    @Query(value = """
+            SELECT p.* FROM professional_profiles p
+            JOIN users u ON p.user_id = u.id
+            WHERE p.status = 'ACTIVE'
+              AND ('' = :profession OR p.profession = :profession)
+              AND ('' = :specialty OR p.specialty = :specialty)
+              AND ('' = :name OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))
+            """,
+           countQuery = """
+            SELECT COUNT(*) FROM professional_profiles p
+            JOIN users u ON p.user_id = u.id
+            WHERE p.status = 'ACTIVE'
+              AND ('' = :profession OR p.profession = :profession)
+              AND ('' = :specialty OR p.specialty = :specialty)
+              AND ('' = :name OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))
+            """,
+           nativeQuery = true)
     Page<ProfessionalProfile> findActiveWithFilters(
             @Param("profession") String profession,
             @Param("specialty") String specialty,
@@ -38,8 +53,8 @@ public interface ProfessionalProfileRepository extends JpaRepository<Professiona
             WHERE p.status = 'ACTIVE'
               AND p.latitude IS NOT NULL
               AND p.longitude IS NOT NULL
-              AND (:specialty = '' OR LOWER(p.specialty) LIKE LOWER(CONCAT('%', :specialty, '%')))
-              AND (:profession = '' OR LOWER(p.profession) LIKE LOWER(CONCAT('%', :profession, '%')))
+              AND (:specialty = '' OR p.specialty = :specialty)
+              AND (:profession = '' OR p.profession = :profession)
               AND (6371 * acos(
                     LEAST(1.0, cos(radians(:lat)) * cos(radians(p.latitude)) *
                     cos(radians(p.longitude) - radians(:lng)) +

@@ -6,6 +6,7 @@ import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.ProfessionalService;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.Gender;
+import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.repository.ProfessionalProfileRepository;
 import com.consultafacil.domain.repository.ProfessionalServiceRepository;
@@ -87,7 +88,7 @@ class ProfessionalServiceControllerIntegrationTest {
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
                 .user(docUser)
-                .specialty("Dermatologia")
+                .specialty(Specialty.DERMATOLOGIA)
                 .licenseNumber("CRM-SP-10001")
                 .build();
         professionalProfileId = professionalProfileRepository.saveAndFlush(profile).getId();

@@ -1,6 +1,6 @@
 package com.consultafacil.application.consumer;
 
-import com.consultafacil.core.messaging.RabbitMQConfig;
+import com.consultafacil.core.messaging.RabbitMQConstants;
 import com.consultafacil.core.util.PiiMask;
 import com.consultafacil.domain.event.AppointmentCanceledEvent;
 import com.consultafacil.domain.event.AppointmentConfirmedEvent;
@@ -16,19 +16,19 @@ import org.springframework.stereotype.Component;
 @ConditionalOnBean(ConnectionFactory.class)
 public class AppointmentEmailConsumer {
 
-    @RabbitListener(queues = RabbitMQConfig.Q_APPOINTMENTS_CREATED_EMAIL)
+    @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CREATED_EMAIL)
     public void onAppointmentCreated(AppointmentCreatedEvent event) {
         log.info("[Email] appointments.created → to={} appointment={}", PiiMask.maskEmail(event.patientEmail()), event.appointmentId());
         // TODO(spec-005): send via AWS SES — EmailService.sendAppointmentConfirmation(event)
     }
 
-    @RabbitListener(queues = RabbitMQConfig.Q_APPOINTMENTS_CANCELED_EMAIL)
+    @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CANCELED_EMAIL)
     public void onAppointmentCanceled(AppointmentCanceledEvent event) {
         log.info("[Email] appointments.canceled → to={} appointment={}", PiiMask.maskEmail(event.patientEmail()), event.appointmentId());
         // TODO(spec-005): send via AWS SES — EmailService.sendAppointmentCancellation(event)
     }
 
-    @RabbitListener(queues = RabbitMQConfig.Q_APPOINTMENTS_CONFIRMED_EMAIL)
+    @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CONFIRMED_EMAIL)
     public void onAppointmentConfirmed(AppointmentConfirmedEvent event) {
         log.info("[Email] appointments.confirmed → to={} appointment={}", PiiMask.maskEmail(event.patientEmail()), event.appointmentId());
         // TODO(spec-005): send via AWS SES — EmailService.sendAppointmentConfirmation(event)

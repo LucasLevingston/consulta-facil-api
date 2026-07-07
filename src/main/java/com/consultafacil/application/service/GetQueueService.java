@@ -50,7 +50,7 @@ public class GetQueueService implements GetQueueUseCase {
                 .patientId(a.getPatient().getId())
                 .professionalName(a.getProfessional().getUser().getName())
                 .professionalId(a.getProfessional().getId())
-                .specialty(a.getProfessional().getSpecialty())
+                .specialty(a.getProfessional().getSpecialty() != null ? a.getProfessional().getSpecialty().name() : null)
                 .scheduledAt(a.getScheduledAt())
                 .checkedInAt(a.getCheckedInAt())
                 .calledAt(a.getCalledAt())

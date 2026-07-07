@@ -31,7 +31,7 @@ class GoogleLoginServiceTest {
     @Mock UserRepositoryPort userRepository;
     @Mock PatientProfileRepositoryPort patientProfileRepository;
     @Mock JwtTokenProvider jwtTokenProvider;
-    @Mock RefreshTokenService refreshTokenService;
+    @Mock CreateRefreshTokenService createRefreshTokenService;
 
     @InjectMocks GoogleLoginService service;
 
@@ -46,7 +46,7 @@ class GoogleLoginServiceTest {
 
         when(jwtTokenProvider.generateToken(any())).thenReturn("jwt");
         when(jwtTokenProvider.getExpiresIn()).thenReturn(86400L);
-        when(refreshTokenService.createFor(any())).thenReturn(
+        when(createRefreshTokenService.createFor(any())).thenReturn(
                 RefreshToken.builder().token("refresh").build());
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }

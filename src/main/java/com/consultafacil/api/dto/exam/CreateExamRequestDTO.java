@@ -1,13 +1,14 @@
 package com.consultafacil.api.dto.exam;
 
-import jakarta.validation.constraints.NotBlank;
+import com.consultafacil.domain.enums.ExamType;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class CreateExamRequestDTO {
 
-    @NotBlank(message = "Exam name is required")
-    private String examName;
+    @NotNull(message = "Tipo de exame é obrigatório")
+    private ExamType examName;
 
     private String instructions;
 }

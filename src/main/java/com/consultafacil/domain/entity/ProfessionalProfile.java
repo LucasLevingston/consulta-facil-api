@@ -1,8 +1,11 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.domain.enums.CouncilType;
 import com.consultafacil.domain.enums.PaymentMethod;
 import com.consultafacil.domain.enums.PaymentTiming;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
+import com.consultafacil.domain.enums.ProfessionalType;
+import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.exception.InvalidStateException;
 import jakarta.persistence.*;
 import org.hibernate.annotations.BatchSize;
@@ -35,10 +38,12 @@ public class ProfessionalProfile {
     @ToString.Exclude
     private User user;
 
-    private String profession;
+    @Enumerated(EnumType.STRING)
+    private ProfessionalType profession;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String specialty;
+    private Specialty specialty;
 
     @Column(nullable = false, unique = true)
     private String licenseNumber;
@@ -83,6 +88,58 @@ public class ProfessionalProfile {
     @Builder.Default
     @ToString.Exclude
     private List<ClinicMember> clinicMemberships = new ArrayList<>();
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    @Column(name = "instagram_url")
+    private String instagramUrl;
+
+    @Column(name = "linkedin_url")
+    private String linkedinUrl;
+
+    @Column(name = "website_url")
+    private String websiteUrl;
+
+    @Column(name = "facebook_url")
+    private String facebookUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "council_type")
+    private CouncilType councilType;
+
+    @Column(name = "council_state", length = 2)
+    private String councilState;
+
+    @Column(name = "zip_code")
+    private String zipCode;
+
+    @Column(name = "neighborhood")
+    private String neighborhood;
+
+    @Column(name = "street_number")
+    private String streetNumber;
+
+    @Column(name = "complement")
+    private String complement;
+
+    @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
+    @Builder.Default
+    @ToString.Exclude
+    private List<ProfessionalEducation> education = new ArrayList<>();
+
+    @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
+    @Builder.Default
+    @ToString.Exclude
+    private List<ProfessionalExperience> experience = new ArrayList<>();
+
+    @OneToMany(mappedBy = "professionalProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
+    @Builder.Default
+    @ToString.Exclude
+    private List<ProfessionalCertificate> certificates = new ArrayList<>();
 
 
     // --- Domain behaviour methods ---

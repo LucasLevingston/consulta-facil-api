@@ -25,7 +25,7 @@ public class AuthService implements LoginUseCase {
     private final UserRepositoryPort userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenService refreshTokenService;
+    private final CreateRefreshTokenService createRefreshTokenService;
 
     @Value("${auth.lockout.max-attempts:5}")
     private int maxAttempts;
@@ -34,12 +34,8 @@ public class AuthService implements LoginUseCase {
     private int lockoutDurationMinutes;
 
     @Override
-    public LoginResponseDTO execute(LoginRequestDTO request) {
-        return login(request);
-    }
-
     @Transactional
-    public LoginResponseDTO login(LoginRequestDTO request) {
+    public LoginResponseDTO execute(LoginRequestDTO request) {
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         if (user == null) {
@@ -73,7 +69,7 @@ public class AuthService implements LoginUseCase {
         }
 
         String token = jwtTokenProvider.generateToken(user);
-        String refreshToken = refreshTokenService.createFor(user).getToken();
+        String refreshToken = createRefreshTokenService.createFor(user).getToken();
 
         return LoginResponseDTO.of(token, refreshToken, jwtTokenProvider.getExpiresIn(),
                 user.getId(), user.getEmail(), user.getRole());

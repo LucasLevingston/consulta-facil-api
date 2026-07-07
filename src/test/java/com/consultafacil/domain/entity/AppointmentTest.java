@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.*;
+import com.consultafacil.domain.enums.Specialty;
 
 class AppointmentTest {
 
@@ -22,7 +23,7 @@ class AppointmentTest {
 
         User dUser = User.builder().id("u-2").email("d@e.com").name("Dra.Ana").password("x").role(UserRole.PROFESSIONAL).build();
         professional = new ProfessionalProfile(); professional.setId("pr-1"); professional.setUser(dUser);
-        professional.setSpecialty("Cardio");
+        professional.setSpecialty(Specialty.CARDIOLOGIA);
 
         appt = Appointment.schedule(patient, professional, LocalDateTime.now().plusDays(1),
                 "Consulta", null, AppointmentModality.IN_PERSON, null, null, null);

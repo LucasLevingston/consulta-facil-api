@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 
@@ -39,4 +40,18 @@ public class ProfessionalResponseDTO {
     private BigDecimal consultationPrice;
     private Set<PaymentMethod> acceptedPaymentMethods;
     private PaymentTiming paymentTiming;
+    private String instagramUrl;
+    private String linkedinUrl;
+    private String websiteUrl;
+    private String facebookUrl;
+    private String bio;
+    private String councilType;
+    private String councilState;
+    private String zipCode;
+    private String neighborhood;
+    private String streetNumber;
+    private String complement;
+    private List<ProfessionalEducationDTO> education;
+    private List<ProfessionalExperienceDTO> experience;
+    private List<ProfessionalCertificateDTO> certificates;
 }

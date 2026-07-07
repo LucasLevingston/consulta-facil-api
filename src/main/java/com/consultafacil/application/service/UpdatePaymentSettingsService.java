@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdatePaymentSettingsService implements UpdatePaymentSettingsUseCase {
 
     private final ProfessionalProfileRepositoryPort professionalProfileRepository;
-    private final ProfessionalService professionalService;
+    private final ProfessionalProfileMapper mapper;
 
     @Transactional
     public ProfessionalResponseDTO execute(String userId, UpdatePaymentSettingsDTO dto) {
@@ -24,6 +24,6 @@ public class UpdatePaymentSettingsService implements UpdatePaymentSettingsUseCas
         professional.setPaymentConfiguration(dto.getAcceptedPaymentMethods(), dto.getPaymentTiming());
 
         professionalProfileRepository.save(professional);
-        return professionalService.toResponseDTO(professional);
+        return mapper.toResponseDTO(professional);
     }
 }

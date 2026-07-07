@@ -10,26 +10,105 @@ echo "║        Verificações pré-commit       ║"
 echo "╚══════════════════════════════════════╝"
 echo ""
 
+# 0. Estrutura e tamanho dos arquivos
+echo "▶ [0/5] Verificando estrutura dos arquivos..."
+MAX_LINES=300
+FOUND=0
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+for file in $staged; do
+  case "$file" in *.java) ;; *) continue ;; esac
+
+  content=$(git show ":$file" 2>/dev/null)
+
+  # Tamanho
+  lines=$(printf '%s\n' "$content" | wc -l)
+  if [ "$lines" -gt "$MAX_LINES" ]; then
+    echo "  BLOCKED [TAMANHO] $file ($lines > $MAX_LINES linhas)"
+    echo "    [S] 1 classe = 1 responsabilidade"
+    echo "    Patterns: Service, Repository, Strategy, Builder, Mapper"
+    FOUND=1
+  fi
+
+  # Constantes fora de *Constants.java
+  case "$file" in
+    *Constants.java)
+      ;;
+    *)
+      n=$(printf '%s\n' "$content" | grep -E "public static final [A-Z]" | wc -l)
+      if [ "$n" -gt 0 ]; then
+        echo "  BLOCKED [CONSTANTS] $file — $n constante(s) estática(s) inline"
+        echo "    Mova para <package>/Constants.java ou <Feature>Constants.java"
+        FOUND=1
+      fi
+      ;;
+  esac
+
+  # Métodos estáticos privados fora de *Utils.java / *Helper.java
+  case "$file" in
+    *Utils.java|*Helper.java|*Util.java)
+      ;;
+    *)
+      n=$(printf '%s\n' "$content" | grep -E "private static [a-zA-Z]" | grep -v "static final" | wc -l)
+      if [ "$n" -gt 2 ]; then
+        echo "  BLOCKED [FUNCTIONS] $file — $n métodos static privados em classe de negócio"
+        echo "    Extraia para <Feature>Utils.java ou <Feature>Helper.java"
+        FOUND=1
+      fi
+      ;;
+  esac
+
+  # 1 função pública por arquivo (SRP) — exceto padrões que agrupam por natureza/contrato
+  case "$file" in
+    *Controller.java|*Config.java|*Configuration.java|*Policy.java|*Constants.java|*Properties.java|*Test.java)
+      ;;
+    *Seeder.java|*DataProvider.java|*Helper.java|*Consumer.java|*Utils.java|*Util.java)
+      ;;
+    *UserDetails.java|*UserDetailsService.java|*Validator.java|*Checker.java|*Provider.java)
+      ;;
+    */domain/entity/*|*/api/dto/*|*/adapter/*|*/core/messaging/*|src/test/*)
+      ;;
+    *)
+      if printf '%s\n' "$content" | grep -qE "^(public )?(abstract )?(final )?class "; then
+        className=$(basename "$file" .java)
+        n=$(printf '%s\n' "$content" | grep -E "^    public " | grep -v " static " | grep -E "\{$" | grep -v "$className(" | wc -l)
+        if [ "$n" -gt 1 ]; then
+          echo "  BLOCKED [SRP] $file — $n métodos públicos (máx 1 por arquivo)"
+          echo "    1 classe = 1 função. Extraia cada método público pra sua própria classe."
+          FOUND=1
+        fi
+      fi
+      ;;
+  esac
+
+done
+if [ "$FOUND" -eq 1 ]; then
+  echo ""
+  echo "  Commit bloqueado. Separe: *Constants.java | *Utils.java | classes de negócio"
+  exit 1
+fi
+echo "✓ Estrutura dos arquivos OK"
+echo ""
+
 # 1. Compilação
-echo "▶ [1/4] Compilando Java..."
+echo "▶ [1/5] Compilando Java..."
 ./gradlew compileJava compileTestJava --quiet
 echo "✓ Compilação sem erros"
 echo ""
 
 # 2. Testes
-echo "▶ [2/4] Executando testes..."
+echo "▶ [2/5] Executando testes..."
 ./gradlew test --quiet
 echo "✓ Todos os testes passaram"
 echo ""
 
 # 3. Cobertura
-echo "▶ [3/4] Verificando cobertura (mínimo 30%)..."
+echo "▶ [3/5] Verificando cobertura (mínimo 30%)..."
 ./gradlew jacocoTestCoverageVerification --quiet
 echo "✓ Cobertura dentro do limite"
 echo ""
 
 # 4. Build
-echo "▶ [4/4] Build final..."
+echo "▶ [4/5] Build final..."
 ./gradlew build -x test --quiet
 echo "✓ Build concluído"
 echo ""

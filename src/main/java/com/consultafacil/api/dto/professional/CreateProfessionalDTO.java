@@ -1,6 +1,9 @@
 package com.consultafacil.api.dto.professional;
 
+import com.consultafacil.domain.enums.ProfessionalType;
+import com.consultafacil.domain.enums.Specialty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,13 +15,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreateProfessionalDTO {
-    @NotBlank(message = "Profissão é obrigatória")
-    @Size(min = 2, max = 100, message = "Profissão deve ter entre 2 e 100 caracteres")
-    private String profession;
+    @NotNull(message = "Profissão é obrigatória")
+    private ProfessionalType profession;
 
-    @NotBlank(message = "Especialidade é obrigatória")
-    @Size(min = 3, max = 100, message = "Especialidade deve ter entre 3 e 100 caracteres")
-    private String specialty;
+    @NotNull(message = "Especialidade é obrigatória")
+    private Specialty specialty;
 
     @NotBlank(message = "Número de registro é obrigatório")
     @Size(min = 5, max = 50, message = "Número de registro deve ter entre 5 e 50 caracteres")

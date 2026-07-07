@@ -20,14 +20,20 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ProfessionalType;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -83,7 +89,7 @@ class ClinicWorkingHoursIntegrationTest {
         userRepository.saveAndFlush(user);
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
-                .user(user).profession("Médico").specialty("Clínica Geral")
+                .user(user).profession(ProfessionalType.MEDICO).specialty(Specialty.CLINICA_GERAL)
                 .licenseNumber(crm).status(ProfessionalProfileStatus.ACTIVE)
                 .build();
         professionalProfileRepository.saveAndFlush(profile);

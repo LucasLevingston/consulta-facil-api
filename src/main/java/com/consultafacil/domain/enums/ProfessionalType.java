@@ -1,0 +1,17 @@
+package com.consultafacil.domain.enums;
+
+public enum ProfessionalType {
+    MEDICO,
+    DENTISTA,
+    FISIOTERAPEUTA,
+    PSICOLOGO,
+    NUTRICIONISTA,
+    ENFERMEIRO,
+    FONOAUDIOLOGO,
+    TERAPEUTA_OCUPACIONAL,
+    FARMACEUTICO,
+    EDUCADOR_FISICO,
+    BIOMEDICO,
+    ASSISTENTE_SOCIAL,
+    VETERINARIO
+}

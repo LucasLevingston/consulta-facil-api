@@ -23,7 +23,7 @@ public class WalkInAppointmentController {
     private final WalkInAppointmentUseCase walkInAppointmentUseCase;
 
     @PostMapping("/walk-in")
-    @PreAuthorize("@policy.canRegisterWalkIn(authentication)")
+    @PreAuthorize("@requestPolicy.canRegisterWalkIn(authentication)")
     public ResponseEntity<WalkInAppointmentResponseDTO> createWalkIn(
             @Valid @RequestBody CreateWalkInAppointmentDTO dto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {

@@ -108,4 +108,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             @Param("professionalId") String professionalId,
             @Param("search") String search,
             Pageable pageable);
+
+    @Query("SELECT a.rating, COUNT(a) FROM Appointment a " +
+           "WHERE a.professional.id = :professionalId AND a.rating IS NOT NULL " +
+           "GROUP BY a.rating ORDER BY a.rating")
+    List<Object[]> findRatingDistributionByProfessionalId(@Param("professionalId") String professionalId);
+
+    @Query("SELECT AVG(a.rating) FROM Appointment a " +
+           "WHERE a.professional.id = :professionalId AND a.rating IS NOT NULL")
+    Double findAverageRatingByProfessionalId(@Param("professionalId") String professionalId);
 }

@@ -79,6 +79,7 @@ public class SecurityConfiguration {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/professional-services/**").permitAll()
                 .requestMatchers("/clinics", "/clinics/nearby", "/clinics/{id}").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/clinics/{id}/working-hours").permitAll()
+                .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/subscriptions/webhook").permitAll()
                 .requestMatchers("/payments/webhook").permitAll()
                 .requestMatchers("/webhook/whatsapp").permitAll()

@@ -3,7 +3,10 @@ package com.consultafacil.api.controller;
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
 import com.consultafacil.api.dto.subscription.CreateCheckoutDTO;
 import com.consultafacil.api.dto.subscription.SubscriptionResponseDTO;
-import com.consultafacil.application.port.in.SubscriptionUseCase;
+import com.consultafacil.application.port.in.CreateCheckoutUseCase;
+import com.consultafacil.application.port.in.GetMySubscriptionUseCase;
+import com.consultafacil.application.port.in.HandlePaymentApprovedUseCase;
+import com.consultafacil.application.port.in.HandlePreapprovalWebhookUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import com.consultafacil.core.security.MercadoPagoWebhookValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +28,10 @@ import java.util.Map;
 @Tag(name = "Subscriptions", description = "Subscription management via MercadoPago")
 public class SubscriptionController {
 
-    private final SubscriptionUseCase subscriptionUseCase;
+    private final CreateCheckoutUseCase createCheckout;
+    private final GetMySubscriptionUseCase getMySubscription;
+    private final HandlePaymentApprovedUseCase handlePaymentApproved;
+    private final HandlePreapprovalWebhookUseCase handlePreapprovalWebhook;
     private final MercadoPagoWebhookValidator webhookValidator;
 
     @PostMapping("/checkout")
@@ -34,7 +40,7 @@ public class SubscriptionController {
     public ResponseEntity<CheckoutResponseDTO> createCheckout(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateCheckoutDTO dto) {
-        return ResponseEntity.ok(subscriptionUseCase.createCheckout(userDetails.getUserId(), dto.getPlanId(), dto.getReferralSlug(), dto.getCouponCode()));
+        return ResponseEntity.ok(createCheckout.execute(userDetails.getUserId(), dto.getPlanId(), dto.getReferralSlug(), dto.getCouponCode()));
     }
 
     @GetMapping("/me")
@@ -42,7 +48,7 @@ public class SubscriptionController {
     @Operation(summary = "Get current user subscription")
     public ResponseEntity<SubscriptionResponseDTO> getMySubscription(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return subscriptionUseCase.getMySubscription(userDetails.getUserId())
+        return getMySubscription.execute(userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -63,10 +69,10 @@ public class SubscriptionController {
             if ("payment".equals(type)) {
                 webhookValidator.validate(resourceId, xRequestId, xSignature);
                 String externalReference = extractExternalReference(payload);
-                subscriptionUseCase.handlePaymentApproved(resourceId, externalReference);
+                handlePaymentApproved.execute(resourceId, externalReference);
             } else if ("subscription_preapproval".equals(type)) {
                 webhookValidator.validate(resourceId, xRequestId, xSignature);
-                subscriptionUseCase.handlePreapprovalWebhook(resourceId);
+                handlePreapprovalWebhook.execute(resourceId);
             } else {
                 return ResponseEntity.ok().build();
             }

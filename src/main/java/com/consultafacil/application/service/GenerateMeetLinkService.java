@@ -54,7 +54,7 @@ public class GenerateMeetLinkService implements GenerateMeetLinkUseCase {
                 .patientId(a.getPatient().getId())
                 .professionalName(a.getProfessional().getUser().getName())
                 .professionalId(a.getProfessional().getId())
-                .specialty(a.getProfessional().getSpecialty())
+                .specialty(a.getProfessional().getSpecialty() != null ? a.getProfessional().getSpecialty().name() : null)
                 .scheduledAt(a.getScheduledAt())
                 .previousScheduledAt(a.getPreviousScheduledAt())
                 .checkedInAt(a.getCheckedInAt())

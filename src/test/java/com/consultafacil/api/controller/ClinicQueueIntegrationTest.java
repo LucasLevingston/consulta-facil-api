@@ -30,13 +30,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.consultafacil.domain.enums.Specialty;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -96,7 +99,7 @@ class ClinicQueueIntegrationTest {
         userRepository.saveAndFlush(profUser);
 
         ProfessionalProfile profile = professionalProfileRepository.saveAndFlush(
-                ProfessionalProfile.builder().user(profUser).specialty("Neurologia").licenseNumber("CRM-RJ-77777").build());
+                ProfessionalProfile.builder().user(profUser).specialty(Specialty.NEUROLOGIA).licenseNumber("CRM-RJ-77777").build());
         professionalProfileId = profile.getId();
 
         String ownerResp = mockMvc.perform(post("/auth/register")

@@ -52,7 +52,7 @@ public class RescheduleAppointmentService implements RescheduleAppointmentUseCas
                 .patientId(appointment.getPatient().getId())
                 .professionalName(appointment.getProfessional().getUser().getName())
                 .professionalId(appointment.getProfessional().getId())
-                .specialty(appointment.getProfessional().getSpecialty())
+                .specialty(appointment.getProfessional().getSpecialty() != null ? appointment.getProfessional().getSpecialty().name() : null)
                 .scheduledAt(appointment.getScheduledAt())
                 .previousScheduledAt(appointment.getPreviousScheduledAt())
                 .checkedInAt(appointment.getCheckedInAt())

@@ -25,13 +25,19 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ExamType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ExamType;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.consultafacil.domain.enums.Specialty;
+import com.consultafacil.domain.enums.ExamType;
 
 @SpringBootTest(classes = ConsultaFacilApplication.class)
 @AutoConfigureMockMvc
@@ -97,7 +103,7 @@ class ExamRequestControllerIntegrationTest {
 
         ProfessionalProfile profile = ProfessionalProfile.builder()
                 .user(profUser)
-                .specialty("Ortopedia")
+                .specialty(Specialty.ORTOPEDIA)
                 .licenseNumber("CRM-SP-47700")
                 .build();
         professionalProfileId = professionalProfileRepository.saveAndFlush(profile).getId();
@@ -127,7 +133,7 @@ class ExamRequestControllerIntegrationTest {
     @Test
     void testRequestExam() throws Exception {
         CreateExamRequestDTO dto = new CreateExamRequestDTO();
-        dto.setExamName("Raio-X do joelho");
+        dto.setExamName(ExamType.RAIO_X);
         dto.setInstructions("Em jejum por 2 horas");
 
         mockMvc.perform(post("/appointments/" + appointmentId + "/exams")
@@ -135,7 +141,7 @@ class ExamRequestControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.examName", equalTo("Raio-X do joelho")))
+                .andExpect(jsonPath("$.examName", equalTo("RAIO_X")))
                 .andExpect(jsonPath("$.status", equalTo("PENDING")))
                 .andExpect(jsonPath("$.instructions", equalTo("Em jejum por 2 horas")));
     }
@@ -143,7 +149,7 @@ class ExamRequestControllerIntegrationTest {
     @Test
     void testGetExamsByAppointment() throws Exception {
         CreateExamRequestDTO dto = new CreateExamRequestDTO();
-        dto.setExamName("Hemograma");
+        dto.setExamName(ExamType.HEMOGRAMA_COMPLETO);
 
         mockMvc.perform(post("/appointments/" + appointmentId + "/exams")
                 .header("Authorization", "Bearer " + professionalToken)
@@ -155,13 +161,13 @@ class ExamRequestControllerIntegrationTest {
                 .header("Authorization", "Bearer " + patientToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].examName", equalTo("Hemograma")));
+                .andExpect(jsonPath("$[0].examName", equalTo("HEMOGRAMA_COMPLETO")));
     }
 
     @Test
     void testPatientCannotRequestExam() throws Exception {
         CreateExamRequestDTO dto = new CreateExamRequestDTO();
-        dto.setExamName("Exame não autorizado");
+        dto.setExamName(ExamType.RAIO_X);
 
         mockMvc.perform(post("/appointments/" + appointmentId + "/exams")
                 .header("Authorization", "Bearer " + patientToken)
@@ -173,7 +179,7 @@ class ExamRequestControllerIntegrationTest {
     @Test
     void testReviewExamRequiresUploadedStatus() throws Exception {
         CreateExamRequestDTO createDTO = new CreateExamRequestDTO();
-        createDTO.setExamName("Ressonância");
+        createDTO.setExamName(ExamType.RESSONANCIA_MAGNETICA);
         String createResp = mockMvc.perform(post("/appointments/" + appointmentId + "/exams")
                 .header("Authorization", "Bearer " + professionalToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -196,7 +202,7 @@ class ExamRequestControllerIntegrationTest {
     @Test
     void testReviewExamAfterUpload() throws Exception {
         CreateExamRequestDTO createDTO = new CreateExamRequestDTO();
-        createDTO.setExamName("Ultrassom");
+        createDTO.setExamName(ExamType.ULTRASSONOGRAFIA);
         String createResp = mockMvc.perform(post("/appointments/" + appointmentId + "/exams")
                 .header("Authorization", "Bearer " + professionalToken)
                 .contentType(MediaType.APPLICATION_JSON)

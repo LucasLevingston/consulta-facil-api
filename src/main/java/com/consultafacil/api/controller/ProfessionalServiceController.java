@@ -33,7 +33,7 @@ public class ProfessionalServiceController {
     private final GetProfessionalServicesUseCase getProfessionalServices;
 
     @PostMapping
-    @PreAuthorize("@policy.canManageProfessionalService(authentication)")
+    @PreAuthorize("@carePolicy.canManageProfessionalService(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create a service/procedure in the professional's catalog")
     public ResponseEntity<ProfessionalServiceResponseDTO> create(
@@ -51,7 +51,7 @@ public class ProfessionalServiceController {
     }
 
     @PutMapping("/{serviceId}")
-    @PreAuthorize("@policy.canManageProfessionalService(authentication)")
+    @PreAuthorize("@carePolicy.canManageProfessionalService(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update a service in the catalog")
     public ResponseEntity<ProfessionalServiceResponseDTO> update(
@@ -62,7 +62,7 @@ public class ProfessionalServiceController {
     }
 
     @DeleteMapping("/{serviceId}")
-    @PreAuthorize("@policy.canManageProfessionalService(authentication)")
+    @PreAuthorize("@carePolicy.canManageProfessionalService(authentication)")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Deactivate (soft-delete) a service")
     public ResponseEntity<Void> deactivate(

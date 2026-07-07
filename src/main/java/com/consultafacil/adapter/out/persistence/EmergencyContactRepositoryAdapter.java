@@ -6,6 +6,7 @@ import com.consultafacil.domain.repository.EmergencyContactRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,7 +21,17 @@ public class EmergencyContactRepositoryAdapter implements EmergencyContactReposi
     }
 
     @Override
-    public Optional<EmergencyContact> findByPatientProfileId(String patientProfileId) {
+    public List<EmergencyContact> findByPatientProfileId(String patientProfileId) {
         return emergencyContactRepository.findByPatientProfileId(patientProfileId);
+    }
+
+    @Override
+    public Optional<EmergencyContact> findById(String id) {
+        return emergencyContactRepository.findById(id);
+    }
+
+    @Override
+    public void delete(EmergencyContact contact) {
+        emergencyContactRepository.delete(contact);
     }
 }

@@ -4,7 +4,9 @@ import com.consultafacil.api.dto.auth.LoginRequestDTO;
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
 import com.consultafacil.api.dto.subscription.SubscriptionResponseDTO;
 import com.consultafacil.api.dto.user.CreateUserDTO;
-import com.consultafacil.application.service.SubscriptionService;
+import com.consultafacil.application.port.in.CreateCheckoutUseCase;
+import com.consultafacil.application.port.in.GetMySubscriptionUseCase;
+import com.consultafacil.application.port.in.HandlePreapprovalWebhookUseCase;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.ConsultaFacilApplication;
@@ -45,7 +47,13 @@ class SubscriptionControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private SubscriptionService subscriptionService;
+    private GetMySubscriptionUseCase getMySubscriptionUseCase;
+
+    @MockBean
+    private CreateCheckoutUseCase createCheckoutUseCase;
+
+    @MockBean
+    private HandlePreapprovalWebhookUseCase handlePreapprovalWebhookUseCase;
 
     private String userToken;
 
@@ -80,7 +88,7 @@ class SubscriptionControllerIntegrationTest {
 
     @Test
     void testGetMySubscriptionReturnsNoContentWhenNone() throws Exception {
-        when(subscriptionService.getMySubscription(any())).thenReturn(Optional.empty());
+        when(getMySubscriptionUseCase.execute(any())).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/subscriptions/me")
                 .header("Authorization", "Bearer " + userToken))
@@ -96,7 +104,7 @@ class SubscriptionControllerIntegrationTest {
                 .expiresAt(LocalDateTime.now().plusDays(30))
                 .build();
 
-        when(subscriptionService.getMySubscription(any())).thenReturn(Optional.of(sub));
+        when(getMySubscriptionUseCase.execute(any())).thenReturn(Optional.of(sub));
 
         mockMvc.perform(get("/subscriptions/me")
                 .header("Authorization", "Bearer " + userToken))
@@ -117,7 +125,7 @@ class SubscriptionControllerIntegrationTest {
                 .checkoutUrl("https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=pref-123")
                 .build();
 
-        when(subscriptionService.createCheckout(any(), eq("monthly"), any(), any())).thenReturn(checkoutResponse);
+        when(createCheckoutUseCase.execute(any(), eq("monthly"), any(), any())).thenReturn(checkoutResponse);
 
         Map<String, String> body = Map.of("planId", "monthly");
 
@@ -169,6 +177,6 @@ class SubscriptionControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isOk());
 
-        org.mockito.Mockito.verify(subscriptionService).handlePreapprovalWebhook("pre-abc123");
+        org.mockito.Mockito.verify(handlePreapprovalWebhookUseCase).execute("pre-abc123");
     }
 }

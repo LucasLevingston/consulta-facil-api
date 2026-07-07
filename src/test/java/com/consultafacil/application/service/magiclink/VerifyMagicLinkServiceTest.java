@@ -1,6 +1,6 @@
 package com.consultafacil.application.service.magiclink;
 
-import com.consultafacil.application.service.RefreshTokenService;
+import com.consultafacil.application.service.CreateRefreshTokenService;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.JwtTokenProvider;
@@ -31,7 +31,7 @@ class VerifyMagicLinkServiceTest {
 
     @Mock MagicLinkTokenRepositoryPort tokenRepository;
     @Mock JwtTokenProvider jwtTokenProvider;
-    @Mock RefreshTokenService refreshTokenService;
+    @Mock CreateRefreshTokenService createRefreshTokenService;
 
     @InjectMocks VerifyMagicLinkService service;
 
@@ -53,7 +53,7 @@ class VerifyMagicLinkServiceTest {
 
         when(jwtTokenProvider.generateToken(any())).thenReturn("jwt");
         when(jwtTokenProvider.getExpiresIn()).thenReturn(86400L);
-        when(refreshTokenService.createFor(any())).thenReturn(
+        when(createRefreshTokenService.createFor(any())).thenReturn(
                 RefreshToken.builder().token("refresh").build());
         when(tokenRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }

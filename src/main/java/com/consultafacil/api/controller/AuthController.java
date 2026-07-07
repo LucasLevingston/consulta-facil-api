@@ -11,19 +11,24 @@ import com.consultafacil.api.dto.user.CreateUserDTO;
 import com.consultafacil.api.dto.user.UserResponseDTO;
 import com.consultafacil.application.port.in.ForgotPasswordUseCase;
 import com.consultafacil.application.port.in.GoogleLoginUseCase;
+import com.consultafacil.application.port.in.GoogleOAuthCallbackUseCase;
+import com.consultafacil.application.port.in.GoogleOAuthRedirectUseCase;
 import com.consultafacil.application.port.in.LoginUseCase;
 import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.application.port.in.RequestMagicLinkUseCase;
 import com.consultafacil.application.port.in.ResetPasswordUseCase;
+import com.consultafacil.application.port.in.RotateRefreshTokenUseCase;
 import com.consultafacil.application.port.in.VerifyMagicLinkUseCase;
-import com.consultafacil.application.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/auth")
@@ -38,7 +43,12 @@ public class AuthController {
     private final RequestMagicLinkUseCase requestMagicLink;
     private final VerifyMagicLinkUseCase verifyMagicLink;
     private final GoogleLoginUseCase googleLogin;
-    private final RefreshTokenService refreshTokenService;
+    private final GoogleOAuthRedirectUseCase googleOAuthRedirect;
+    private final GoogleOAuthCallbackUseCase googleOAuthCallback;
+    private final RotateRefreshTokenUseCase rotateRefreshToken;
+
+    @Value("${app.url:http://localhost:3000}")
+    private String appUrl;
 
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Authenticates the user and returns a JWT token")
@@ -80,14 +90,33 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    @Operation(summary = "Google login", description = "Validates a Google id_token and returns a JWT")
+    @Operation(summary = "Google login (id_token)", description = "Validates a Google id_token and returns a JWT")
     public ResponseEntity<LoginResponseDTO> googleLogin(@Valid @RequestBody GoogleLoginRequestDTO request) {
         return ResponseEntity.ok(googleLogin.execute(request.idToken()));
+    }
+
+    @GetMapping("/google/redirect")
+    @Operation(summary = "Google OAuth redirect", description = "Redirects the browser to Google's OAuth consent screen")
+    public ResponseEntity<Void> googleRedirect() {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(googleOAuthRedirect.buildAuthorizationUrl()))
+                .build();
+    }
+
+    @GetMapping("/google/callback")
+    @Operation(summary = "Google OAuth callback", description = "Exchanges the authorization code for a JWT and redirects to the frontend")
+    public ResponseEntity<Void> googleCallback(@RequestParam String code) {
+        LoginResponseDTO result = googleOAuthCallback.execute(code);
+        String redirect = appUrl + "/auth/google-callback?token=" + result.getToken()
+                + "&refreshToken=" + result.getRefreshToken();
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(redirect))
+                .build();
     }
 
     @PostMapping("/refresh")
     @Operation(summary = "Refresh token", description = "Rotates a refresh token and issues new access + refresh tokens")
     public ResponseEntity<LoginResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
-        return ResponseEntity.ok(refreshTokenService.rotate(request.refreshToken()));
+        return ResponseEntity.ok(rotateRefreshToken.execute(request.refreshToken()));
     }
 }

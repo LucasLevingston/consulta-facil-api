@@ -55,6 +55,10 @@ public class Plan {
     @Builder.Default
     private PlanStatus status = PlanStatus.ACTIVE;
 
+    @Column(name = "consultation_fee_rate", nullable = false, precision = 5, scale = 4)
+    @Builder.Default
+    private BigDecimal consultationFeeRate = new BigDecimal("0.0200");
+
     @Column(name = "max_appointments")
     private Integer maxAppointments;
 

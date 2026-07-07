@@ -35,16 +35,16 @@ class EventPublisherTest {
     @Test void publishAppointmentCreated_sendsToCorrectRoutingKey() {
         publisher.publishAppointmentCreated(createdEvent());
         verify(rabbitTemplate).convertAndSend(
-                eq(RabbitMQConfig.EXCHANGE),
-                eq(RabbitMQConfig.RK_APPOINTMENTS_CREATED),
+                eq(RabbitMQConstants.EXCHANGE),
+                eq(RabbitMQConstants.RK_APPOINTMENTS_CREATED),
                 any(Object.class));
     }
 
     @Test void publishPaymentSucceeded_sendsToCorrectRoutingKey() {
         publisher.publishPaymentSucceeded(paymentEvent());
         verify(rabbitTemplate).convertAndSend(
-                eq(RabbitMQConfig.EXCHANGE),
-                eq(RabbitMQConfig.RK_PAYMENTS_SUCCEEDED),
+                eq(RabbitMQConstants.EXCHANGE),
+                eq(RabbitMQConstants.RK_PAYMENTS_SUCCEEDED),
                 any(Object.class));
     }
 
@@ -52,20 +52,20 @@ class EventPublisherTest {
         var event = new AppointmentCanceledEvent("e-1","a-1","p-1","João","j@e.com","+55",
                 "d-1","Dr.","dr@e.com","+55p",LocalDateTime.now(),AppointmentModality.IN_PERSON,"r","now");
         publisher.publishAppointmentCanceled(event);
-        verify(rabbitTemplate).convertAndSend(eq(RabbitMQConfig.EXCHANGE), eq(RabbitMQConfig.RK_APPOINTMENTS_CANCELED), any(Object.class));
+        verify(rabbitTemplate).convertAndSend(eq(RabbitMQConstants.EXCHANGE), eq(RabbitMQConstants.RK_APPOINTMENTS_CANCELED), any(Object.class));
     }
 
     @Test void publishAppointmentConfirmed_sendsToCorrectRoutingKey() {
         var event = new AppointmentConfirmedEvent("e-1","a-1","p-1","João","j@e.com","+55",
                 "d-1","Dr.",LocalDateTime.now(),AppointmentModality.IN_PERSON,"now");
         publisher.publishAppointmentConfirmed(event);
-        verify(rabbitTemplate).convertAndSend(eq(RabbitMQConfig.EXCHANGE), eq(RabbitMQConfig.RK_APPOINTMENTS_CONFIRMED), any(Object.class));
+        verify(rabbitTemplate).convertAndSend(eq(RabbitMQConstants.EXCHANGE), eq(RabbitMQConstants.RK_APPOINTMENTS_CONFIRMED), any(Object.class));
     }
 
     @Test void publishPaymentFailed_sendsToCorrectRoutingKey() {
         var event = new PaymentFailedEvent("e-1","a-1","p-1","João","j@e.com",new BigDecimal("250"),"BRL","now");
         publisher.publishPaymentFailed(event);
-        verify(rabbitTemplate).convertAndSend(eq(RabbitMQConfig.EXCHANGE), eq(RabbitMQConfig.RK_PAYMENTS_FAILED), any(Object.class));
+        verify(rabbitTemplate).convertAndSend(eq(RabbitMQConstants.EXCHANGE), eq(RabbitMQConstants.RK_PAYMENTS_FAILED), any(Object.class));
     }
 
     @Test void publish_rabbitTemplateNull_doesNotThrow() {
