@@ -2,6 +2,7 @@ package com.consultafacil.application.service.magiclink;
 
 import com.consultafacil.api.dto.auth.LoginResponseDTO;
 import com.consultafacil.application.port.in.VerifyMagicLinkUseCase;
+import com.consultafacil.application.service.auth.CreateRefreshTokenService;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.JwtTokenProvider;
@@ -20,7 +21,7 @@ public class VerifyMagicLinkService implements VerifyMagicLinkUseCase {
 
     private final MagicLinkTokenRepositoryPort tokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final com.consultafacil.application.service.CreateRefreshTokenService createRefreshTokenService;
+    private final CreateRefreshTokenService createRefreshTokenService;
 
     @Override
     @Transactional

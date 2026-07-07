@@ -1,6 +1,6 @@
 package com.consultafacil.application.service.magiclink;
 
-import com.consultafacil.application.service.CreateRefreshTokenService;
+import com.consultafacil.application.service.auth.CreateRefreshTokenService;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.JwtTokenProvider;

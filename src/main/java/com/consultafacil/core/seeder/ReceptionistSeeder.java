@@ -1,7 +1,7 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.receptionist.InviteReceptionistDTO;
-import com.consultafacil.application.service.InviteReceptionistService;
+import com.consultafacil.application.service.clinic.InviteReceptionistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

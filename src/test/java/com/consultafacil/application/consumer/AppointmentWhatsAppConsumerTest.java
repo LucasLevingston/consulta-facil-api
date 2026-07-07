@@ -1,6 +1,6 @@
 package com.consultafacil.application.consumer;
 
-import com.consultafacil.application.service.WhatsAppService;
+import com.consultafacil.application.service.whatsapp.WhatsAppService;
 import com.consultafacil.domain.enums.AppointmentModality;
 import com.consultafacil.domain.event.AppointmentCanceledEvent;
 import com.consultafacil.domain.event.AppointmentConfirmedEvent;
