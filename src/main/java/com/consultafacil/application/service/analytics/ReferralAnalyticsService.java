@@ -5,7 +5,7 @@ import com.consultafacil.api.dto.analytics.KpiDTO;
 import com.consultafacil.api.dto.analytics.ReferralAnalyticsDTO;
 import com.consultafacil.api.dto.analytics.TimeSeriesDTO;
 import com.consultafacil.application.port.in.analytics.ReferralAnalyticsUseCase;
-import com.consultafacil.domain.repository.analytics.ReferralAnalyticsRepository;
+import com.consultafacil.domain.port.out.analytics.ReferralAnalyticsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReferralAnalyticsService implements ReferralAnalyticsUseCase {
 
-    private final ReferralAnalyticsRepository repo;
+    private final ReferralAnalyticsPort repo;
 
     @Override
     @Transactional(readOnly = true)

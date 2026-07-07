@@ -1,7 +1,7 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.tax.TaxReportDTO;
-import com.consultafacil.application.service.TaxMonthlyReportService;
+import com.consultafacil.application.port.in.TaxMonthlyReportUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,14 +18,14 @@ import java.time.format.DateTimeParseException;
 @RequiredArgsConstructor
 public class TaxReportController {
 
-    private final TaxMonthlyReportService taxMonthlyReportService;
+    private final TaxMonthlyReportUseCase taxMonthlyReport;
 
     @GetMapping("/tax")
     @PreAuthorize("@adminPolicy.canAccessAdminPanel(authentication)")
     public ResponseEntity<TaxReportDTO> taxReport(
             @RequestParam(required = false) String month) {
         YearMonth ym = parseMonth(month);
-        return ResponseEntity.ok(taxMonthlyReportService.monthlyReport(ym.getYear(), ym.getMonthValue()));
+        return ResponseEntity.ok(taxMonthlyReport.execute(ym.getYear(), ym.getMonthValue()));
     }
 
     private YearMonth parseMonth(String month) {

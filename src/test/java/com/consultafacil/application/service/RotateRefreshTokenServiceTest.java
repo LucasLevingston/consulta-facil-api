@@ -59,7 +59,7 @@ class RotateRefreshTokenServiceTest {
     void rotate_validToken_returnsNewTokens() {
         when(refreshTokenRepository.findByToken("valid-token")).thenReturn(Optional.of(validToken));
 
-        var result = service.rotate("valid-token");
+        var result = service.execute("valid-token");
 
         assertThat(result.getToken()).isEqualTo("new-jwt");
         assertThat(result.getRefreshToken()).isNotBlank();
@@ -70,7 +70,7 @@ class RotateRefreshTokenServiceTest {
     void rotate_invalidToken_throwsUnauthorized() {
         when(refreshTokenRepository.findByToken("bad")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.rotate("bad"))
+        assertThatThrownBy(() -> service.execute("bad"))
                 .isInstanceOf(UnauthorizedException.class);
     }
 
@@ -79,7 +79,7 @@ class RotateRefreshTokenServiceTest {
         validToken.setRevoked(true);
         when(refreshTokenRepository.findByToken("valid-token")).thenReturn(Optional.of(validToken));
 
-        assertThatThrownBy(() -> service.rotate("valid-token"))
+        assertThatThrownBy(() -> service.execute("valid-token"))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessageContaining("revoked");
     }
@@ -89,7 +89,7 @@ class RotateRefreshTokenServiceTest {
         validToken.setExpiresAt(LocalDateTime.now().minusDays(1));
         when(refreshTokenRepository.findByToken("valid-token")).thenReturn(Optional.of(validToken));
 
-        assertThatThrownBy(() -> service.rotate("valid-token"))
+        assertThatThrownBy(() -> service.execute("valid-token"))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessageContaining("expired");
     }

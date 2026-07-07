@@ -1,6 +1,7 @@
 package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.ai.ChatMessage;
+import com.consultafacil.application.port.in.AnamnesisChatStreamUseCase;
 import com.consultafacil.core.config.AnthropicProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,7 @@ import static com.consultafacil.application.service.AiConstants.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AnamnesisChatStreamService {
+public class AnamnesisChatStreamService implements AnamnesisChatStreamUseCase {
 
     private static final String SYSTEM_PROMPT = """
             Você é um assistente médico empático da plataforma Consulta Fácil.
@@ -46,7 +47,8 @@ public class AnamnesisChatStreamService {
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    public StreamingResponseBody stream(List<ChatMessage> messages) {
+    @Override
+    public StreamingResponseBody execute(List<ChatMessage> messages) {
         return (OutputStream outputStream) -> {
             try {
                 String requestBody = requestBuilder.build(MODEL_SONNET, SYSTEM_PROMPT, messages, 512, true);

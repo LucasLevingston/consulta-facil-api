@@ -2,6 +2,7 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.ai.ChatMessage;
 import com.consultafacil.api.dto.ai.VoiceBookingResponseDTO;
+import com.consultafacil.application.port.in.VoiceBookingExtractionUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +21,14 @@ import static com.consultafacil.application.service.AiConstants.MODEL_HAIKU;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class VoiceBookingExtractionService {
+public class VoiceBookingExtractionService implements VoiceBookingExtractionUseCase {
 
     private final AnthropicChatRequestBuilder requestBuilder;
     private final AnthropicSyncClient anthropicClient;
     private final ObjectMapper objectMapper;
 
-    public VoiceBookingResponseDTO process(String transcript) {
+    @Override
+    public VoiceBookingResponseDTO execute(String transcript) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         String userMessage = buildPrompt(today, transcript);
 

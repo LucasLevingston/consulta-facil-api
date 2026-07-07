@@ -6,7 +6,7 @@ import com.consultafacil.api.dto.analytics.KpiDTO;
 import com.consultafacil.api.dto.analytics.TimeSeriesDTO;
 import com.consultafacil.application.port.in.analytics.FinancialAnalyticsUseCase;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
-import com.consultafacil.domain.repository.analytics.FinancialAnalyticsRepository;
+import com.consultafacil.domain.port.out.analytics.FinancialAnalyticsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FinancialAnalyticsService implements FinancialAnalyticsUseCase {
 
-    private final FinancialAnalyticsRepository repo;
+    private final FinancialAnalyticsPort repo;
 
     @Override
     @Transactional(readOnly = true)

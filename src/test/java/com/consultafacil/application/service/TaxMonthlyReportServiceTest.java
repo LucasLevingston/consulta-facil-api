@@ -52,7 +52,7 @@ class TaxMonthlyReportServiceTest {
 
         when(paymentRepository.findByPaidAtBetween(any(), any())).thenReturn(List.of(p1, p2));
 
-        TaxReportDTO report = service.monthlyReport(2026, 6);
+        TaxReportDTO report = service.execute(2026, 6);
 
         assertThat(report.getTransactionCount()).isEqualTo(2);
         assertThat(report.getTotalGross()).isEqualByComparingTo("299.80");
@@ -67,7 +67,7 @@ class TaxMonthlyReportServiceTest {
     void monthlyReport_emptyMonth_returnsZeros() {
         when(paymentRepository.findByPaidAtBetween(any(), any())).thenReturn(List.of());
 
-        TaxReportDTO report = service.monthlyReport(2026, 1);
+        TaxReportDTO report = service.execute(2026, 1);
 
         assertThat(report.getTransactionCount()).isEqualTo(0);
         assertThat(report.getTotalGross()).isEqualByComparingTo("0");

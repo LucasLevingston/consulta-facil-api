@@ -4,9 +4,9 @@ import com.consultafacil.api.dto.ai.AnamnesisChatRequestDTO;
 import com.consultafacil.api.dto.ai.AnamnesisExtractRequestDTO;
 import com.consultafacil.api.dto.ai.VoiceBookingRequestDTO;
 import com.consultafacil.api.dto.ai.VoiceBookingResponseDTO;
-import com.consultafacil.application.service.AnamnesisChatStreamService;
-import com.consultafacil.application.service.AnamnesisExtractionService;
-import com.consultafacil.application.service.VoiceBookingExtractionService;
+import com.consultafacil.application.port.in.AnamnesisChatStreamUseCase;
+import com.consultafacil.application.port.in.AnamnesisExtractionUseCase;
+import com.consultafacil.application.port.in.VoiceBookingExtractionUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,9 +28,9 @@ import java.util.Map;
 @Tag(name = "AI", description = "AI-powered endpoints")
 public class AiController {
 
-    private final AnamnesisChatStreamService anamnesisChatStreamService;
-    private final AnamnesisExtractionService anamnesisExtractionService;
-    private final VoiceBookingExtractionService voiceBookingExtractionService;
+    private final AnamnesisChatStreamUseCase anamnesisChatStreamUseCase;
+    private final AnamnesisExtractionUseCase anamnesisExtractionUseCase;
+    private final VoiceBookingExtractionUseCase voiceBookingExtractionUseCase;
 
     @PostMapping(value = "/anamnesis/chat", produces = MediaType.TEXT_PLAIN_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -40,7 +40,7 @@ public class AiController {
             @RequestBody AnamnesisChatRequestDTO request) {
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_PLAIN)
-                .body(anamnesisChatStreamService.stream(request.messages()));
+                .body(anamnesisChatStreamUseCase.execute(request.messages()));
     }
 
     @PostMapping("/anamnesis/extract")
@@ -49,7 +49,7 @@ public class AiController {
     @Operation(summary = "Extrair campos de anamnese da conversa")
     public ResponseEntity<Map<String, String>> anamnesisExtract(
             @RequestBody AnamnesisExtractRequestDTO request) {
-        return ResponseEntity.ok(anamnesisExtractionService.extract(request.messages()));
+        return ResponseEntity.ok(anamnesisExtractionUseCase.execute(request.messages()));
     }
 
     @PostMapping("/voice-booking")
@@ -58,6 +58,6 @@ public class AiController {
     @Operation(summary = "Extrair intenção de agendamento de transcrição de voz")
     public ResponseEntity<VoiceBookingResponseDTO> voiceBooking(
             @RequestBody VoiceBookingRequestDTO request) {
-        return ResponseEntity.ok(voiceBookingExtractionService.process(request.transcript()));
+        return ResponseEntity.ok(voiceBookingExtractionUseCase.execute(request.transcript()));
     }
 }

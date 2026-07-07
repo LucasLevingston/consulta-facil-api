@@ -1,6 +1,7 @@
 package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.ai.ChatMessage;
+import com.consultafacil.application.port.in.AnamnesisExtractionUseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import static com.consultafacil.application.service.AiConstants.MODEL_HAIKU;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AnamnesisExtractionService {
+public class AnamnesisExtractionService implements AnamnesisExtractionUseCase {
 
     private static final String SYSTEM_PROMPT = """
             Você receberá uma conversa entre assistente e paciente sobre anamnese médica.
@@ -30,7 +31,8 @@ public class AnamnesisExtractionService {
     private final AnthropicSyncClient anthropicClient;
     private final ObjectMapper objectMapper;
 
-    public Map<String, String> extract(List<ChatMessage> messages) {
+    @Override
+    public Map<String, String> execute(List<ChatMessage> messages) {
         try {
             String conversation = messages.stream()
                     .map(m -> (m.role().equals("user") ? "Paciente" : "Assistente") + ": " + m.content())

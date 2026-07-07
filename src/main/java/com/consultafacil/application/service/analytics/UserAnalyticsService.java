@@ -6,7 +6,7 @@ import com.consultafacil.api.dto.analytics.TimeSeriesDTO;
 import com.consultafacil.api.dto.analytics.UserAnalyticsDTO;
 import com.consultafacil.application.port.in.analytics.UserAnalyticsUseCase;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.repository.analytics.UserAnalyticsRepository;
+import com.consultafacil.domain.port.out.analytics.UserAnalyticsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserAnalyticsService implements UserAnalyticsUseCase {
 
-    private final UserAnalyticsRepository repo;
+    private final UserAnalyticsPort repo;
 
     @Override
     @Transactional(readOnly = true)

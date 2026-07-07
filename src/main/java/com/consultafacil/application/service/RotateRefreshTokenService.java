@@ -1,6 +1,7 @@
 package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.auth.LoginResponseDTO;
+import com.consultafacil.application.port.in.RotateRefreshTokenUseCase;
 import com.consultafacil.core.exception.UnauthorizedException;
 import com.consultafacil.core.security.JwtTokenProvider;
 import com.consultafacil.domain.entity.RefreshToken;
@@ -14,14 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RotateRefreshTokenService {
+public class RotateRefreshTokenService implements RotateRefreshTokenUseCase {
 
     private final RefreshTokenRepositoryPort refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final CreateRefreshTokenService createRefreshTokenService;
 
+    @Override
     @Transactional
-    public LoginResponseDTO rotate(String tokenValue) {
+    public LoginResponseDTO execute(String tokenValue) {
         RefreshToken existing = refreshTokenRepository.findByToken(tokenValue)
                 .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
 

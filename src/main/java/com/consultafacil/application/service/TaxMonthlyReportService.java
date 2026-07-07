@@ -1,6 +1,7 @@
 package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.tax.TaxReportDTO;
+import com.consultafacil.application.port.in.TaxMonthlyReportUseCase;
 import com.consultafacil.core.config.TaxConfig;
 import com.consultafacil.domain.entity.SubscriptionPayment;
 import com.consultafacil.domain.port.out.SubscriptionPaymentRepositoryPort;
@@ -17,12 +18,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TaxMonthlyReportService {
+public class TaxMonthlyReportService implements TaxMonthlyReportUseCase {
 
     private final TaxConfig taxConfig;
     private final SubscriptionPaymentRepositoryPort paymentRepository;
 
-    public TaxReportDTO monthlyReport(int year, int month) {
+    @Override
+    public TaxReportDTO execute(int year, int month) {
         YearMonth ym = YearMonth.of(year, month);
         LocalDateTime start = ym.atDay(1).atStartOfDay();
         LocalDateTime end = ym.atEndOfMonth().atTime(23, 59, 59);

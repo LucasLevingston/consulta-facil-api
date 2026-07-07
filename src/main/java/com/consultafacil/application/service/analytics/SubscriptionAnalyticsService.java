@@ -5,7 +5,7 @@ import com.consultafacil.api.dto.analytics.KpiDTO;
 import com.consultafacil.api.dto.analytics.SubscriptionAnalyticsDTO;
 import com.consultafacil.application.port.in.analytics.SubscriptionAnalyticsUseCase;
 import com.consultafacil.domain.enums.SubscriptionStatus;
-import com.consultafacil.domain.repository.analytics.SubscriptionAnalyticsRepository;
+import com.consultafacil.domain.port.out.analytics.SubscriptionAnalyticsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SubscriptionAnalyticsService implements SubscriptionAnalyticsUseCase {
 
-    private final SubscriptionAnalyticsRepository repo;
+    private final SubscriptionAnalyticsPort repo;
 
     @Override
     @Transactional(readOnly = true)

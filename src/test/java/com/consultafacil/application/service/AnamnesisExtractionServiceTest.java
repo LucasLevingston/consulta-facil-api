@@ -32,7 +32,7 @@ class AnamnesisExtractionServiceTest {
         when(anthropicClient.send(org.mockito.ArgumentMatchers.any()))
                 .thenReturn("{\"chiefComplaint\":\"Dor de cabeça\",\"allergies\":\"Nenhuma\"}");
 
-        Map<String, String> result = service.extract(List.of(new ChatMessage("user", "Estou com dor de cabeça")));
+        Map<String, String> result = service.execute(List.of(new ChatMessage("user", "Estou com dor de cabeça")));
 
         assertThat(result).containsEntry("chiefComplaint", "Dor de cabeça");
         assertThat(result).containsEntry("allergies", "Nenhuma");
@@ -42,7 +42,7 @@ class AnamnesisExtractionServiceTest {
     void extract_clientThrows_returnsEmptyMap() throws Exception {
         when(anthropicClient.send(org.mockito.ArgumentMatchers.any())).thenThrow(new RuntimeException("boom"));
 
-        Map<String, String> result = service.extract(List.of(new ChatMessage("user", "oi")));
+        Map<String, String> result = service.execute(List.of(new ChatMessage("user", "oi")));
 
         assertThat(result).isEmpty();
     }

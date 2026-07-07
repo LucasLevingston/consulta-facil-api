@@ -6,7 +6,7 @@ import com.consultafacil.api.dto.analytics.KpiDTO;
 import com.consultafacil.api.dto.analytics.TimeSeriesDTO;
 import com.consultafacil.application.port.in.analytics.AppointmentAnalyticsUseCase;
 import com.consultafacil.domain.enums.AppointmentStatus;
-import com.consultafacil.domain.repository.analytics.AppointmentAnalyticsRepository;
+import com.consultafacil.domain.port.out.analytics.AppointmentAnalyticsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AppointmentAnalyticsService implements AppointmentAnalyticsUseCase {
 
-    private final AppointmentAnalyticsRepository repo;
+    private final AppointmentAnalyticsPort repo;
 
     @Override
     @Transactional(readOnly = true)

@@ -34,7 +34,7 @@ class VoiceBookingExtractionServiceTest {
                  "confidence":"high","summary":"Consulta de rotina"}
                 """);
 
-        var result = service.process("Quero marcar uma consulta com cardiologista amanhã de manhã");
+        var result = service.execute("Quero marcar uma consulta com cardiologista amanhã de manhã");
 
         assertThat(result.specialty()).isEqualTo("Cardiologia");
         assertThat(result.confidence()).isEqualTo("high");
@@ -44,7 +44,7 @@ class VoiceBookingExtractionServiceTest {
     void process_noJsonInResponse_throwsUnprocessable() throws Exception {
         when(anthropicClient.send(any())).thenReturn("resposta sem json nenhum");
 
-        assertThatThrownBy(() -> service.process("transcript qualquer"))
+        assertThatThrownBy(() -> service.execute("transcript qualquer"))
                 .isInstanceOf(ResponseStatusException.class);
     }
 }
