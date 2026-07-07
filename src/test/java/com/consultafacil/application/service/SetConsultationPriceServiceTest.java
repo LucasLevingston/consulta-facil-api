@@ -1,5 +1,6 @@
 package com.consultafacil.application.service;
 
+import com.consultafacil.application.port.in.GetProfessionalByUserIdUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.*;
 import com.consultafacil.domain.enums.UserRole;
@@ -28,7 +29,7 @@ import com.consultafacil.domain.enums.Specialty;
 class SetConsultationPriceServiceTest {
 
     @Mock ProfessionalProfileRepositoryPort professionalProfileRepository;
-    @Mock ProfessionalService professionalService;
+    @Mock GetProfessionalByUserIdUseCase getProfessionalByUserId;
 
     @InjectMocks SetConsultationPriceService service;
 
@@ -41,7 +42,7 @@ class SetConsultationPriceServiceTest {
         professional.setId("pr-1"); professional.setUser(user); professional.setSpecialty(Specialty.CARDIOLOGIA);
 
         when(professionalProfileRepository.save(any())).thenReturn(professional);
-        when(professionalService.getByUserId(any())).thenReturn(null);
+        when(getProfessionalByUserId.execute(any())).thenReturn(null);
     }
 
     @Test

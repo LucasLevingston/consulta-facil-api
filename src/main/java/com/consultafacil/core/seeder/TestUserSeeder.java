@@ -2,7 +2,8 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.user.CreateUserDTO;
-import com.consultafacil.application.service.ProfessionalService;
+import com.consultafacil.application.port.in.ApproveApplicationUseCase;
+import com.consultafacil.application.port.in.CreateProfessionalProfileUseCase;
 import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.ProfessionalType;
@@ -20,7 +21,8 @@ import java.util.Locale;
 public class TestUserSeeder {
 
     private final RegisterUserUseCase registerUser;
-    private final ProfessionalService professionalService;
+    private final CreateProfessionalProfileUseCase createProfessionalProfile;
+    private final ApproveApplicationUseCase approveApplication;
     private final ProfessionalProfileRepository professionalProfileRepository;
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -40,10 +42,10 @@ public class TestUserSeeder {
                 .imageUrl("https://i.pravatar.cc/150?img=" + faker.random().nextInt(1, 70))
                 .gender(Gender.MALE).build();
         var userResponse = registerUser.execute(dto);
-        var profResponse = professionalService.createProfile(userResponse.getId(),
+        var profResponse = createProfessionalProfile.execute(userResponse.getId(),
                 CreateProfessionalDTO.builder().profession(profession).specialty(specialty)
                         .licenseNumber(licenseNumber).build());
-        professionalService.approveApplication(profResponse.getId());
+        approveApplication.execute(profResponse.getId());
         return profResponse.getId();
     }
 

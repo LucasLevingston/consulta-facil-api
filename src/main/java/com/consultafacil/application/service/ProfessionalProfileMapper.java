@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class ProfessionalProfileMapper {
 
     private final ProfessionalRatingCalculator ratingCalculator;
+    private final ProfessionalConsultationCountCalculator consultationCountCalculator;
 
     public ProfessionalResponseDTO toResponseDTO(ProfessionalProfile profile) {
         Clinic clinic = profile.getClinicMemberships().stream()
@@ -34,7 +35,7 @@ public class ProfessionalProfileMapper {
                 .phone(profile.getUser().getPhone())
                 .imageUrl(profile.getUser().getImageUrl())
                 .rating(ratingCalculator.computeRating(profile))
-                .consultationCount(ratingCalculator.computeConsultationCount(profile))
+                .consultationCount(consultationCountCalculator.computeConsultationCount(profile))
                 .status(profile.getStatus())
                 .city(profile.getCity())
                 .state(profile.getState())

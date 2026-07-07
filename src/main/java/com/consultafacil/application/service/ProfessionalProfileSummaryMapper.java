@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class ProfessionalProfileSummaryMapper {
 
     private final ProfessionalRatingCalculator ratingCalculator;
+    private final ProfessionalConsultationCountCalculator consultationCountCalculator;
 
     public ProfessionalResponseDTO toListSummaryDTO(ProfessionalProfile profile) {
         return ProfessionalResponseDTO.builder()
@@ -23,7 +24,7 @@ public class ProfessionalProfileSummaryMapper {
                 .phone(profile.getUser().getPhone())
                 .imageUrl(profile.getUser().getImageUrl())
                 .rating(ratingCalculator.computeRating(profile))
-                .consultationCount(ratingCalculator.computeConsultationCount(profile))
+                .consultationCount(consultationCountCalculator.computeConsultationCount(profile))
                 .status(profile.getStatus())
                 .city(profile.getCity())
                 .state(profile.getState())

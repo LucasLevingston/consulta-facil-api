@@ -1,6 +1,6 @@
 package com.consultafacil.core.seeder;
 
-import com.consultafacil.application.port.in.ProfessionalScheduleUseCase;
+import com.consultafacil.application.port.in.SaveMyScheduleUseCase;
 import com.consultafacil.domain.repository.ProfessionalProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScheduleSeeder {
 
-    private final ProfessionalScheduleUseCase professionalScheduleUseCase;
+    private final SaveMyScheduleUseCase saveMyScheduleUseCase;
     private final ProfessionalProfileRepository professionalProfileRepository;
     private final ScheduleTemplateProvider scheduleTemplateProvider;
 
@@ -21,7 +21,7 @@ public class ScheduleSeeder {
         if (userId == null) return;
         try {
             var dtos = scheduleTemplateProvider.buildScheduleDTOs(template);
-            professionalScheduleUseCase.saveMySchedule(userId, dtos);
+            saveMyScheduleUseCase.execute(userId, dtos);
             log.info("[Seed] Schedule seeded for userId={} template={}", userId, template);
         } catch (Exception e) {
             log.warn("[Seed] Failed to seed schedule for userId={}: {}", userId, e.getMessage());

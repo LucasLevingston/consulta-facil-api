@@ -2,6 +2,7 @@ package com.consultafacil.application.service;
 
 import com.consultafacil.api.dto.coupon.CouponValidationResponseDTO;
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
+import com.consultafacil.application.port.in.CreateCheckoutUseCase;
 import com.consultafacil.application.port.in.ValidateCouponUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
@@ -26,7 +27,7 @@ import java.time.OffsetDateTime;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SubscriptionCheckoutService {
+public class SubscriptionCheckoutService implements CreateCheckoutUseCase {
 
     private final PlanRepositoryPort planRepository;
     private final UserRepositoryPort userRepository;
@@ -34,7 +35,8 @@ public class SubscriptionCheckoutService {
     private final ValidateCouponUseCase validateCouponUseCase;
     private final MercadoPagoConfig mpConfig;
 
-    public CheckoutResponseDTO createCheckout(String userId, String planId, String referralSlug, String couponCode) {
+    @Override
+    public CheckoutResponseDTO execute(String userId, String planId, String referralSlug, String couponCode) {
         Plan plan = planRepository.findBySlug(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid plan: " + planId));
 

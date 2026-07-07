@@ -3,7 +3,8 @@ package com.consultafacil.api.controller;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdateAddressDTO;
 import com.consultafacil.api.dto.professional.UpdateCouncilDTO;
-import com.consultafacil.application.port.in.ProfessionalEnrichmentUseCase;
+import com.consultafacil.application.port.in.UpdateAddressUseCase;
+import com.consultafacil.application.port.in.UpdateCouncilUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Professionals", description = "Professional council and address endpoints")
 public class ProfessionalCouncilAddressController {
 
-    private final ProfessionalEnrichmentUseCase professionalEnrichmentUseCase;
+    private final UpdateCouncilUseCase updateCouncilUseCase;
+    private final UpdateAddressUseCase updateAddressUseCase;
 
     @PatchMapping("/council")
     @PreAuthorize("@carePolicy.canUpdateOwnCouncil(authentication)")
@@ -33,7 +35,7 @@ public class ProfessionalCouncilAddressController {
     public ResponseEntity<ProfessionalResponseDTO> updateCouncil(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateCouncilDTO dto) {
-        return ResponseEntity.ok(professionalEnrichmentUseCase.updateCouncil(userDetails.getUserId(), dto));
+        return ResponseEntity.ok(updateCouncilUseCase.execute(userDetails.getUserId(), dto));
     }
 
     @PatchMapping("/address")
@@ -43,6 +45,6 @@ public class ProfessionalCouncilAddressController {
     public ResponseEntity<ProfessionalResponseDTO> updateAddress(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateAddressDTO dto) {
-        return ResponseEntity.ok(professionalEnrichmentUseCase.updateAddress(userDetails.getUserId(), dto));
+        return ResponseEntity.ok(updateAddressUseCase.execute(userDetails.getUserId(), dto));
     }
 }

@@ -1,5 +1,6 @@
 package com.consultafacil.application.service;
 
+import com.consultafacil.application.port.in.HandlePreapprovalWebhookUseCase;
 import com.consultafacil.application.port.in.RecordCouponUseUseCase;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.port.out.PlanRepositoryPort;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SubscriptionPreapprovalWebhookHandler {
+public class SubscriptionPreapprovalWebhookHandler implements HandlePreapprovalWebhookUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepository;
     private final PlanRepositoryPort planRepository;
@@ -23,7 +24,8 @@ public class SubscriptionPreapprovalWebhookHandler {
     private final SubscriptionSellerSaleLinker sellerSaleLinker;
     private final SubscriptionPaymentRecorder paymentRecorder;
 
-    public void handle(String preapprovalId) {
+    @Override
+    public void execute(String preapprovalId) {
         try {
             Preapproval preapproval = new PreapprovalClient().get(preapprovalId);
             String status = preapproval.getStatus();

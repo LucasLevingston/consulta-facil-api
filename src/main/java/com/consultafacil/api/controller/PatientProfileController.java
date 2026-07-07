@@ -4,13 +4,22 @@ import com.consultafacil.api.dto.appointment.PatientSummaryDTO;
 import com.consultafacil.api.dto.patient.EmergencyContactDTO;
 import com.consultafacil.api.dto.patient.PatientDocumentResponseDTO;
 import com.consultafacil.api.dto.patient.PatientVaccineDTO;
+import com.consultafacil.application.port.in.AddEmergencyContactUseCase;
+import com.consultafacil.application.port.in.AddVaccineUseCase;
+import com.consultafacil.application.port.in.DeleteDocumentUseCase;
+import com.consultafacil.application.port.in.DeleteEmergencyContactUseCase;
+import com.consultafacil.application.port.in.DeleteVaccineUseCase;
 import com.consultafacil.application.port.in.GetAllPatientsUseCase;
 import com.consultafacil.application.port.in.GetPatientMedicalRecordsUseCase;
 import com.consultafacil.application.port.in.GetPatientProfileUseCase;
 import com.consultafacil.application.port.in.GetProfessionalPatientsUseCase;
-import com.consultafacil.application.port.in.PatientHealthUseCase;
+import com.consultafacil.application.port.in.ListDocumentsUseCase;
+import com.consultafacil.application.port.in.ListEmergencyContactsUseCase;
+import com.consultafacil.application.port.in.ListVaccinesUseCase;
+import com.consultafacil.application.port.in.UpdateEmergencyContactUseCase;
 import com.consultafacil.application.port.in.UpdatePatientMedicalRecordsUseCase;
 import com.consultafacil.application.port.in.UpdatePatientProfileUseCase;
+import com.consultafacil.application.port.in.UploadDocumentUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.SecurityUtils;
 import com.consultafacil.domain.enums.DocumentType;
@@ -42,7 +51,16 @@ public class PatientProfileController {
     private final GetPatientMedicalRecordsUseCase getPatientMedicalRecords;
     private final UpdatePatientMedicalRecordsUseCase updatePatientMedicalRecords;
     private final GetAllPatientsUseCase getAllPatients;
-    private final PatientHealthUseCase patientHealthUseCase;
+    private final ListEmergencyContactsUseCase listEmergencyContacts;
+    private final AddEmergencyContactUseCase addEmergencyContact;
+    private final UpdateEmergencyContactUseCase updateEmergencyContact;
+    private final DeleteEmergencyContactUseCase deleteEmergencyContact;
+    private final ListVaccinesUseCase listVaccines;
+    private final AddVaccineUseCase addVaccine;
+    private final DeleteVaccineUseCase deleteVaccine;
+    private final ListDocumentsUseCase listDocuments;
+    private final UploadDocumentUseCase uploadDocument;
+    private final DeleteDocumentUseCase deleteDocument;
     private final GetProfessionalPatientsUseCase getProfessionalPatients;
     private final ProfessionalProfileRepositoryPort professionalProfileRepository;
 
@@ -110,7 +128,7 @@ public class PatientProfileController {
     @PreAuthorize("@carePolicy.canManageOwnEmergencyContacts(authentication)")
     @Operation(summary = "List my emergency contacts")
     public ResponseEntity<List<EmergencyContactDTO>> listEmergencyContacts() {
-        return ResponseEntity.ok(patientHealthUseCase.listEmergencyContacts(SecurityUtils.getCurrentUserId()));
+        return ResponseEntity.ok(listEmergencyContacts.execute(SecurityUtils.getCurrentUserId()));
     }
 
     @PostMapping("/me/emergency-contacts")
@@ -118,7 +136,7 @@ public class PatientProfileController {
     @Operation(summary = "Add an emergency contact")
     public ResponseEntity<EmergencyContactDTO> addEmergencyContact(
             @Valid @RequestBody EmergencyContactDTO dto) {
-        return ResponseEntity.ok(patientHealthUseCase.addEmergencyContact(SecurityUtils.getCurrentUserId(), dto));
+        return ResponseEntity.ok(addEmergencyContact.execute(SecurityUtils.getCurrentUserId(), dto));
     }
 
     @PutMapping("/me/emergency-contacts/{contactId}")
@@ -127,14 +145,14 @@ public class PatientProfileController {
     public ResponseEntity<EmergencyContactDTO> updateEmergencyContact(
             @PathVariable String contactId, @Valid @RequestBody EmergencyContactDTO dto) {
         return ResponseEntity.ok(
-                patientHealthUseCase.updateEmergencyContact(SecurityUtils.getCurrentUserId(), contactId, dto));
+                updateEmergencyContact.execute(SecurityUtils.getCurrentUserId(), contactId, dto));
     }
 
     @DeleteMapping("/me/emergency-contacts/{contactId}")
     @PreAuthorize("@carePolicy.canManageOwnEmergencyContacts(authentication)")
     @Operation(summary = "Delete an emergency contact")
     public ResponseEntity<Void> deleteEmergencyContact(@PathVariable String contactId) {
-        patientHealthUseCase.deleteEmergencyContact(SecurityUtils.getCurrentUserId(), contactId);
+        deleteEmergencyContact.execute(SecurityUtils.getCurrentUserId(), contactId);
         return ResponseEntity.noContent().build();
     }
 
@@ -144,21 +162,21 @@ public class PatientProfileController {
     @PreAuthorize("@carePolicy.canManageOwnVaccines(authentication)")
     @Operation(summary = "List my vaccines")
     public ResponseEntity<List<PatientVaccineDTO>> listVaccines() {
-        return ResponseEntity.ok(patientHealthUseCase.listVaccines(SecurityUtils.getCurrentUserId()));
+        return ResponseEntity.ok(listVaccines.execute(SecurityUtils.getCurrentUserId()));
     }
 
     @PostMapping("/me/vaccines")
     @PreAuthorize("@carePolicy.canManageOwnVaccines(authentication)")
     @Operation(summary = "Add a vaccine")
     public ResponseEntity<PatientVaccineDTO> addVaccine(@Valid @RequestBody PatientVaccineDTO dto) {
-        return ResponseEntity.ok(patientHealthUseCase.addVaccine(SecurityUtils.getCurrentUserId(), dto));
+        return ResponseEntity.ok(addVaccine.execute(SecurityUtils.getCurrentUserId(), dto));
     }
 
     @DeleteMapping("/me/vaccines/{vaccineId}")
     @PreAuthorize("@carePolicy.canManageOwnVaccines(authentication)")
     @Operation(summary = "Delete a vaccine")
     public ResponseEntity<Void> deleteVaccine(@PathVariable String vaccineId) {
-        patientHealthUseCase.deleteVaccine(SecurityUtils.getCurrentUserId(), vaccineId);
+        deleteVaccine.execute(SecurityUtils.getCurrentUserId(), vaccineId);
         return ResponseEntity.noContent().build();
     }
 
@@ -168,7 +186,7 @@ public class PatientProfileController {
     @PreAuthorize("@carePolicy.canManageOwnDocuments(authentication)")
     @Operation(summary = "List my documents")
     public ResponseEntity<List<PatientDocumentResponseDTO>> listDocuments() {
-        return ResponseEntity.ok(patientHealthUseCase.listDocuments(SecurityUtils.getCurrentUserId()));
+        return ResponseEntity.ok(listDocuments.execute(SecurityUtils.getCurrentUserId()));
     }
 
     @PostMapping("/me/documents")
@@ -179,14 +197,14 @@ public class PatientProfileController {
             @RequestParam("documentType") DocumentType documentType,
             @RequestParam(value = "documentLabel", required = false) String documentLabel) {
         return ResponseEntity.ok(
-                patientHealthUseCase.uploadDocument(SecurityUtils.getCurrentUserId(), file, documentType, documentLabel));
+                uploadDocument.execute(SecurityUtils.getCurrentUserId(), file, documentType, documentLabel));
     }
 
     @DeleteMapping("/me/documents/{documentId}")
     @PreAuthorize("@carePolicy.canManageOwnDocuments(authentication)")
     @Operation(summary = "Delete a document")
     public ResponseEntity<Void> deleteDocument(@PathVariable String documentId) {
-        patientHealthUseCase.deleteDocument(SecurityUtils.getCurrentUserId(), documentId);
+        deleteDocument.execute(SecurityUtils.getCurrentUserId(), documentId);
         return ResponseEntity.noContent().build();
     }
 }

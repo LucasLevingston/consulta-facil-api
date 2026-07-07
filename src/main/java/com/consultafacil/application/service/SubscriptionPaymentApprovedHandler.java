@@ -1,5 +1,6 @@
 package com.consultafacil.application.service;
 
+import com.consultafacil.application.port.in.HandlePaymentApprovedUseCase;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.enums.SubscriptionStatus;
@@ -18,7 +19,7 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SubscriptionPaymentApprovedHandler {
+public class SubscriptionPaymentApprovedHandler implements HandlePaymentApprovedUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepository;
     private final UserRepositoryPort userRepository;
@@ -26,7 +27,8 @@ public class SubscriptionPaymentApprovedHandler {
     private final SubscriptionPaymentRecorder paymentRecorder;
     private final SubscriptionRenewalNotifier renewalNotifier;
 
-    public void handle(String paymentId, String externalReference) {
+    @Override
+    public void execute(String paymentId, String externalReference) {
         String ref = externalReference;
         if (ref == null) {
             try {

@@ -4,9 +4,10 @@ import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdateBioDTO;
 import com.consultafacil.api.dto.professional.UpdatePaymentSettingsDTO;
 import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
-import com.consultafacil.application.port.in.ProfessionalProfileUseCase;
 import com.consultafacil.application.port.in.SetConsultationPriceUseCase;
+import com.consultafacil.application.port.in.UpdateBioUseCase;
 import com.consultafacil.application.port.in.UpdatePaymentSettingsUseCase;
+import com.consultafacil.application.port.in.UpdateSocialLinksUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,9 +28,10 @@ import java.util.Map;
 @Tag(name = "Professionals", description = "Professional self-service endpoints")
 public class ProfessionalSelfServiceController {
 
-    private final ProfessionalProfileUseCase professionalProfileUseCase;
     private final SetConsultationPriceUseCase setConsultationPriceUseCase;
     private final UpdatePaymentSettingsUseCase updatePaymentSettingsUseCase;
+    private final UpdateBioUseCase updateBioUseCase;
+    private final UpdateSocialLinksUseCase updateSocialLinksUseCase;
 
     @PutMapping("/consultation-price")
     @PreAuthorize("@carePolicy.canManageProfessionalSchedule(authentication)")
@@ -58,7 +60,7 @@ public class ProfessionalSelfServiceController {
     public ResponseEntity<ProfessionalResponseDTO> updateBio(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateBioDTO dto) {
-        return ResponseEntity.ok(professionalProfileUseCase.updateBio(userDetails.getUserId(), dto));
+        return ResponseEntity.ok(updateBioUseCase.execute(userDetails.getUserId(), dto));
     }
 
     @PatchMapping("/social-links")
@@ -68,6 +70,6 @@ public class ProfessionalSelfServiceController {
     public ResponseEntity<ProfessionalResponseDTO> updateSocialLinks(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateSocialLinksDTO dto) {
-        return ResponseEntity.ok(professionalProfileUseCase.updateSocialLinks(userDetails.getUserId(), dto));
+        return ResponseEntity.ok(updateSocialLinksUseCase.execute(userDetails.getUserId(), dto));
     }
 }

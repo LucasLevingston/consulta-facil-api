@@ -2,7 +2,13 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
-import com.consultafacil.application.port.in.ProfessionalProfileUseCase;
+import com.consultafacil.application.port.in.CreateProfessionalProfileUseCase;
+import com.consultafacil.application.port.in.DeleteProfessionalUseCase;
+import com.consultafacil.application.port.in.GetAllProfessionalsUseCase;
+import com.consultafacil.application.port.in.GetProfessionalByIdUseCase;
+import com.consultafacil.application.port.in.GetProfessionalsNearbyUseCase;
+import com.consultafacil.application.port.in.SearchProfessionalsBySpecialtyUseCase;
+import com.consultafacil.application.port.in.UpdateProfessionalUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,7 +31,13 @@ import java.util.List;
 @Tag(name = "Professionals", description = "Professional management endpoints")
 public class ProfessionalController {
 
-    private final ProfessionalProfileUseCase professionalProfileUseCase;
+    private final GetAllProfessionalsUseCase getAllProfessionals;
+    private final SearchProfessionalsBySpecialtyUseCase searchProfessionalsBySpecialty;
+    private final GetProfessionalsNearbyUseCase getProfessionalsNearby;
+    private final GetProfessionalByIdUseCase getProfessionalById;
+    private final CreateProfessionalProfileUseCase createProfessionalProfile;
+    private final UpdateProfessionalUseCase updateProfessional;
+    private final DeleteProfessionalUseCase deleteProfessional;
 
     @GetMapping
     @Operation(summary = "List professionals", description = "Returns active professionals with optional filters")
@@ -34,14 +46,14 @@ public class ProfessionalController {
             @RequestParam(required = false) String specialty,
             @RequestParam(required = false) String name,
             Pageable pageable) {
-        return ResponseEntity.ok(professionalProfileUseCase.getAll(profession, specialty, name, pageable));
+        return ResponseEntity.ok(getAllProfessionals.execute(profession, specialty, name, pageable));
     }
 
     @GetMapping("/search")
     @Operation(summary = "Search professionals by specialty")
     public ResponseEntity<Page<ProfessionalResponseDTO>> searchBySpecialty(
             @RequestParam String specialty, Pageable pageable) {
-        return ResponseEntity.ok(professionalProfileUseCase.searchBySpecialty(specialty, pageable));
+        return ResponseEntity.ok(searchProfessionalsBySpecialty.execute(specialty, pageable));
     }
 
     @GetMapping("/nearby")
@@ -52,13 +64,13 @@ public class ProfessionalController {
             @RequestParam(defaultValue = "50") double radiusKm,
             @RequestParam(required = false) String specialty,
             @RequestParam(required = false) String profession) {
-        return ResponseEntity.ok(professionalProfileUseCase.getNearby(lat, lng, radiusKm, specialty, profession));
+        return ResponseEntity.ok(getProfessionalsNearby.execute(lat, lng, radiusKm, specialty, profession));
     }
 
     @GetMapping("/{professionalId}")
     @Operation(summary = "Get professional by ID")
     public ResponseEntity<ProfessionalResponseDTO> getProfessionalById(@PathVariable String professionalId) {
-        return ResponseEntity.ok(professionalProfileUseCase.getById(professionalId));
+        return ResponseEntity.ok(getProfessionalById.execute(professionalId));
     }
 
     @PostMapping
@@ -69,7 +81,7 @@ public class ProfessionalController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateProfessionalDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(professionalProfileUseCase.createProfile(userDetails.getUserId(), dto));
+                .body(createProfessionalProfile.execute(userDetails.getUserId(), dto));
     }
 
     @PutMapping("/{professionalId}")
@@ -79,7 +91,7 @@ public class ProfessionalController {
     public ResponseEntity<ProfessionalResponseDTO> updateProfessional(
             @PathVariable String professionalId,
             @Valid @RequestBody CreateProfessionalDTO dto) {
-        return ResponseEntity.ok(professionalProfileUseCase.updateProfessional(professionalId, dto));
+        return ResponseEntity.ok(updateProfessional.execute(professionalId, dto));
     }
 
     @DeleteMapping("/{professionalId}")
@@ -87,7 +99,7 @@ public class ProfessionalController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete professional profile")
     public ResponseEntity<Void> deleteProfessional(@PathVariable String professionalId) {
-        professionalProfileUseCase.deleteProfessional(professionalId);
+        deleteProfessional.execute(professionalId);
         return ResponseEntity.noContent().build();
     }
 }

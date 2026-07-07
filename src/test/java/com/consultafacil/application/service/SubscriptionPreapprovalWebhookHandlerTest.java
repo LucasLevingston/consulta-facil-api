@@ -26,6 +26,6 @@ class SubscriptionPreapprovalWebhookHandlerTest {
     @Test
     void handle_notFoundInDB_doesNotThrow() {
         // PreapprovalClient will fail in unit context but exception is caught
-        handler.handle("preapproval-1");
+        handler.execute("preapproval-1");
     }
 }

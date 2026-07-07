@@ -69,7 +69,7 @@ class SubscriptionPaymentApprovedHandlerTest {
         subscription.setExpiresAt(null);
         when(subscriptionRepository.findByUserId("u-1")).thenReturn(Optional.of(subscription));
 
-        handler.handle("pay-1", "u-1|monthly");
+        handler.execute("pay-1", "u-1|monthly");
 
         verify(subscriptionRepository).save(subscription);
         assertThat(subscription.getStatus()).isEqualTo(SubscriptionStatus.ACTIVE);
@@ -82,14 +82,14 @@ class SubscriptionPaymentApprovedHandlerTest {
         subscription.setExpiresAt(currentExpiry);
         when(subscriptionRepository.findByUserId("u-1")).thenReturn(Optional.of(subscription));
 
-        handler.handle("pay-1", "u-1|monthly");
+        handler.execute("pay-1", "u-1|monthly");
 
         assertThat(subscription.getExpiresAt()).isAfter(currentExpiry.plusDays(25));
     }
 
     @Test
     void handle_invalidRef_doesNothing() {
-        handler.handle("pay-1", "invalid-reference");
+        handler.execute("pay-1", "invalid-reference");
         verifyNoInteractions(subscriptionRepository);
     }
 
@@ -97,13 +97,13 @@ class SubscriptionPaymentApprovedHandlerTest {
     void handle_nullRef_fetchesFromMercadoPago() {
         // With null externalReference, falls through to PaymentClient — just verify no NPE
         // (PaymentClient will fail in unit context, which is caught and logged)
-        handler.handle("12345", null);
+        handler.execute("12345", null);
     }
 
     @Test
     void handle_unknownPlanId_doesNothing() {
         when(subscriptionRepository.findByUserId("u-1")).thenReturn(Optional.of(subscription));
-        handler.handle("pay-1", "u-1|unknown-plan");
+        handler.execute("pay-1", "u-1|unknown-plan");
         verify(subscriptionRepository, never()).save(any());
     }
 
@@ -112,7 +112,7 @@ class SubscriptionPaymentApprovedHandlerTest {
         subscription.setExpiresAt(null);
         when(subscriptionRepository.findByUserId("u-1")).thenReturn(Optional.of(subscription));
 
-        handler.handle("pay-1", "u-1|monthly");
+        handler.execute("pay-1", "u-1|monthly");
 
         verify(renewalNotifier).sendRenewalEmail(eq(user), eq(monthlyPlan), any());
     }

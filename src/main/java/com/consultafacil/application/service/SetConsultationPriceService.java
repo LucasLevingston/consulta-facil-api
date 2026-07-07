@@ -4,6 +4,7 @@ import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.application.port.in.GetProfessionalByUserIdUseCase;
 import com.consultafacil.application.port.in.SetConsultationPriceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
 public class SetConsultationPriceService implements SetConsultationPriceUseCase {
 
     private final ProfessionalProfileRepositoryPort professionalProfileRepository;
-    private final ProfessionalService professionalService;
+    private final GetProfessionalByUserIdUseCase getProfessionalByUserId;
 
     @Transactional
     public ProfessionalResponseDTO execute(String userId, BigDecimal price) {
@@ -25,6 +26,6 @@ public class SetConsultationPriceService implements SetConsultationPriceUseCase 
 
         profile.updateConsultationPrice(price);
         professionalProfileRepository.save(profile);
-        return professionalService.getByUserId(userId);
+        return getProfessionalByUserId.execute(userId);
     }
 }

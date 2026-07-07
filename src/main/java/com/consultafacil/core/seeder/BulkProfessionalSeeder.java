@@ -2,7 +2,8 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.user.CreateUserDTO;
-import com.consultafacil.application.service.ProfessionalService;
+import com.consultafacil.application.port.in.ApproveApplicationUseCase;
+import com.consultafacil.application.port.in.CreateProfessionalProfileUseCase;
 import com.consultafacil.application.port.in.RegisterUserUseCase;
 import com.consultafacil.domain.enums.Gender;
 import com.github.javafaker.Faker;
@@ -21,7 +22,8 @@ import java.util.Locale;
 public class BulkProfessionalSeeder {
 
     private final RegisterUserUseCase registerUser;
-    private final ProfessionalService professionalService;
+    private final CreateProfessionalProfileUseCase createProfessionalProfile;
+    private final ApproveApplicationUseCase approveApplication;
     private final ProfessionDataProvider professionDataProvider;
     private final Faker faker = new Faker(new Locale("pt-BR"));
 
@@ -48,7 +50,7 @@ public class BulkProfessionalSeeder {
                         .specialty(pd.specialty())
                         .licenseNumber(pd.licensePrefix() + " " + (100000 + created))
                         .build();
-                var profResponse = professionalService.createProfile(userResponse.getId(), profDTO);
+                var profResponse = createProfessionalProfile.execute(userResponse.getId(), profDTO);
                 ids.add(profResponse.getId());
                 created++;
             } catch (Exception e) {
@@ -62,7 +64,7 @@ public class BulkProfessionalSeeder {
     public void approveAll(List<String> professionalProfileIds) {
         professionalProfileIds.forEach(id -> {
             try {
-                professionalService.approveApplication(id);
+                approveApplication.execute(id);
             } catch (Exception e) {
                 log.debug("Erro ao aprovar profissional {}: {}", id, e.getMessage());
             }
