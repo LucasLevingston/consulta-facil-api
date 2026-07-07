@@ -7,7 +7,7 @@ import com.consultafacil.domain.enums.ProfessionalProfileStatus;
 import com.consultafacil.domain.enums.ProfessionalType;
 import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

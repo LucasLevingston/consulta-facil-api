@@ -2,7 +2,7 @@ package com.consultafacil.application.service.dependent;
 
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Dependent;
-import com.consultafacil.domain.port.out.DependentRepositoryPort;
+import com.consultafacil.domain.port.out.dependent.DependentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

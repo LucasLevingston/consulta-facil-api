@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.professional.profile;
 
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
-import com.consultafacil.application.port.in.SearchProfessionalsBySpecialtyUseCase;
+import com.consultafacil.application.port.in.professional.profile.SearchProfessionalsBySpecialtyUseCase;
 import com.consultafacil.domain.enums.ProfessionalProfileStatus;
 import com.consultafacil.domain.enums.Specialty;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -6,7 +6,7 @@ import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.enums.BillingPeriod;
 import com.consultafacil.domain.enums.PlanStatus;
-import com.consultafacil.domain.port.out.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

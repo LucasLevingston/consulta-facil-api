@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.feature;
 
-import com.consultafacil.application.port.in.DeleteFeatureUseCase;
+import com.consultafacil.application.port.in.feature.DeleteFeatureUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
-import com.consultafacil.domain.port.out.FeatureRepositoryPort;
+import com.consultafacil.domain.port.out.feature.FeatureRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -2,7 +2,7 @@ package com.consultafacil.application.scheduler;
 
 import com.consultafacil.domain.entity.SellerSale;
 import com.consultafacil.domain.enums.SellerSaleStatus;
-import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
+import com.consultafacil.domain.port.out.seller.SellerSaleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

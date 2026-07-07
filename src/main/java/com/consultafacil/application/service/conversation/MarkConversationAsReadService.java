@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.conversation;
 
-import com.consultafacil.application.port.in.MarkConversationAsReadUseCase;
-import com.consultafacil.domain.port.out.MessageRepositoryPort;
+import com.consultafacil.application.port.in.conversation.MarkConversationAsReadUseCase;
+import com.consultafacil.domain.port.out.conversation.MessageRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

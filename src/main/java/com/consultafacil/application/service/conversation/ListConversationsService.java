@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.conversation;
 
 import com.consultafacil.api.dto.messaging.ConversationResponseDTO;
-import com.consultafacil.application.port.in.ListConversationsUseCase;
-import com.consultafacil.domain.port.out.ConversationRepositoryPort;
+import com.consultafacil.application.port.in.conversation.ListConversationsUseCase;
+import com.consultafacil.domain.port.out.conversation.ConversationRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

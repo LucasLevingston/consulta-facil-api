@@ -2,9 +2,9 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.systemfee.SystemFeeResponseDTO;
 import com.consultafacil.api.dto.billing.systemfee.UpdateSystemFeeDTO;
-import com.consultafacil.application.port.in.GetSystemFeeByIdUseCase;
-import com.consultafacil.application.port.in.ListSystemFeesUseCase;
-import com.consultafacil.application.port.in.UpdateSystemFeeUseCase;
+import com.consultafacil.application.port.in.systemfee.GetSystemFeeByIdUseCase;
+import com.consultafacil.application.port.in.systemfee.ListSystemFeesUseCase;
+import com.consultafacil.application.port.in.systemfee.UpdateSystemFeeUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

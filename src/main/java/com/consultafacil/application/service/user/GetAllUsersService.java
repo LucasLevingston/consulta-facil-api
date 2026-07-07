@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.user;
 
 import com.consultafacil.api.dto.user.UserResponseDTO;
-import com.consultafacil.application.port.in.GetAllUsersUseCase;
+import com.consultafacil.application.port.in.user.GetAllUsersUseCase;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

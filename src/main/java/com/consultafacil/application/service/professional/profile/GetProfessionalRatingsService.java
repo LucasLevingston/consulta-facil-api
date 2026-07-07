@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.professional.profile;
 
 import com.consultafacil.api.dto.professional.ProfessionalRatingDTO;
-import com.consultafacil.application.port.in.GetProfessionalRatingsUseCase;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.application.port.in.professional.profile.GetProfessionalRatingsUseCase;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

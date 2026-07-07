@@ -2,9 +2,9 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.user.CreateUserDTO;
-import com.consultafacil.application.port.in.ApproveApplicationUseCase;
-import com.consultafacil.application.port.in.CreateProfessionalProfileUseCase;
-import com.consultafacil.application.port.in.RegisterUserUseCase;
+import com.consultafacil.application.port.in.professional.profile.ApproveApplicationUseCase;
+import com.consultafacil.application.port.in.professional.profile.CreateProfessionalProfileUseCase;
+import com.consultafacil.application.port.in.user.RegisterUserUseCase;
 import com.consultafacil.domain.enums.Gender;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;

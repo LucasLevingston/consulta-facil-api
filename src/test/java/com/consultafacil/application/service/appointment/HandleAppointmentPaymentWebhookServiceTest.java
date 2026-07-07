@@ -4,7 +4,7 @@ import com.consultafacil.application.observability.BusinessMetrics;
 import com.consultafacil.core.messaging.EventPublisher;
 import com.consultafacil.domain.entity.*;
 import com.consultafacil.domain.enums.*;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.resources.payment.Payment;
 import org.junit.jupiter.api.BeforeEach;

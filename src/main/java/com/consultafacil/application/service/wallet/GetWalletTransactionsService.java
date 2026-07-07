@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.wallet;
 
 import com.consultafacil.api.dto.billing.wallet.WalletTransactionDTO;
-import com.consultafacil.application.port.in.GetOrCreateWalletUseCase;
-import com.consultafacil.application.port.in.GetWalletTransactionsUseCase;
+import com.consultafacil.application.port.in.wallet.GetOrCreateWalletUseCase;
+import com.consultafacil.application.port.in.wallet.GetWalletTransactionsUseCase;
 import com.consultafacil.domain.entity.Wallet;
-import com.consultafacil.domain.port.out.WalletTransactionRepositoryPort;
+import com.consultafacil.domain.port.out.wallet.WalletTransactionRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

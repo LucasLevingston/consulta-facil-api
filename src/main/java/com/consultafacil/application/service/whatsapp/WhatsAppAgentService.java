@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.whatsapp;
 import com.consultafacil.application.service.ai.AnthropicMessagesClient;
 
-import com.consultafacil.application.port.in.WhatsAppWebhookUseCase;
+import com.consultafacil.application.port.in.whatsapp.WhatsAppWebhookUseCase;
 import com.consultafacil.core.config.AnthropicProperties;
 import com.consultafacil.domain.entity.WhatsAppConversation;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
-import com.consultafacil.domain.port.out.WhatsAppConversationRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
+import com.consultafacil.domain.port.out.whatsapp.WhatsAppConversationRepositoryPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

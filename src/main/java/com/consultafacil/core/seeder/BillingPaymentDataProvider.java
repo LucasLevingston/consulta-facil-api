@@ -4,7 +4,7 @@ import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
 import com.consultafacil.domain.enums.OwnerType;
 import com.consultafacil.domain.enums.PaymentType;
-import com.consultafacil.domain.repository.UserRepository;
+import com.consultafacil.domain.repository.user.UserRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

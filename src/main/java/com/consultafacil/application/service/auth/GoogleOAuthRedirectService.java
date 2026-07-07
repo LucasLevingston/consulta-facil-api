@@ -1,6 +1,6 @@
 package com.consultafacil.application.service.auth;
 
-import com.consultafacil.application.port.in.GoogleOAuthRedirectUseCase;
+import com.consultafacil.application.port.in.auth.GoogleOAuthRedirectUseCase;
 import com.consultafacil.core.config.GoogleOAuthProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

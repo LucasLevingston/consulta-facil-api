@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.billing;
 
 import com.consultafacil.api.dto.billing.payment.BillingPaymentResponseDTO;
-import com.consultafacil.application.port.in.GetBillingPaymentByIdUseCase;
+import com.consultafacil.application.port.in.billing.GetBillingPaymentByIdUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

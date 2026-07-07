@@ -1,6 +1,6 @@
 package com.consultafacil.api.controller;
 
-import com.consultafacil.application.port.in.WhatsAppWebhookUseCase;
+import com.consultafacil.application.port.in.whatsapp.WhatsAppWebhookUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -4,7 +4,7 @@ import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

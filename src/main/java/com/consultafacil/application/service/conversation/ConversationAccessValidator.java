@@ -2,7 +2,7 @@ package com.consultafacil.application.service.conversation;
 
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Conversation;
-import com.consultafacil.domain.port.out.ConversationRepositoryPort;
+import com.consultafacil.domain.port.out.conversation.ConversationRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

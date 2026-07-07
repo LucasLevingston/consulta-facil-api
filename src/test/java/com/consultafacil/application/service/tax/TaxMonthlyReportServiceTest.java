@@ -3,7 +3,7 @@ package com.consultafacil.application.service.tax;
 import com.consultafacil.api.dto.tax.TaxReportDTO;
 import com.consultafacil.core.config.TaxConfig;
 import com.consultafacil.domain.entity.SubscriptionPayment;
-import com.consultafacil.domain.port.out.SubscriptionPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionPaymentRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,14 +1,14 @@
 package com.consultafacil.application.service.commission;
 
-import com.consultafacil.application.port.in.CreditWalletFromCommissionUseCase;
-import com.consultafacil.application.port.in.ProcessAvailableCommissionsUseCase;
-import com.consultafacil.application.port.in.ReleasePendingWalletCommissionUseCase;
+import com.consultafacil.application.port.in.wallet.CreditWalletFromCommissionUseCase;
+import com.consultafacil.application.port.in.commission.ProcessAvailableCommissionsUseCase;
+import com.consultafacil.application.port.in.wallet.ReleasePendingWalletCommissionUseCase;
 import com.consultafacil.domain.entity.ReferralCommission;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
 import com.consultafacil.domain.enums.CommissionStatus;
-import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
-import com.consultafacil.domain.port.out.ReferralCommissionRepositoryPort;
-import com.consultafacil.domain.port.out.ReferralRepositoryPort;
+import com.consultafacil.domain.port.out.billing.BillingPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralCommissionRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

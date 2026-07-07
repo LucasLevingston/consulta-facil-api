@@ -2,11 +2,11 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.professional.ProfessionalRatingDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
-import com.consultafacil.application.port.in.ApproveApplicationUseCase;
-import com.consultafacil.application.port.in.GetApplicationStatusUseCase;
-import com.consultafacil.application.port.in.GetPendingApplicationsUseCase;
-import com.consultafacil.application.port.in.GetProfessionalRatingsUseCase;
-import com.consultafacil.application.port.in.RejectApplicationUseCase;
+import com.consultafacil.application.port.in.professional.profile.ApproveApplicationUseCase;
+import com.consultafacil.application.port.in.professional.profile.GetApplicationStatusUseCase;
+import com.consultafacil.application.port.in.professional.profile.GetPendingApplicationsUseCase;
+import com.consultafacil.application.port.in.professional.profile.GetProfessionalRatingsUseCase;
+import com.consultafacil.application.port.in.professional.profile.RejectApplicationUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

@@ -1,14 +1,14 @@
 package com.consultafacil.application.service.magiclink;
 
 import com.consultafacil.api.dto.auth.LoginResponseDTO;
-import com.consultafacil.application.port.in.VerifyMagicLinkUseCase;
+import com.consultafacil.application.port.in.auth.VerifyMagicLinkUseCase;
 import com.consultafacil.application.service.auth.CreateRefreshTokenService;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.JwtTokenProvider;
 import com.consultafacil.domain.entity.MagicLinkToken;
 import com.consultafacil.domain.entity.User;
-import com.consultafacil.domain.port.out.MagicLinkTokenRepositoryPort;
+import com.consultafacil.domain.port.out.auth.MagicLinkTokenRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

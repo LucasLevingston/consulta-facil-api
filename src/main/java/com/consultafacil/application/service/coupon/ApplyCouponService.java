@@ -2,14 +2,14 @@ package com.consultafacil.application.service.coupon;
 
 import com.consultafacil.api.dto.billing.coupon.CouponUsageResponseDTO;
 import com.consultafacil.api.dto.billing.coupon.CouponValidationResultDTO;
-import com.consultafacil.application.port.in.ApplyCouponUseCase;
-import com.consultafacil.application.port.in.ValidateCouponUsageUseCase;
+import com.consultafacil.application.port.in.coupon.ApplyCouponUseCase;
+import com.consultafacil.application.port.in.coupon.ValidateCouponUsageUseCase;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Coupon;
 import com.consultafacil.domain.entity.CouponUsage;
-import com.consultafacil.domain.port.out.CouponRepositoryPort;
-import com.consultafacil.domain.port.out.CouponUsageRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponUsageRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,13 +1,13 @@
 package com.consultafacil.application.service.referral;
 
-import com.consultafacil.application.port.in.RegisterReferralUseCase;
+import com.consultafacil.application.port.in.referral.RegisterReferralUseCase;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.DuplicateResourceException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Referral;
 import com.consultafacil.domain.entity.ReferralCode;
-import com.consultafacil.domain.port.out.ReferralCodeRepositoryPort;
-import com.consultafacil.domain.port.out.ReferralRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralCodeRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

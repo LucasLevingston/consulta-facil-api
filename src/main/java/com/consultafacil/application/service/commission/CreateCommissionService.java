@@ -2,11 +2,11 @@ package com.consultafacil.application.service.commission;
 import com.consultafacil.application.service.referral.ReferralCommissionMapper;
 
 import com.consultafacil.api.dto.billing.commission.ReferralCommissionDTO;
-import com.consultafacil.application.port.in.AddPendingWalletCommissionUseCase;
-import com.consultafacil.application.port.in.CreateCommissionUseCase;
+import com.consultafacil.application.port.in.wallet.AddPendingWalletCommissionUseCase;
+import com.consultafacil.application.port.in.commission.CreateCommissionUseCase;
 import com.consultafacil.domain.entity.ReferralCommission;
-import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
-import com.consultafacil.domain.port.out.ReferralCommissionRepositoryPort;
+import com.consultafacil.domain.port.out.billing.BillingPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralCommissionRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

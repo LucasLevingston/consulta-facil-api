@@ -2,7 +2,7 @@ package com.consultafacil.application.service.patient;
 
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.PatientProfile;
-import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

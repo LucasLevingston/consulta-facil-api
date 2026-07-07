@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.professional.profile;
 
 import com.consultafacil.api.dto.appointment.PatientSummaryDTO;
-import com.consultafacil.application.port.in.GetProfessionalPatientsUseCase;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.application.port.in.professional.profile.GetProfessionalPatientsUseCase;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.billing;
 
 import com.consultafacil.api.dto.billing.invoice.InvoiceResponseDTO;
-import com.consultafacil.application.port.in.GetInvoiceByPaymentIdUseCase;
+import com.consultafacil.application.port.in.billing.GetInvoiceByPaymentIdUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
-import com.consultafacil.domain.port.out.InvoiceRepositoryPort;
+import com.consultafacil.domain.port.out.billing.InvoiceRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

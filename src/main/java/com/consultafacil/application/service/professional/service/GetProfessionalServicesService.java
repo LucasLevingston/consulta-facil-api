@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.professional.service;
 
 import com.consultafacil.api.dto.professionalservice.ProfessionalServiceResponseDTO;
-import com.consultafacil.domain.port.out.ProfessionalServiceRepositoryPort;
-import com.consultafacil.application.port.in.GetProfessionalServicesUseCase;
+import com.consultafacil.domain.port.out.professional.service.ProfessionalServiceRepositoryPort;
+import com.consultafacil.application.port.in.professional.service.GetProfessionalServicesUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

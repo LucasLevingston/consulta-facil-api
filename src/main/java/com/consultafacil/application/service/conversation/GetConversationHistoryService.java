@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.conversation;
 
 import com.consultafacil.api.dto.messaging.MessageResponseDTO;
-import com.consultafacil.application.port.in.GetConversationHistoryUseCase;
-import com.consultafacil.domain.port.out.MessageRepositoryPort;
+import com.consultafacil.application.port.in.conversation.GetConversationHistoryUseCase;
+import com.consultafacil.domain.port.out.conversation.MessageRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.ai;
 
 import com.consultafacil.api.dto.ai.ChatMessage;
-import com.consultafacil.application.port.in.AnamnesisExtractionUseCase;
+import com.consultafacil.application.port.in.ai.AnamnesisExtractionUseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

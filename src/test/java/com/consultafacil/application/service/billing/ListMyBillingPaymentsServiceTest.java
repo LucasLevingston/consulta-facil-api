@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.billing;
 
 import com.consultafacil.domain.entity.BillingPayment;
-import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.billing.BillingPaymentRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

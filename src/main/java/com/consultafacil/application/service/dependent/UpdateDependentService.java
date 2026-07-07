@@ -2,9 +2,9 @@ package com.consultafacil.application.service.dependent;
 
 import com.consultafacil.api.dto.dependent.DependentResponseDTO;
 import com.consultafacil.api.dto.dependent.UpdateDependentDTO;
-import com.consultafacil.application.port.in.UpdateDependentUseCase;
+import com.consultafacil.application.port.in.dependent.UpdateDependentUseCase;
 import com.consultafacil.domain.entity.Dependent;
-import com.consultafacil.domain.port.out.DependentRepositoryPort;
+import com.consultafacil.domain.port.out.dependent.DependentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

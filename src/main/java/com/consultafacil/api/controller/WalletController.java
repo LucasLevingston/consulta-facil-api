@@ -2,9 +2,9 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.wallet.WalletDTO;
 import com.consultafacil.api.dto.billing.wallet.WalletTransactionDTO;
-import com.consultafacil.application.port.in.GetAllWalletsUseCase;
-import com.consultafacil.application.port.in.GetWalletTransactionsUseCase;
-import com.consultafacil.application.port.in.GetWalletUseCase;
+import com.consultafacil.application.port.in.wallet.GetAllWalletsUseCase;
+import com.consultafacil.application.port.in.wallet.GetWalletTransactionsUseCase;
+import com.consultafacil.application.port.in.wallet.GetWalletUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

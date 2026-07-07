@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.systemfee;
 
 import com.consultafacil.api.dto.billing.systemfee.SystemFeeResponseDTO;
-import com.consultafacil.application.port.in.ListSystemFeesUseCase;
-import com.consultafacil.domain.port.out.SystemFeeRepositoryPort;
+import com.consultafacil.application.port.in.systemfee.ListSystemFeesUseCase;
+import com.consultafacil.domain.port.out.systemfee.SystemFeeRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

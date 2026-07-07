@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.passwordreset;
 
 import com.consultafacil.domain.entity.PasswordResetToken;
-import com.consultafacil.domain.port.out.PasswordResetTokenRepositoryPort;
-import com.consultafacil.application.port.in.ResetPasswordUseCase;
+import com.consultafacil.domain.port.out.auth.PasswordResetTokenRepositoryPort;
+import com.consultafacil.application.port.in.auth.ResetPasswordUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

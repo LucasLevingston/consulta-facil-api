@@ -4,7 +4,7 @@ import com.consultafacil.api.dto.messaging.ConversationResponseDTO;
 import com.consultafacil.api.dto.messaging.MessageResponseDTO;
 import com.consultafacil.domain.entity.Conversation;
 import com.consultafacil.domain.entity.User;
-import com.consultafacil.domain.port.out.MessageRepositoryPort;
+import com.consultafacil.domain.port.out.conversation.MessageRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

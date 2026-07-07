@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.subscription;
 
-import com.consultafacil.application.port.in.HandlePreapprovalWebhookUseCase;
-import com.consultafacil.application.port.in.RecordCouponUseUseCase;
+import com.consultafacil.application.port.in.subscription.HandlePreapprovalWebhookUseCase;
+import com.consultafacil.application.port.in.coupon.RecordCouponUseUseCase;
 import com.consultafacil.domain.enums.SubscriptionStatus;
-import com.consultafacil.domain.port.out.PlanRepositoryPort;
-import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
+import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
 import com.mercadopago.client.preapproval.PreapprovalClient;
 import com.mercadopago.resources.preapproval.Preapproval;
 import lombok.RequiredArgsConstructor;

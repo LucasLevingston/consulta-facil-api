@@ -4,9 +4,9 @@ import com.consultafacil.application.service.professional.profile.ProfessionalPr
 
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdateCouncilDTO;
-import com.consultafacil.application.port.in.UpdateCouncilUseCase;
+import com.consultafacil.application.port.in.professional.enrichment.UpdateCouncilUseCase;
 import com.consultafacil.domain.entity.ProfessionalProfile;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

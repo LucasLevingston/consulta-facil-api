@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.clinic;
 
 import com.consultafacil.api.dto.clinic.ClinicResponseDTO;
-import com.consultafacil.domain.port.out.ClinicRepositoryPort;
-import com.consultafacil.application.port.in.GetAllClinicsUseCase;
+import com.consultafacil.domain.port.out.clinic.ClinicRepositoryPort;
+import com.consultafacil.application.port.in.clinic.GetAllClinicsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

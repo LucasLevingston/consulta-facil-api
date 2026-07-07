@@ -5,7 +5,7 @@ import com.consultafacil.core.security.JwtTokenProvider;
 import com.consultafacil.domain.entity.RefreshToken;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.RefreshTokenRepositoryPort;
+import com.consultafacil.domain.port.out.auth.RefreshTokenRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

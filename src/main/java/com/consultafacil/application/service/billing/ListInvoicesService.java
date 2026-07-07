@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.billing;
 
 import com.consultafacil.api.dto.billing.invoice.InvoiceResponseDTO;
-import com.consultafacil.application.port.in.ListInvoicesUseCase;
-import com.consultafacil.domain.port.out.InvoiceRepositoryPort;
+import com.consultafacil.application.port.in.billing.ListInvoicesUseCase;
+import com.consultafacil.domain.port.out.billing.InvoiceRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.appointment;
 
 import com.consultafacil.api.dto.appointment.AppointmentResponseDTO;
-import com.consultafacil.application.port.in.CheckInByQrUseCase;
+import com.consultafacil.application.port.in.appointment.CheckInByQrUseCase;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Appointment;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

@@ -1,14 +1,14 @@
 package com.consultafacil.application.service.appointment;
 
 import com.consultafacil.api.dto.appointment.AppointmentResponseDTO;
-import com.consultafacil.application.port.in.RateAppointmentUseCase;
+import com.consultafacil.application.port.in.appointment.RateAppointmentUseCase;
 import com.consultafacil.application.port.in.command.RateAppointmentCommand;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Appointment;
 import com.consultafacil.domain.entity.PatientProfile;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
-import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

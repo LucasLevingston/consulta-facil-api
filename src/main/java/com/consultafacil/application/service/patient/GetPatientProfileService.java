@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.patient;
 
-import com.consultafacil.application.port.in.GetPatientProfileUseCase;
+import com.consultafacil.application.port.in.patient.GetPatientProfileUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.entity.User;
-import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

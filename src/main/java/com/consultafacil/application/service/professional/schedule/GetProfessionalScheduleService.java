@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.professional.schedule;
 
 import com.consultafacil.api.dto.schedule.ProfessionalScheduleResponseDTO;
-import com.consultafacil.application.port.in.GetProfessionalScheduleUseCase;
-import com.consultafacil.domain.port.out.ProfessionalScheduleRepositoryPort;
+import com.consultafacil.application.port.in.professional.schedule.GetProfessionalScheduleUseCase;
+import com.consultafacil.domain.port.out.professional.schedule.ProfessionalScheduleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;

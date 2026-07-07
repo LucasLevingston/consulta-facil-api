@@ -1,0 +1,38 @@
+package com.consultafacil.adapter.out.persistence.patient;
+
+import com.consultafacil.domain.entity.PatientProfile;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
+import com.consultafacil.domain.repository.patient.PatientProfileRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class PatientProfileRepositoryAdapter implements PatientProfileRepositoryPort {
+
+    private final PatientProfileRepository patientProfileRepository;
+
+    @Override
+    public PatientProfile save(PatientProfile profile) {
+        return patientProfileRepository.save(profile);
+    }
+
+    @Override
+    public Optional<PatientProfile> findById(String id) {
+        return patientProfileRepository.findById(id);
+    }
+
+    @Override
+    public Optional<PatientProfile> findByUserId(String userId) {
+        return patientProfileRepository.findByUserId(userId);
+    }
+
+    @Override
+    public Page<PatientProfile> findAll(Pageable pageable) {
+        return patientProfileRepository.findAll(pageable);
+    }
+}

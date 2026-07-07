@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.referral;
 
 import com.consultafacil.api.dto.billing.referral.ReferralCodeDTO;
-import com.consultafacil.application.port.in.RegenerateReferralCodeUseCase;
-import com.consultafacil.domain.port.out.ReferralCodeRepositoryPort;
+import com.consultafacil.application.port.in.referral.RegenerateReferralCodeUseCase;
+import com.consultafacil.domain.port.out.referral.ReferralCodeRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

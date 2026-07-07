@@ -1,12 +1,12 @@
 package com.consultafacil.application.service.patient;
 
 import com.consultafacil.api.dto.appointment.MedicalHistoryResponseDTO;
-import com.consultafacil.application.port.in.GetMedicalHistoryUseCase;
+import com.consultafacil.application.port.in.patient.GetMedicalHistoryUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.OwnershipValidator;
 import com.consultafacil.domain.entity.Appointment;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
-import com.consultafacil.domain.port.out.MedicalHistoryRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.patient.MedicalHistoryRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

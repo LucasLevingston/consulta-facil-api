@@ -1,9 +1,9 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.clinic.CreateClinicDTO;
-import com.consultafacil.application.port.in.AddClinicMemberUseCase;
-import com.consultafacil.application.port.in.CreateClinicUseCase;
-import com.consultafacil.domain.repository.ProfessionalProfileRepository;
+import com.consultafacil.application.port.in.clinic.AddClinicMemberUseCase;
+import com.consultafacil.application.port.in.clinic.CreateClinicUseCase;
+import com.consultafacil.domain.repository.professional.profile.ProfessionalProfileRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2,13 +2,13 @@ package com.consultafacil.application.service.dependent;
 
 import com.consultafacil.api.dto.dependent.CreateDependentDTO;
 import com.consultafacil.api.dto.dependent.DependentResponseDTO;
-import com.consultafacil.application.port.in.CreateDependentUseCase;
+import com.consultafacil.application.port.in.dependent.CreateDependentUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Dependent;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.DependentRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.dependent.DependentRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

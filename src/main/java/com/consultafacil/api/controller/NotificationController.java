@@ -1,12 +1,12 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.notification.NotificationResponseDTO;
-import com.consultafacil.application.port.in.AcceptInviteUseCase;
-import com.consultafacil.application.port.in.CountUnreadNotificationsUseCase;
-import com.consultafacil.application.port.in.DeclineInviteUseCase;
-import com.consultafacil.application.port.in.GetMyNotificationsUseCase;
-import com.consultafacil.application.port.in.MarkAllNotificationsAsReadUseCase;
-import com.consultafacil.application.port.in.MarkNotificationAsReadUseCase;
+import com.consultafacil.application.port.in.clinic.AcceptInviteUseCase;
+import com.consultafacil.application.port.in.notification.CountUnreadNotificationsUseCase;
+import com.consultafacil.application.port.in.clinic.DeclineInviteUseCase;
+import com.consultafacil.application.port.in.notification.GetMyNotificationsUseCase;
+import com.consultafacil.application.port.in.notification.MarkAllNotificationsAsReadUseCase;
+import com.consultafacil.application.port.in.notification.MarkNotificationAsReadUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

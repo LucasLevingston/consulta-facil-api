@@ -1,17 +1,17 @@
 package com.consultafacil.application.service.auth;
 
 import com.consultafacil.api.dto.auth.LoginResponseDTO;
-import com.consultafacil.application.port.in.GoogleOAuthCallbackUseCase;
+import com.consultafacil.application.port.in.auth.GoogleOAuthCallbackUseCase;
 import com.consultafacil.core.config.GoogleOAuthProperties;
 import com.consultafacil.core.security.JwtTokenProvider;
 import com.consultafacil.core.util.PiiMask;
 import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.GoogleOAuthPort;
-import com.consultafacil.domain.port.out.GoogleOAuthPort.GoogleUserInfo;
-import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.auth.GoogleOAuthPort;
+import com.consultafacil.domain.port.out.auth.GoogleOAuthPort.GoogleUserInfo;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

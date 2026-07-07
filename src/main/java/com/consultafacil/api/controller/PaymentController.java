@@ -1,8 +1,8 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.appointment.PaymentResponseDTO;
-import com.consultafacil.application.port.in.CreateAppointmentPaymentUseCase;
-import com.consultafacil.application.port.in.HandlePaymentWebhookUseCase;
+import com.consultafacil.application.port.in.appointment.CreateAppointmentPaymentUseCase;
+import com.consultafacil.application.port.in.appointment.HandlePaymentWebhookUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import com.consultafacil.core.security.MercadoPagoWebhookValidator;
 import io.swagger.v3.oas.annotations.Operation;

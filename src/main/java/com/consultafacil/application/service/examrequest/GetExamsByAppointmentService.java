@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.examrequest;
 
 import com.consultafacil.api.dto.exam.ExamRequestResponseDTO;
-import com.consultafacil.domain.port.out.ExamRequestRepositoryPort;
-import com.consultafacil.application.port.in.GetExamsByAppointmentUseCase;
+import com.consultafacil.domain.port.out.examrequest.ExamRequestRepositoryPort;
+import com.consultafacil.application.port.in.examrequest.GetExamsByAppointmentUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

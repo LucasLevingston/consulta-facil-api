@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.patient;
 
 import com.consultafacil.api.dto.patient.PatientDocumentResponseDTO;
-import com.consultafacil.application.port.in.ListDocumentsUseCase;
+import com.consultafacil.application.port.in.patient.ListDocumentsUseCase;
 import com.consultafacil.domain.entity.PatientProfile;
-import com.consultafacil.domain.port.out.PatientDocumentRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientDocumentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

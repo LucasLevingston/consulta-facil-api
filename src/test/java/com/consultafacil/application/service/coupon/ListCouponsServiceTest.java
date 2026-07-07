@@ -3,7 +3,7 @@ package com.consultafacil.application.service.coupon;
 import com.consultafacil.domain.entity.Coupon;
 import com.consultafacil.domain.enums.CouponStatus;
 import com.consultafacil.domain.enums.CouponType;
-import com.consultafacil.domain.port.out.CouponRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

@@ -2,10 +2,10 @@ package com.consultafacil.application.service.professional.profile;
 
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdateBioDTO;
-import com.consultafacil.application.port.in.UpdateBioUseCase;
+import com.consultafacil.application.port.in.professional.profile.UpdateBioUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalProfile;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

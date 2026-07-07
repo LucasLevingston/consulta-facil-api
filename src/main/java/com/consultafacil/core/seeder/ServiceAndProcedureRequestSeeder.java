@@ -5,7 +5,7 @@ import com.consultafacil.api.dto.professionalservice.CreateProfessionalServiceDT
 import com.consultafacil.application.service.procedurerequest.CreateProcedureRequestService;
 import com.consultafacil.application.service.professional.service.CreateProfessionalServiceService;
 import com.consultafacil.application.service.professional.profile.SetConsultationPriceService;
-import com.consultafacil.domain.repository.PatientProfileRepository;
+import com.consultafacil.domain.repository.patient.PatientProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

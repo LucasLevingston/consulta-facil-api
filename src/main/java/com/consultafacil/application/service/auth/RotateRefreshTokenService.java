@@ -1,12 +1,12 @@
 package com.consultafacil.application.service.auth;
 
 import com.consultafacil.api.dto.auth.LoginResponseDTO;
-import com.consultafacil.application.port.in.RotateRefreshTokenUseCase;
+import com.consultafacil.application.port.in.auth.RotateRefreshTokenUseCase;
 import com.consultafacil.core.exception.UnauthorizedException;
 import com.consultafacil.core.security.JwtTokenProvider;
 import com.consultafacil.domain.entity.RefreshToken;
 import com.consultafacil.domain.entity.User;
-import com.consultafacil.domain.port.out.RefreshTokenRepositoryPort;
+import com.consultafacil.domain.port.out.auth.RefreshTokenRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

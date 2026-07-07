@@ -3,7 +3,7 @@ package com.consultafacil.application.scheduler;
 import com.consultafacil.domain.port.out.EmailPort;
 import com.consultafacil.domain.entity.Appointment;
 import com.consultafacil.domain.enums.AppointmentStatus;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

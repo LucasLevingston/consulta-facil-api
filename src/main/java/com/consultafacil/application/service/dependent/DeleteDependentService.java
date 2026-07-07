@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.dependent;
 
-import com.consultafacil.application.port.in.DeleteDependentUseCase;
+import com.consultafacil.application.port.in.dependent.DeleteDependentUseCase;
 import com.consultafacil.domain.entity.Dependent;
-import com.consultafacil.domain.port.out.DependentRepositoryPort;
+import com.consultafacil.domain.port.out.dependent.DependentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

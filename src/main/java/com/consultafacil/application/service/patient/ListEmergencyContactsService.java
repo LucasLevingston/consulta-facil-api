@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.patient;
 
 import com.consultafacil.api.dto.patient.EmergencyContactDTO;
-import com.consultafacil.application.port.in.ListEmergencyContactsUseCase;
+import com.consultafacil.application.port.in.patient.ListEmergencyContactsUseCase;
 import com.consultafacil.domain.entity.PatientProfile;
-import com.consultafacil.domain.port.out.EmergencyContactRepositoryPort;
+import com.consultafacil.domain.port.out.patient.EmergencyContactRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

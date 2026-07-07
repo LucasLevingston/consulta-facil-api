@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.tax;
 
 import com.consultafacil.api.dto.tax.TaxReportDTO;
-import com.consultafacil.application.port.in.TaxMonthlyReportUseCase;
+import com.consultafacil.application.port.in.tax.TaxMonthlyReportUseCase;
 import com.consultafacil.core.config.TaxConfig;
 import com.consultafacil.domain.entity.SubscriptionPayment;
-import com.consultafacil.domain.port.out.SubscriptionPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionPaymentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

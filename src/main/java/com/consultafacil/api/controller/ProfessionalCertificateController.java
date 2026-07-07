@@ -2,9 +2,9 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.professional.ProfessionalCertificateDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
-import com.consultafacil.application.port.in.AddCertificateUseCase;
-import com.consultafacil.application.port.in.DeleteCertificateUseCase;
-import com.consultafacil.application.port.in.UpdateCertificateUseCase;
+import com.consultafacil.application.port.in.professional.enrichment.AddCertificateUseCase;
+import com.consultafacil.application.port.in.professional.enrichment.DeleteCertificateUseCase;
+import com.consultafacil.application.port.in.professional.enrichment.UpdateCertificateUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

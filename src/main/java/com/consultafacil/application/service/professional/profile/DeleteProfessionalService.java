@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.professional.profile;
 
-import com.consultafacil.application.port.in.DeleteProfessionalUseCase;
+import com.consultafacil.application.port.in.professional.profile.DeleteProfessionalUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;

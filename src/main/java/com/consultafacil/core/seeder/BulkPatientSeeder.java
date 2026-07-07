@@ -1,9 +1,9 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.user.CreateUserDTO;
-import com.consultafacil.application.port.in.RegisterUserUseCase;
+import com.consultafacil.application.port.in.user.RegisterUserUseCase;
 import com.consultafacil.domain.enums.Gender;
-import com.consultafacil.domain.repository.PatientProfileRepository;
+import com.consultafacil.domain.repository.patient.PatientProfileRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

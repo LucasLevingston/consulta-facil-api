@@ -2,12 +2,12 @@ package com.consultafacil.application.service.professional.schedule;
 
 import com.consultafacil.api.dto.schedule.CreateProfessionalScheduleDTO;
 import com.consultafacil.api.dto.schedule.ProfessionalScheduleResponseDTO;
-import com.consultafacil.application.port.in.SaveMyScheduleUseCase;
+import com.consultafacil.application.port.in.professional.schedule.SaveMyScheduleUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.ProfessionalSchedule;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
-import com.consultafacil.domain.port.out.ProfessionalScheduleRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.schedule.ProfessionalScheduleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

@@ -1,7 +1,7 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.messaging.SendMessageDTO;
-import com.consultafacil.application.port.in.SendMessageUseCase;
+import com.consultafacil.application.port.in.conversation.SendMessageUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

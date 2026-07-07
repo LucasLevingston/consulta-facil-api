@@ -3,7 +3,7 @@ package com.consultafacil.application.service.plan;
 import com.consultafacil.api.dto.plan.CreatePlanDTO;
 import com.consultafacil.api.dto.plan.PlanResponseDTO;
 import com.consultafacil.domain.enums.BillingPeriod;
-import com.consultafacil.domain.port.out.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

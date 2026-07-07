@@ -2,7 +2,7 @@ package com.consultafacil.adapter.out.oauth;
 
 import com.consultafacil.core.config.GoogleOAuthProperties;
 import com.consultafacil.core.exception.UnauthorizedException;
-import com.consultafacil.domain.port.out.GoogleOAuthPort;
+import com.consultafacil.domain.port.out.auth.GoogleOAuthPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

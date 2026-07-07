@@ -2,8 +2,8 @@ package com.consultafacil.application.service.commission;
 import com.consultafacil.application.service.referral.ReferralCommissionMapper;
 
 import com.consultafacil.api.dto.billing.commission.ReferralCommissionDTO;
-import com.consultafacil.application.port.in.GetAllCommissionsUseCase;
-import com.consultafacil.domain.port.out.ReferralCommissionRepositoryPort;
+import com.consultafacil.application.port.in.commission.GetAllCommissionsUseCase;
+import com.consultafacil.domain.port.out.referral.ReferralCommissionRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

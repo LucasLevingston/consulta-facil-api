@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.appointment;
 
-import com.consultafacil.application.port.in.DeleteAppointmentUseCase;
+import com.consultafacil.application.port.in.appointment.DeleteAppointmentUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Appointment;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

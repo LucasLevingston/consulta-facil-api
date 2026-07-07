@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.professional.profile;
 
-import com.consultafacil.application.port.in.GetProfessionalByUserIdUseCase;
+import com.consultafacil.application.port.in.professional.profile.GetProfessionalByUserIdUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.*;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

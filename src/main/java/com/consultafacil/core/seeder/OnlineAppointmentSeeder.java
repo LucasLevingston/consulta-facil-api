@@ -1,11 +1,11 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.appointment.CreateAppointmentDTO;
-import com.consultafacil.application.port.in.ScheduleAppointmentUseCase;
+import com.consultafacil.application.port.in.appointment.ScheduleAppointmentUseCase;
 import com.consultafacil.application.port.in.command.ScheduleAppointmentCommand;
 import com.consultafacil.domain.enums.AppointmentModality;
 import com.consultafacil.domain.enums.AppointmentStatus;
-import com.consultafacil.domain.repository.AppointmentRepository;
+import com.consultafacil.domain.repository.appointment.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

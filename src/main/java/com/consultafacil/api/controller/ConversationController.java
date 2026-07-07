@@ -2,10 +2,10 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.messaging.ConversationResponseDTO;
 import com.consultafacil.api.dto.messaging.MessageResponseDTO;
-import com.consultafacil.application.port.in.GetConversationHistoryUseCase;
-import com.consultafacil.application.port.in.GetOrCreateConversationUseCase;
-import com.consultafacil.application.port.in.ListConversationsUseCase;
-import com.consultafacil.application.port.in.MarkConversationAsReadUseCase;
+import com.consultafacil.application.port.in.conversation.GetConversationHistoryUseCase;
+import com.consultafacil.application.port.in.conversation.GetOrCreateConversationUseCase;
+import com.consultafacil.application.port.in.conversation.ListConversationsUseCase;
+import com.consultafacil.application.port.in.conversation.MarkConversationAsReadUseCase;
 import com.consultafacil.core.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

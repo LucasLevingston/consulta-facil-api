@@ -1,12 +1,12 @@
 package com.consultafacil.application.service.patient;
 
-import com.consultafacil.application.port.in.UpdatePatientMedicalRecordsUseCase;
+import com.consultafacil.application.port.in.patient.UpdatePatientMedicalRecordsUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.MedicalRecord;
 import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.enums.BloodType;
-import com.consultafacil.domain.port.out.MedicalRecordRepositoryPort;
-import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
+import com.consultafacil.domain.port.out.patient.MedicalRecordRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

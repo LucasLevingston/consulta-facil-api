@@ -1,12 +1,12 @@
 package com.consultafacil.application.service.billing;
 
 import com.consultafacil.api.dto.billing.payment.BillingPaymentResponseDTO;
-import com.consultafacil.application.port.in.HandleBillingPaymentWebhookUseCase;
-import com.consultafacil.application.port.in.HandlePaymentPaidCommissionUseCase;
+import com.consultafacil.application.port.in.billing.HandleBillingPaymentWebhookUseCase;
+import com.consultafacil.application.port.in.commission.HandlePaymentPaidCommissionUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.BillingPayment;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
-import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.billing.BillingPaymentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

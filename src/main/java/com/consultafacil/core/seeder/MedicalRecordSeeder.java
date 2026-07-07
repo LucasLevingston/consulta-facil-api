@@ -1,8 +1,8 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.domain.entity.MedicalRecord;
-import com.consultafacil.domain.repository.MedicalRecordRepository;
-import com.consultafacil.domain.repository.PatientProfileRepository;
+import com.consultafacil.domain.repository.patient.MedicalRecordRepository;
+import com.consultafacil.domain.repository.patient.PatientProfileRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,13 +1,13 @@
 package com.consultafacil.application.service.magiclink;
 
-import com.consultafacil.application.port.in.RequestMagicLinkUseCase;
+import com.consultafacil.application.port.in.auth.RequestMagicLinkUseCase;
 import com.consultafacil.core.util.PiiMask;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.domain.entity.MagicLinkToken;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.port.out.EmailPort;
-import com.consultafacil.domain.port.out.MagicLinkTokenRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.auth.MagicLinkTokenRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
