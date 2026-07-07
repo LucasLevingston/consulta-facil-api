@@ -2,7 +2,7 @@ package com.consultafacil.application.scheduler;
 
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.port.out.EmailPort;
-import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

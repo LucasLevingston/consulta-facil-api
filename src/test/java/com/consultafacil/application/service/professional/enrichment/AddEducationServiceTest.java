@@ -9,7 +9,7 @@ import com.consultafacil.domain.entity.ProfessionalEducation;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.DegreeType;
-import com.consultafacil.domain.port.out.ProfessionalEducationRepositoryPort;
+import com.consultafacil.domain.port.out.professional.enrichment.ProfessionalEducationRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

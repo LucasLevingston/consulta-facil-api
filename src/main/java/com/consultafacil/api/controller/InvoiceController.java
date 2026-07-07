@@ -1,9 +1,9 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.invoice.InvoiceResponseDTO;
-import com.consultafacil.application.port.in.GetInvoiceByIdUseCase;
-import com.consultafacil.application.port.in.GetInvoiceByPaymentIdUseCase;
-import com.consultafacil.application.port.in.ListInvoicesUseCase;
+import com.consultafacil.application.port.in.billing.GetInvoiceByIdUseCase;
+import com.consultafacil.application.port.in.billing.GetInvoiceByPaymentIdUseCase;
+import com.consultafacil.application.port.in.billing.ListInvoicesUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

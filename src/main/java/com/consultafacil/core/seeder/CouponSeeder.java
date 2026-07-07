@@ -3,7 +3,7 @@ package com.consultafacil.core.seeder;
 import com.consultafacil.domain.entity.Coupon;
 import com.consultafacil.domain.enums.CouponStatus;
 import com.consultafacil.domain.enums.CouponType;
-import com.consultafacil.domain.repository.CouponRepository;
+import com.consultafacil.domain.repository.coupon.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

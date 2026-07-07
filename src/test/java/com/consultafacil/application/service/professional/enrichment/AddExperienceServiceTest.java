@@ -8,7 +8,7 @@ import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.domain.entity.ProfessionalExperience;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.User;
-import com.consultafacil.domain.port.out.ProfessionalExperienceRepositoryPort;
+import com.consultafacil.domain.port.out.professional.enrichment.ProfessionalExperienceRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

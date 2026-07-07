@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.patient;
 
-import com.consultafacil.application.port.in.DeleteDocumentUseCase;
+import com.consultafacil.application.port.in.patient.DeleteDocumentUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.PatientDocument;
 import com.consultafacil.domain.entity.PatientProfile;
-import com.consultafacil.domain.port.out.PatientDocumentRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientDocumentRepositoryPort;
 import com.consultafacil.domain.port.out.StoragePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -6,7 +6,7 @@ import com.consultafacil.domain.port.out.StoragePort;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.repository.UserRepository;
+import com.consultafacil.domain.repository.user.UserRepository;
 import com.consultafacil.ConsultaFacilApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

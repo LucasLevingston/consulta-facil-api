@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.user;
 
 import com.consultafacil.api.dto.user.UserResponseDTO;
-import com.consultafacil.application.port.in.GetUserByIdUseCase;
+import com.consultafacil.application.port.in.user.GetUserByIdUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

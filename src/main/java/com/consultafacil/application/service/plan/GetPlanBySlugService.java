@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.plan;
 
 import com.consultafacil.api.dto.plan.PlanResponseDTO;
-import com.consultafacil.application.port.in.GetPlanBySlugUseCase;
+import com.consultafacil.application.port.in.plan.GetPlanBySlugUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
-import com.consultafacil.domain.port.out.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

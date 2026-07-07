@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.ai;
 
 import com.consultafacil.api.dto.ai.ChatMessage;
-import com.consultafacil.application.port.in.AnamnesisChatStreamUseCase;
+import com.consultafacil.application.port.in.ai.AnamnesisChatStreamUseCase;
 import com.consultafacil.core.config.AnthropicProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

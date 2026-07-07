@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.billing;
 
 import com.consultafacil.api.dto.billing.payment.BillingPaymentResponseDTO;
-import com.consultafacil.application.port.in.CancelCommissionUseCase;
-import com.consultafacil.application.port.in.RefundBillingPaymentUseCase;
+import com.consultafacil.application.port.in.commission.CancelCommissionUseCase;
+import com.consultafacil.application.port.in.billing.RefundBillingPaymentUseCase;
 import com.consultafacil.domain.entity.BillingPayment;
-import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
-import com.consultafacil.domain.port.out.PaymentGatewayPort;
+import com.consultafacil.domain.port.out.billing.BillingPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.billing.PaymentGatewayPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

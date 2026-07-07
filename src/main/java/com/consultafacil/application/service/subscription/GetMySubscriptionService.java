@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.subscription;
 
 import com.consultafacil.api.dto.subscription.SubscriptionResponseDTO;
-import com.consultafacil.application.port.in.GetMySubscriptionUseCase;
-import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
+import com.consultafacil.application.port.in.subscription.GetMySubscriptionUseCase;
+import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

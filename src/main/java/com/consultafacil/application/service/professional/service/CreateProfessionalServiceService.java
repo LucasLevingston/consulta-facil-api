@@ -5,9 +5,9 @@ import com.consultafacil.api.dto.professionalservice.ProfessionalServiceResponse
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.ProfessionalService;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
-import com.consultafacil.domain.port.out.ProfessionalServiceRepositoryPort;
-import com.consultafacil.application.port.in.CreateProfessionalServiceUseCase;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.service.ProfessionalServiceRepositoryPort;
+import com.consultafacil.application.port.in.professional.service.CreateProfessionalServiceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;

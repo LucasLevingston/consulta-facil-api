@@ -2,8 +2,8 @@ package com.consultafacil.application.service.clinic;
 
 import com.consultafacil.api.dto.clinic.ClinicResponseDTO;
 import com.consultafacil.core.exception.ResourceNotFoundException;
-import com.consultafacil.domain.port.out.ClinicRepositoryPort;
-import com.consultafacil.application.port.in.GetClinicByIdUseCase;
+import com.consultafacil.domain.port.out.clinic.ClinicRepositoryPort;
+import com.consultafacil.application.port.in.clinic.GetClinicByIdUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

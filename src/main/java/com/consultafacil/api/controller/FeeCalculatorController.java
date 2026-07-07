@@ -2,7 +2,7 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.fees.FeeCalculationResponseDTO;
 import com.consultafacil.api.dto.fees.FeeConfigDTO;
-import com.consultafacil.application.port.in.CalculateFeesUseCase;
+import com.consultafacil.application.port.in.systemfee.CalculateFeesUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import com.consultafacil.domain.enums.PaymentMethod;
 import io.swagger.v3.oas.annotations.Operation;

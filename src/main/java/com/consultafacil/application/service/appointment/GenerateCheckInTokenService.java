@@ -1,12 +1,12 @@
 package com.consultafacil.application.service.appointment;
 
 import com.consultafacil.api.dto.appointment.QrCheckInTokenDTO;
-import com.consultafacil.application.port.in.GenerateCheckInTokenUseCase;
+import com.consultafacil.application.port.in.appointment.GenerateCheckInTokenUseCase;
 import com.consultafacil.core.exception.BadRequestException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Appointment;
 import com.consultafacil.domain.enums.AppointmentStatus;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;

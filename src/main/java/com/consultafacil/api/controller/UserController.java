@@ -1,10 +1,10 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.user.UserResponseDTO;
-import com.consultafacil.application.port.in.DeleteUserUseCase;
-import com.consultafacil.application.port.in.GetAllUsersUseCase;
-import com.consultafacil.application.port.in.GetUserByIdUseCase;
-import com.consultafacil.application.port.in.UploadAvatarUseCase;
+import com.consultafacil.application.port.in.user.DeleteUserUseCase;
+import com.consultafacil.application.port.in.user.GetAllUsersUseCase;
+import com.consultafacil.application.port.in.user.GetUserByIdUseCase;
+import com.consultafacil.application.port.in.user.UploadAvatarUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import com.consultafacil.domain.enums.UserRole;
 import io.swagger.v3.oas.annotations.Operation;

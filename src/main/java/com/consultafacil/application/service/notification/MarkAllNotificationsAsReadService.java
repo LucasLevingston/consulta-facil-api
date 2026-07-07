@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.notification;
 
-import com.consultafacil.domain.port.out.NotificationRepositoryPort;
-import com.consultafacil.application.port.in.MarkAllNotificationsAsReadUseCase;
+import com.consultafacil.domain.port.out.notification.NotificationRepositoryPort;
+import com.consultafacil.application.port.in.notification.MarkAllNotificationsAsReadUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

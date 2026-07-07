@@ -2,7 +2,7 @@ package com.consultafacil.adapter.out.gateway.mock;
 
 import com.consultafacil.domain.entity.BillingPayment;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
-import com.consultafacil.domain.port.out.PaymentGatewayPort;
+import com.consultafacil.domain.port.out.billing.PaymentGatewayPort;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

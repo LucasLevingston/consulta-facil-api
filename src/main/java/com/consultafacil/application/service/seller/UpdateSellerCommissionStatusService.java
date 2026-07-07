@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.seller;
 
 import com.consultafacil.api.dto.seller.SellerSaleResponseDTO;
-import com.consultafacil.application.port.in.UpdateSellerCommissionStatusUseCase;
+import com.consultafacil.application.port.in.seller.UpdateSellerCommissionStatusUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.SellerSale;
 import com.consultafacil.domain.enums.SellerSaleStatus;
-import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
+import com.consultafacil.domain.port.out.seller.SellerSaleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

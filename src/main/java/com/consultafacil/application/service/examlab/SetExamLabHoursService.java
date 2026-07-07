@@ -2,12 +2,12 @@ package com.consultafacil.application.service.examlab;
 
 import com.consultafacil.api.dto.examlab.ExamLabHoursDTO;
 import com.consultafacil.api.dto.examlab.ExamLabResponseDTO;
-import com.consultafacil.application.port.in.SetExamLabHoursUseCase;
+import com.consultafacil.application.port.in.examlab.SetExamLabHoursUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ExamLab;
 import com.consultafacil.domain.entity.ExamLabHours;
-import com.consultafacil.domain.port.out.ExamLabHoursRepositoryPort;
-import com.consultafacil.domain.port.out.ExamLabRepositoryPort;
+import com.consultafacil.domain.port.out.examlab.ExamLabHoursRepositoryPort;
+import com.consultafacil.domain.port.out.examlab.ExamLabRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

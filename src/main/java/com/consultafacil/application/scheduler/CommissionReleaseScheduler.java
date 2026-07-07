@@ -1,6 +1,6 @@
 package com.consultafacil.application.scheduler;
 
-import com.consultafacil.application.port.in.ProcessAvailableCommissionsUseCase;
+import com.consultafacil.application.port.in.commission.ProcessAvailableCommissionsUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

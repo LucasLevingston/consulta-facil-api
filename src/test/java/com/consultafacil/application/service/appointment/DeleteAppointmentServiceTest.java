@@ -2,7 +2,7 @@ package com.consultafacil.application.service.appointment;
 
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Appointment;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -2,9 +2,9 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.enums.SubscriptionStatus;
-import com.consultafacil.domain.repository.ProfessionalProfileRepository;
-import com.consultafacil.domain.repository.SubscriptionRepository;
-import com.consultafacil.domain.repository.UserRepository;
+import com.consultafacil.domain.repository.professional.profile.ProfessionalProfileRepository;
+import com.consultafacil.domain.repository.subscription.SubscriptionRepository;
+import com.consultafacil.domain.repository.user.UserRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

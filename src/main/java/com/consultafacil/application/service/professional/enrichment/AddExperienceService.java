@@ -5,10 +5,10 @@ import com.consultafacil.application.service.professional.profile.ProfessionalPr
 
 import com.consultafacil.api.dto.professional.ProfessionalExperienceDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
-import com.consultafacil.application.port.in.AddExperienceUseCase;
+import com.consultafacil.application.port.in.professional.enrichment.AddExperienceUseCase;
 import com.consultafacil.domain.entity.ProfessionalExperience;
 import com.consultafacil.domain.entity.ProfessionalProfile;
-import com.consultafacil.domain.port.out.ProfessionalExperienceRepositoryPort;
+import com.consultafacil.domain.port.out.professional.enrichment.ProfessionalExperienceRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.patient;
 
-import com.consultafacil.application.port.in.GetAllPatientsUseCase;
-import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
+import com.consultafacil.application.port.in.patient.GetAllPatientsUseCase;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

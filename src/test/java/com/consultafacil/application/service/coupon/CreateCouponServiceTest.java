@@ -2,7 +2,7 @@ package com.consultafacil.application.service.coupon;
 
 import com.consultafacil.api.dto.coupon.CreateCouponDTO;
 import com.consultafacil.domain.enums.CouponType;
-import com.consultafacil.domain.port.out.CouponRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

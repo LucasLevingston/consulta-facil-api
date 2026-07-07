@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.coupon;
 
 import com.consultafacil.api.dto.coupon.CouponResponseDTO;
-import com.consultafacil.application.port.in.ListCouponsUseCase;
-import com.consultafacil.domain.port.out.CouponRepositoryPort;
+import com.consultafacil.application.port.in.coupon.ListCouponsUseCase;
+import com.consultafacil.domain.port.out.coupon.CouponRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,13 +1,13 @@
 package com.consultafacil.core.seeder;
 
 import com.consultafacil.api.dto.appointment.CreateAppointmentDTO;
-import com.consultafacil.application.port.in.ScheduleAppointmentUseCase;
+import com.consultafacil.application.port.in.appointment.ScheduleAppointmentUseCase;
 import com.consultafacil.application.port.in.command.ScheduleAppointmentCommand;
 import com.consultafacil.domain.entity.PatientProfile;
 import com.consultafacil.domain.enums.AppointmentPaymentStatus;
 import com.consultafacil.domain.enums.AppointmentStatus;
-import com.consultafacil.domain.repository.AppointmentRepository;
-import com.consultafacil.domain.repository.PatientProfileRepository;
+import com.consultafacil.domain.repository.appointment.AppointmentRepository;
+import com.consultafacil.domain.repository.patient.PatientProfileRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

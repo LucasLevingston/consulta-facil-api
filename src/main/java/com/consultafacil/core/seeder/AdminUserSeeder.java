@@ -3,7 +3,7 @@ package com.consultafacil.core.seeder;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.repository.UserRepository;
+import com.consultafacil.domain.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

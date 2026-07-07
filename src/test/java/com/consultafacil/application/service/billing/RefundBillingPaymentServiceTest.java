@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.billing;
 
 import com.consultafacil.api.dto.billing.payment.BillingPaymentResponseDTO;
-import com.consultafacil.application.port.in.CancelCommissionUseCase;
+import com.consultafacil.application.port.in.commission.CancelCommissionUseCase;
 import com.consultafacil.domain.entity.BillingPayment;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
-import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
-import com.consultafacil.domain.port.out.PaymentGatewayPort;
+import com.consultafacil.domain.port.out.billing.BillingPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.billing.PaymentGatewayPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

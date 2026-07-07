@@ -3,7 +3,7 @@ package com.consultafacil.core.seeder;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.enums.BillingPeriod;
 import com.consultafacil.domain.enums.PlanStatus;
-import com.consultafacil.domain.repository.PlanRepository;
+import com.consultafacil.domain.repository.plan.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

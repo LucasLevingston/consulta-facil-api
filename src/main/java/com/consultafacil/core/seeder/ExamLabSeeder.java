@@ -2,8 +2,8 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.domain.entity.ExamLab;
 import com.consultafacil.domain.entity.ExamLabHours;
-import com.consultafacil.domain.repository.ExamLabHoursRepository;
-import com.consultafacil.domain.repository.ExamLabRepository;
+import com.consultafacil.domain.repository.examlab.ExamLabHoursRepository;
+import com.consultafacil.domain.repository.examlab.ExamLabRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

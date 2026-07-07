@@ -2,7 +2,7 @@ package com.consultafacil.application.service.auth;
 
 import com.consultafacil.domain.entity.RefreshToken;
 import com.consultafacil.domain.entity.User;
-import com.consultafacil.domain.port.out.RefreshTokenRepositoryPort;
+import com.consultafacil.domain.port.out.auth.RefreshTokenRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

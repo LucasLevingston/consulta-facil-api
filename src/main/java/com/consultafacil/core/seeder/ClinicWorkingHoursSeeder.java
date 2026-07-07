@@ -2,8 +2,8 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.domain.entity.Clinic;
 import com.consultafacil.domain.entity.ClinicWorkingHours;
-import com.consultafacil.domain.repository.ClinicRepository;
-import com.consultafacil.domain.repository.ClinicWorkingHoursRepository;
+import com.consultafacil.domain.repository.clinic.ClinicRepository;
+import com.consultafacil.domain.repository.clinic.ClinicWorkingHoursRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

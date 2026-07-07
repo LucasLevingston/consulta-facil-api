@@ -1,6 +1,6 @@
 package com.consultafacil.application.service.subscription;
 
-import com.consultafacil.application.port.in.ValidateCouponUseCase;
+import com.consultafacil.application.port.in.coupon.ValidateCouponUseCase;
 import com.consultafacil.core.config.MercadoPagoConfig;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Plan;
@@ -8,9 +8,9 @@ import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.BillingPeriod;
 import com.consultafacil.domain.enums.PlanStatus;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.PlanRepositoryPort;
-import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

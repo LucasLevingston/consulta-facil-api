@@ -2,13 +2,13 @@ package com.consultafacil.application.service.referral;
 
 import com.consultafacil.api.dto.billing.referral.ReferralCodeDTO;
 import com.consultafacil.api.dto.billing.referral.ReferralStatsDTO;
-import com.consultafacil.application.port.in.GetOrCreateReferralCodeUseCase;
-import com.consultafacil.application.port.in.GetUserReferralStatsUseCase;
+import com.consultafacil.application.port.in.referral.GetOrCreateReferralCodeUseCase;
+import com.consultafacil.application.port.in.referral.GetUserReferralStatsUseCase;
 import com.consultafacil.domain.entity.Referral;
 import com.consultafacil.domain.enums.CommissionStatus;
-import com.consultafacil.domain.port.out.ReferralCommissionRepositoryPort;
-import com.consultafacil.domain.port.out.ReferralRepositoryPort;
-import com.consultafacil.domain.port.out.WalletRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralCommissionRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralRepositoryPort;
+import com.consultafacil.domain.port.out.wallet.WalletRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

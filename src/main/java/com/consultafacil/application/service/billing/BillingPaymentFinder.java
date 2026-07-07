@@ -2,7 +2,7 @@ package com.consultafacil.application.service.billing;
 
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.BillingPayment;
-import com.consultafacil.domain.port.out.BillingPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.billing.BillingPaymentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

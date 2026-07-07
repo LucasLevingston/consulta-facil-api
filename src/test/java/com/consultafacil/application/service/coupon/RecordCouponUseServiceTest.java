@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.coupon;
 
 import com.consultafacil.domain.entity.Coupon;
-import com.consultafacil.domain.port.out.CouponRepositoryPort;
-import com.consultafacil.domain.port.out.CouponUseRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponUseRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

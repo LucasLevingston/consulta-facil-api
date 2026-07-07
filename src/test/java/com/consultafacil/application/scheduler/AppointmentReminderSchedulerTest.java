@@ -2,7 +2,7 @@ package com.consultafacil.application.scheduler;
 
 import com.consultafacil.domain.entity.*;
 import com.consultafacil.domain.enums.*;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import com.consultafacil.domain.port.out.EmailPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

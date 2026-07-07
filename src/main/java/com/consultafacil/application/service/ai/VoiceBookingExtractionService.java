@@ -2,7 +2,7 @@ package com.consultafacil.application.service.ai;
 
 import com.consultafacil.api.dto.ai.ChatMessage;
 import com.consultafacil.api.dto.ai.VoiceBookingResponseDTO;
-import com.consultafacil.application.port.in.VoiceBookingExtractionUseCase;
+import com.consultafacil.application.port.in.ai.VoiceBookingExtractionUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

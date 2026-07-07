@@ -1,7 +1,7 @@
 package com.consultafacil.core.seeder;
 
-import com.consultafacil.application.port.in.SaveMyScheduleUseCase;
-import com.consultafacil.domain.repository.ProfessionalProfileRepository;
+import com.consultafacil.application.port.in.professional.schedule.SaveMyScheduleUseCase;
+import com.consultafacil.domain.repository.professional.profile.ProfessionalProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,11 +1,11 @@
 package com.consultafacil.application.service.user;
 
 import com.consultafacil.api.dto.user.UserResponseDTO;
-import com.consultafacil.application.port.in.UploadAvatarUseCase;
+import com.consultafacil.application.port.in.user.UploadAvatarUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.port.out.StoragePort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

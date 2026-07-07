@@ -3,7 +3,7 @@ package com.consultafacil.application.service.passwordreset;
 import com.consultafacil.domain.entity.PasswordResetToken;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.PasswordResetTokenRepositoryPort;
+import com.consultafacil.domain.port.out.auth.PasswordResetTokenRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

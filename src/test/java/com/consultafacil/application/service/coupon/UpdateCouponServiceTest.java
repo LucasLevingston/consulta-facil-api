@@ -5,7 +5,7 @@ import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Coupon;
 import com.consultafacil.domain.enums.CouponStatus;
 import com.consultafacil.domain.enums.CouponType;
-import com.consultafacil.domain.port.out.CouponRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

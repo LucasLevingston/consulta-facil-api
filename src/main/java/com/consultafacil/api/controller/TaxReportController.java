@@ -1,7 +1,7 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.tax.TaxReportDTO;
-import com.consultafacil.application.port.in.TaxMonthlyReportUseCase;
+import com.consultafacil.application.port.in.tax.TaxMonthlyReportUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

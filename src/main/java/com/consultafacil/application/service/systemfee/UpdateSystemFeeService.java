@@ -2,10 +2,10 @@ package com.consultafacil.application.service.systemfee;
 
 import com.consultafacil.api.dto.billing.systemfee.SystemFeeResponseDTO;
 import com.consultafacil.api.dto.billing.systemfee.UpdateSystemFeeDTO;
-import com.consultafacil.application.port.in.UpdateSystemFeeUseCase;
+import com.consultafacil.application.port.in.systemfee.UpdateSystemFeeUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.SystemFee;
-import com.consultafacil.domain.port.out.SystemFeeRepositoryPort;
+import com.consultafacil.domain.port.out.systemfee.SystemFeeRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.wallet;
 
-import com.consultafacil.application.port.in.CreateWalletUseCase;
-import com.consultafacil.application.port.in.GetOrCreateWalletUseCase;
+import com.consultafacil.application.port.in.wallet.CreateWalletUseCase;
+import com.consultafacil.application.port.in.wallet.GetOrCreateWalletUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

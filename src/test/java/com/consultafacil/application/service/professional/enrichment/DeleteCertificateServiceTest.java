@@ -7,7 +7,7 @@ import com.consultafacil.application.service.professional.profile.ProfessionalPr
 import com.consultafacil.domain.entity.ProfessionalCertificate;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.User;
-import com.consultafacil.domain.port.out.ProfessionalCertificateRepositoryPort;
+import com.consultafacil.domain.port.out.professional.enrichment.ProfessionalCertificateRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

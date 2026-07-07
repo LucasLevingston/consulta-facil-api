@@ -8,7 +8,7 @@ import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.SellerSaleStatus;
 import com.consultafacil.domain.enums.SellerStatus;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
+import com.consultafacil.domain.port.out.seller.SellerSaleRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

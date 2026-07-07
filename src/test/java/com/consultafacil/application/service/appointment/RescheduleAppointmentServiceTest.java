@@ -6,7 +6,7 @@ import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.core.security.OwnershipValidator;
 import com.consultafacil.domain.entity.*;
 import com.consultafacil.domain.enums.*;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

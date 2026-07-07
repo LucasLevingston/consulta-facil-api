@@ -2,8 +2,8 @@ package com.consultafacil.core.seeder;
 
 import com.consultafacil.domain.entity.MedicalHistory;
 import com.consultafacil.domain.enums.AppointmentStatus;
-import com.consultafacil.domain.repository.AppointmentRepository;
-import com.consultafacil.domain.repository.MedicalHistoryRepository;
+import com.consultafacil.domain.repository.appointment.AppointmentRepository;
+import com.consultafacil.domain.repository.patient.MedicalHistoryRepository;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

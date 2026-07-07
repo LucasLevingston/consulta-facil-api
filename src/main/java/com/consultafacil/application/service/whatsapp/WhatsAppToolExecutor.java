@@ -1,14 +1,14 @@
 package com.consultafacil.application.service.whatsapp;
 
-import com.consultafacil.application.port.in.CancelAppointmentUseCase;
-import com.consultafacil.application.port.in.ScheduleAppointmentUseCase;
+import com.consultafacil.application.port.in.appointment.CancelAppointmentUseCase;
+import com.consultafacil.application.port.in.appointment.ScheduleAppointmentUseCase;
 import com.consultafacil.application.port.in.command.CancelAppointmentCommand;
 import com.consultafacil.application.port.in.command.ScheduleAppointmentCommand;
 import com.consultafacil.domain.enums.AppointmentModality;
 import com.consultafacil.domain.enums.AppointmentStatus;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
-import com.consultafacil.domain.port.out.PatientProfileRepositoryPort;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

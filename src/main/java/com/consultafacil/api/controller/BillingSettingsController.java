@@ -2,8 +2,8 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.billing.settings.BillingSettingsResponseDTO;
 import com.consultafacil.api.dto.billing.settings.UpdateBillingSettingsDTO;
-import com.consultafacil.application.port.in.GetBillingSettingsUseCase;
-import com.consultafacil.application.port.in.UpdateBillingSettingsUseCase;
+import com.consultafacil.application.port.in.billing.GetBillingSettingsUseCase;
+import com.consultafacil.application.port.in.billing.UpdateBillingSettingsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

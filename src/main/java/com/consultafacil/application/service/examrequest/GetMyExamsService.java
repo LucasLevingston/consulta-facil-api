@@ -1,15 +1,15 @@
 package com.consultafacil.application.service.examrequest;
 
 import com.consultafacil.api.dto.exam.ExamRequestResponseDTO;
-import com.consultafacil.application.port.in.GetMyExamsUseCase;
+import com.consultafacil.application.port.in.examrequest.GetMyExamsUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ExamRequest;
 import com.consultafacil.domain.entity.ExamScheduling;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.ExamRequestStatus;
 import com.consultafacil.domain.enums.UserRole;
-import com.consultafacil.domain.port.out.ExamRequestRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.examrequest.ExamRequestRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

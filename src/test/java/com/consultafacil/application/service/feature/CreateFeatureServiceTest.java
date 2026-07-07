@@ -2,7 +2,7 @@ package com.consultafacil.application.service.feature;
 
 import com.consultafacil.api.dto.billing.feature.CreateFeatureDTO;
 import com.consultafacil.api.dto.billing.feature.FeatureResponseDTO;
-import com.consultafacil.domain.port.out.FeatureRepositoryPort;
+import com.consultafacil.domain.port.out.feature.FeatureRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

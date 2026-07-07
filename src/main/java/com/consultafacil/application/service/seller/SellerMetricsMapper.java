@@ -3,7 +3,7 @@ package com.consultafacil.application.service.seller;
 import com.consultafacil.api.dto.seller.SellerResponseDTO;
 import com.consultafacil.domain.entity.Seller;
 import com.consultafacil.domain.enums.SellerSaleStatus;
-import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
+import com.consultafacil.domain.port.out.seller.SellerSaleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

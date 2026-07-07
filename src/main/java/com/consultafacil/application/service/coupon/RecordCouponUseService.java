@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.coupon;
 
-import com.consultafacil.application.port.in.RecordCouponUseUseCase;
+import com.consultafacil.application.port.in.coupon.RecordCouponUseUseCase;
 import com.consultafacil.domain.entity.CouponUse;
-import com.consultafacil.domain.port.out.CouponRepositoryPort;
-import com.consultafacil.domain.port.out.CouponUseRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponRepositoryPort;
+import com.consultafacil.domain.port.out.coupon.CouponUseRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

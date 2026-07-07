@@ -1,12 +1,12 @@
 package com.consultafacil.application.service.subscription;
 
-import com.consultafacil.application.port.in.HandlePaymentApprovedUseCase;
+import com.consultafacil.application.port.in.subscription.HandlePaymentApprovedUseCase;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.enums.SubscriptionStatus;
-import com.consultafacil.domain.port.out.PlanRepositoryPort;
-import com.consultafacil.domain.port.out.SubscriptionRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.resources.payment.Payment;
 import lombok.RequiredArgsConstructor;

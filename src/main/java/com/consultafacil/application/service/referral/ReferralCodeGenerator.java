@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.referral;
 
 import com.consultafacil.domain.entity.ReferralCode;
-import com.consultafacil.domain.port.out.ReferralCodeRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralCodeRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

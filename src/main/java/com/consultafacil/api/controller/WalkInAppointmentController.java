@@ -2,7 +2,7 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.appointment.CreateWalkInAppointmentDTO;
 import com.consultafacil.api.dto.appointment.WalkInAppointmentResponseDTO;
-import com.consultafacil.application.port.in.WalkInAppointmentUseCase;
+import com.consultafacil.application.port.in.appointment.WalkInAppointmentUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

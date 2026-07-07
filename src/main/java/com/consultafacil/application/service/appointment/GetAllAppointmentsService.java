@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.appointment;
 
 import com.consultafacil.api.dto.appointment.AppointmentResponseDTO;
-import com.consultafacil.application.port.in.GetAllAppointmentsUseCase;
-import com.consultafacil.domain.port.out.AppointmentRepositoryPort;
+import com.consultafacil.application.port.in.appointment.GetAllAppointmentsUseCase;
+import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

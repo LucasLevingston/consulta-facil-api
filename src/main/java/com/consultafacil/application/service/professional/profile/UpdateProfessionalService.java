@@ -2,11 +2,11 @@ package com.consultafacil.application.service.professional.profile;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
-import com.consultafacil.application.port.in.UpdateProfessionalUseCase;
+import com.consultafacil.application.port.in.professional.profile.UpdateProfessionalUseCase;
 import com.consultafacil.core.exception.DuplicateResourceException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalProfile;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;

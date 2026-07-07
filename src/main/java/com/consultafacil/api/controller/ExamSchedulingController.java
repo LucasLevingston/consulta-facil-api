@@ -2,8 +2,8 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.examscheduling.ExamSchedulingResponseDTO;
 import com.consultafacil.api.dto.examscheduling.ScheduleExamDTO;
-import com.consultafacil.application.port.in.CancelExamSchedulingUseCase;
-import com.consultafacil.application.port.in.ScheduleExamUseCase;
+import com.consultafacil.application.port.in.examrequest.CancelExamSchedulingUseCase;
+import com.consultafacil.application.port.in.examrequest.ScheduleExamUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

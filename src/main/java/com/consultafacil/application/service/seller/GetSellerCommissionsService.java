@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.seller;
 
 import com.consultafacil.api.dto.seller.SellerSaleResponseDTO;
-import com.consultafacil.application.port.in.GetSellerCommissionsUseCase;
+import com.consultafacil.application.port.in.seller.GetSellerCommissionsUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
-import com.consultafacil.domain.port.out.SellerRepositoryPort;
-import com.consultafacil.domain.port.out.SellerSaleRepositoryPort;
+import com.consultafacil.domain.port.out.seller.SellerRepositoryPort;
+import com.consultafacil.domain.port.out.seller.SellerSaleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

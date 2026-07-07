@@ -4,7 +4,7 @@ import com.consultafacil.application.service.tax.TaxSnapshotBuilder;
 
 import com.consultafacil.api.dto.tax.TaxBreakdown;
 import com.consultafacil.domain.entity.SubscriptionPayment;
-import com.consultafacil.domain.port.out.SubscriptionPaymentRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionPaymentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

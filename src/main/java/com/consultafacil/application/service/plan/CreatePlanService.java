@@ -2,10 +2,10 @@ package com.consultafacil.application.service.plan;
 
 import com.consultafacil.api.dto.plan.CreatePlanDTO;
 import com.consultafacil.api.dto.plan.PlanResponseDTO;
-import com.consultafacil.application.port.in.CreatePlanUseCase;
+import com.consultafacil.application.port.in.plan.CreatePlanUseCase;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.enums.PlanStatus;
-import com.consultafacil.domain.port.out.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

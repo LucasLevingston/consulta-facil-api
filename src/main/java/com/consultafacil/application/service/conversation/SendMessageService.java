@@ -1,7 +1,7 @@
 package com.consultafacil.application.service.conversation;
 
 import com.consultafacil.api.dto.messaging.MessageResponseDTO;
-import com.consultafacil.application.port.in.SendMessageUseCase;
+import com.consultafacil.application.port.in.conversation.SendMessageUseCase;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.Conversation;
 import com.consultafacil.domain.entity.Message;
@@ -9,9 +9,9 @@ import com.consultafacil.domain.entity.Notification;
 import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.NotificationStatus;
 import com.consultafacil.domain.enums.NotificationType;
-import com.consultafacil.domain.port.out.MessageRepositoryPort;
-import com.consultafacil.domain.port.out.NotificationRepositoryPort;
-import com.consultafacil.domain.port.out.UserRepositoryPort;
+import com.consultafacil.domain.port.out.conversation.MessageRepositoryPort;
+import com.consultafacil.domain.port.out.notification.NotificationRepositoryPort;
+import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

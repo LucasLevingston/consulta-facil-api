@@ -1,10 +1,10 @@
 package com.consultafacil.application.service.commission;
 
-import com.consultafacil.application.port.in.CancelCommissionUseCase;
-import com.consultafacil.application.port.in.ReleasePendingWalletCommissionUseCase;
+import com.consultafacil.application.port.in.commission.CancelCommissionUseCase;
+import com.consultafacil.application.port.in.wallet.ReleasePendingWalletCommissionUseCase;
 import com.consultafacil.domain.enums.CommissionStatus;
-import com.consultafacil.domain.port.out.ReferralCommissionRepositoryPort;
-import com.consultafacil.domain.port.out.ReferralRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralCommissionRepositoryPort;
+import com.consultafacil.domain.port.out.referral.ReferralRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

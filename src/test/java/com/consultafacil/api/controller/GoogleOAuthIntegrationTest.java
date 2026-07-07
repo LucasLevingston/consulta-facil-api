@@ -1,8 +1,8 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.auth.GoogleLoginRequestDTO;
-import com.consultafacil.domain.port.out.GoogleOAuthPort;
-import com.consultafacil.domain.port.out.GoogleOAuthPort.GoogleUserInfo;
+import com.consultafacil.domain.port.out.auth.GoogleOAuthPort;
+import com.consultafacil.domain.port.out.auth.GoogleOAuthPort.GoogleUserInfo;
 import com.consultafacil.ConsultaFacilApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

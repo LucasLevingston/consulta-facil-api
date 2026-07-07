@@ -1,8 +1,8 @@
 package com.consultafacil.application.service.seller;
 
 import com.consultafacil.api.dto.seller.SellerResponseDTO;
-import com.consultafacil.application.port.in.ListSellersUseCase;
-import com.consultafacil.domain.port.out.SellerRepositoryPort;
+import com.consultafacil.application.port.in.seller.ListSellersUseCase;
+import com.consultafacil.domain.port.out.seller.SellerRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

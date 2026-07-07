@@ -5,7 +5,7 @@ import com.consultafacil.api.dto.professional.UpdatePaymentSettingsDTO;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.*;
 import com.consultafacil.domain.enums.*;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

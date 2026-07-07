@@ -1,9 +1,9 @@
 package com.consultafacil.application.service.patient;
 
 import com.consultafacil.api.dto.patient.PatientVaccineDTO;
-import com.consultafacil.application.port.in.ListVaccinesUseCase;
+import com.consultafacil.application.port.in.patient.ListVaccinesUseCase;
 import com.consultafacil.domain.entity.PatientProfile;
-import com.consultafacil.domain.port.out.PatientVaccineRepositoryPort;
+import com.consultafacil.domain.port.out.patient.PatientVaccineRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -4,8 +4,8 @@ import com.consultafacil.application.service.professional.profile.ProfessionalPr
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.api.dto.professional.UpdatePaymentSettingsDTO;
 import com.consultafacil.core.exception.ResourceNotFoundException;
-import com.consultafacil.domain.port.out.ProfessionalProfileRepositoryPort;
-import com.consultafacil.application.port.in.UpdatePaymentSettingsUseCase;
+import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
+import com.consultafacil.application.port.in.billing.UpdatePaymentSettingsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
