@@ -68,8 +68,7 @@ public class SubscriptionController {
 
             if ("payment".equals(type)) {
                 webhookValidator.validate(resourceId, xRequestId, xSignature);
-                String externalReference = extractExternalReference(payload);
-                handlePaymentApproved.execute(resourceId, externalReference);
+                handlePaymentApproved.execute(resourceId);
             } else if ("subscription_preapproval".equals(type)) {
                 webhookValidator.validate(resourceId, xRequestId, xSignature);
                 handlePreapprovalWebhook.execute(resourceId);
@@ -85,16 +84,5 @@ public class SubscriptionController {
             // Webhooks must always return 200 for non-auth errors
         }
         return ResponseEntity.ok().build();
-    }
-
-    private String extractExternalReference(Map<String, Object> payload) {
-        try {
-            Object additionalInfo = payload.get("additional_info");
-            if (additionalInfo instanceof Map<?, ?> info) {
-                Object ref = info.get("external_reference");
-                if (ref != null) return String.valueOf(ref);
-            }
-        } catch (Exception ignored) {}
-        return null;
     }
 }
