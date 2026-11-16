@@ -39,6 +39,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     List<Appointment> findByPatientIdAndStatus(String patientId, AppointmentStatus status);
     List<Appointment> findByProfessionalIdAndStatusAndScheduledAtBetween(
             String professionalId, AppointmentStatus status, LocalDateTime start, LocalDateTime end);
+    @EntityGraph(attributePaths = {"service"})
+    List<Appointment> findByProfessionalIdAndScheduledAtBetween(
+            String professionalId, LocalDateTime start, LocalDateTime end);
     boolean existsByProfessionalIdAndScheduledAt(String professionalId, LocalDateTime scheduledAt);
 
     @EntityGraph(attributePaths = {"patient.user", "professional.user"})

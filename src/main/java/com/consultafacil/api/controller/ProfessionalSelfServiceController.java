@@ -1,6 +1,8 @@
 package com.consultafacil.api.controller;
 
+import com.consultafacil.api.dto.analytics.professional.ProfessionalAnalyticsDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
+import com.consultafacil.application.port.in.analytics.GetProfessionalAnalyticsUseCase;
 import com.consultafacil.api.dto.professional.UpdateBioDTO;
 import com.consultafacil.api.dto.professional.UpdatePaymentSettingsDTO;
 import com.consultafacil.api.dto.professional.UpdateSocialLinksDTO;
@@ -32,6 +34,7 @@ public class ProfessionalSelfServiceController {
     private final UpdatePaymentSettingsUseCase updatePaymentSettingsUseCase;
     private final UpdateBioUseCase updateBioUseCase;
     private final UpdateSocialLinksUseCase updateSocialLinksUseCase;
+    private final GetProfessionalAnalyticsUseCase getProfessionalAnalyticsUseCase;
 
     @PutMapping("/consultation-price")
     @PreAuthorize("@carePolicy.canManageProfessionalSchedule(authentication)")
@@ -71,5 +74,15 @@ public class ProfessionalSelfServiceController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateSocialLinksDTO dto) {
         return ResponseEntity.ok(updateSocialLinksUseCase.execute(userDetails.getUserId(), dto));
+    }
+
+    @GetMapping("/analytics")
+    @PreAuthorize("@carePolicy.canViewOwnProfessionalProfile(authentication)")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "My analytics: revenue, appointments, ratings and top services (period: 30d, 90d or 12m)")
+    public ResponseEntity<ProfessionalAnalyticsDTO> getMyAnalytics(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "30d") String period) {
+        return ResponseEntity.ok(getProfessionalAnalyticsUseCase.execute(userDetails.getUserId(), period));
     }
 }
