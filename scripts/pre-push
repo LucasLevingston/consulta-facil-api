@@ -1,0 +1,48 @@
+#!/bin/sh
+# Git pre-push hook — instalado automaticamente por ./gradlew build
+# Roda a suíte completa (testes + cobertura + build) antes de enviar pro remoto.
+# Para pular temporariamente: git push --no-verify
+
+set -e
+
+# Push que só apaga refs remotas (git push origin --delete x) não precisa de testes.
+ZERO="0000000000000000000000000000000000000000"
+ONLY_DELETES=1
+HAS_REFS=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  HAS_REFS=1
+  if [ "$local_sha" != "$ZERO" ]; then
+    ONLY_DELETES=0
+  fi
+done
+if [ "$HAS_REFS" -eq 1 ] && [ "$ONLY_DELETES" -eq 1 ]; then
+  echo "pre-push: só deleção de refs remotas, pulando testes."
+  exit 0
+fi
+
+echo ""
+echo "╔══════════════════════════════════════╗"
+echo "║         Verificações pré-push        ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
+
+# 1. Testes
+echo "▶ [1/3] Executando testes..."
+./gradlew test --quiet
+echo "✓ Todos os testes passaram"
+echo ""
+
+# 2. Cobertura
+echo "▶ [2/3] Verificando cobertura (mínimo 30%)..."
+./gradlew jacocoTestCoverageVerification --quiet
+echo "✓ Cobertura dentro do limite"
+echo ""
+
+# 3. Build
+echo "▶ [3/3] Build final..."
+./gradlew build -x test --quiet
+echo "✓ Build concluído"
+echo ""
+
+echo "✅ Todas as verificações passaram. Push liberado."
+echo ""
