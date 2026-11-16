@@ -7,6 +7,7 @@ import com.consultafacil.application.port.in.systemfee.CalculateFeesUseCase;
 import com.consultafacil.core.config.TaxConfig;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.enums.PaymentMethod;
+import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
 import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -103,8 +104,11 @@ public class FeeCalculationService implements CalculateFeesUseCase {
     }
 
     private Plan getActivePlan(String userId) {
+        // Subscription.planId holds the plan slug (set by checkout and the MercadoPago handlers),
+        // not the plan's UUID, so the lookup must go through findBySlug.
         return subscriptionRepository.findByUserId(userId)
-                .flatMap(sub -> planRepository.findById(sub.getPlanId()))
+                .filter(sub -> sub.getStatus() == SubscriptionStatus.ACTIVE)
+                .flatMap(sub -> planRepository.findBySlug(sub.getPlanId()))
                 .orElse(null);
     }
 

@@ -7,11 +7,14 @@ import com.consultafacil.core.config.TaxConfig;
 import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.enums.PaymentMethod;
+import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
 import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,11 +39,14 @@ class FeeCalculationServiceTest {
         service = new FeeCalculationService(new TaxConfig(), subscriptionRepository, planRepository);
     }
 
+    // Subscription.planId stores the plan slug, exactly like checkout/webhooks persist it.
     private void userHasPlan(String userId, BigDecimal consultationFeeRate) {
-        when(subscriptionRepository.findByUserId(userId))
-                .thenReturn(Optional.of(Subscription.builder().planId("plan-1").build()));
-        when(planRepository.findById("plan-1")).thenReturn(Optional.of(Plan.builder()
-                .id("plan-1")
+        when(subscriptionRepository.findByUserId(userId)).thenReturn(Optional.of(Subscription.builder()
+                .planId("profissional")
+                .status(SubscriptionStatus.ACTIVE)
+                .build()));
+        when(planRepository.findBySlug("profissional")).thenReturn(Optional.of(Plan.builder()
+                .id("8c1f3a52-uuid")
                 .slug("profissional")
                 .name("Profissional")
                 .consultationFeeRate(consultationFeeRate)
@@ -157,13 +164,26 @@ class FeeCalculationServiceTest {
 
     @Test
     void getConfig_treatsSubscriptionWithMissingPlanAsFree() {
-        when(subscriptionRepository.findByUserId("u4"))
-                .thenReturn(Optional.of(Subscription.builder().planId("gone").build()));
-        when(planRepository.findById("gone")).thenReturn(Optional.empty());
+        when(subscriptionRepository.findByUserId("u4")).thenReturn(Optional.of(Subscription.builder()
+                .planId("gone").status(SubscriptionStatus.ACTIVE).build()));
+        when(planRepository.findBySlug("gone")).thenReturn(Optional.empty());
 
         FeeConfigDTO config = service.getConfig("u4");
 
         assertThat(config.planSlug()).isEqualTo("free");
         assertThat(config.platformFeeRate()).isEqualByComparingTo("0.05");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = SubscriptionStatus.class, mode = EnumSource.Mode.EXCLUDE, names = "ACTIVE")
+    void getConfig_ignoresSubscriptionsThatAreNotActive(SubscriptionStatus status) {
+        when(subscriptionRepository.findByUserId("u5")).thenReturn(Optional.of(Subscription.builder()
+                .planId("profissional").status(status).build()));
+
+        FeeConfigDTO config = service.getConfig("u5");
+
+        assertThat(config.planSlug()).isEqualTo("free");
+        assertThat(config.platformFeeRate()).isEqualByComparingTo("0.05");
+        verifyNoInteractions(planRepository);
     }
 }
