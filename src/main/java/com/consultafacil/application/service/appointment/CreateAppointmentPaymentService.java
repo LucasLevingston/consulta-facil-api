@@ -59,12 +59,16 @@ public class CreateAppointmentPaymentService implements CreateAppointmentPayment
             throw new BadRequestException("This professional does not accept payment via MercadoPago");
         }
 
-        // Derive amount: caller-supplied → appointment (set at scheduling) → professional price
-        BigDecimal paymentAmount = amount;
-        if (paymentAmount == null) paymentAmount = appointment.getPaymentAmount();
+        // The server owns the price: appointment amount (set at scheduling from the service or
+        // consultation price) → professional's consultation price. A caller-supplied amount is only
+        // accepted when it matches, so the patient cannot choose what to pay.
+        BigDecimal paymentAmount = appointment.getPaymentAmount();
         if (paymentAmount == null) paymentAmount = appointment.getProfessional().getConsultationPrice();
         if (paymentAmount == null || paymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Invalid payment amount. Configure the professional's consultation price.");
+        }
+        if (amount != null && amount.compareTo(paymentAmount) != 0) {
+            throw new BadRequestException("Payment amount does not match the appointment price.");
         }
 
         try {

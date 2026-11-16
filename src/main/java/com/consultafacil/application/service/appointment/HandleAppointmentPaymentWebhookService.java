@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -71,6 +72,12 @@ public class HandleAppointmentPaymentWebhookService implements HandlePaymentWebh
                     log.info("[PaymentWebhook] Duplicate webhook for already-PAID appointment {}", appointmentId);
                     return;
                 }
+                if (!coversPrice(payment.getTransactionAmount(), appointment.getPaymentAmount())) {
+                    log.error("[PaymentWebhook] Amount mismatch for appointment {}: paid {} but price is {} (payment {})",
+                            appointmentId, payment.getTransactionAmount(), appointment.getPaymentAmount(), paymentId);
+                    businessMetrics.recordPaymentFailed();
+                    return;
+                }
                 appointment.setPaymentStatus(AppointmentPaymentStatus.PAID);
                 appointment.setPaymentId(paymentId);
                 appointmentRepository.save(appointment);
@@ -82,6 +89,13 @@ public class HandleAppointmentPaymentWebhookService implements HandlePaymentWebh
         } catch (Exception e) {
             log.error("Erro ao processar webhook de pagamento: {}", e.getMessage());
         }
+    }
+
+    // The price is fixed server-side when the preference is created; never mark an appointment as
+    // paid for less than that (e.g. a payment made on a tampered or stale preference).
+    private boolean coversPrice(BigDecimal paid, BigDecimal price) {
+        if (price == null) return true;
+        return paid != null && paid.compareTo(price) >= 0;
     }
 
     private void publishPaymentSucceeded(Appointment appointment, String paymentId) {
