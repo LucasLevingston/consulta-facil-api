@@ -80,11 +80,57 @@ class HandleAppointmentPaymentWebhookServiceTest {
                 .doesNotThrowAnyException();
     }
 
-    @Test
-    void execute_approvedPayment_marksAppointmentPaid() throws Exception {
+    private Payment approvedPayment(String transactionAmount) {
         Payment mockPayment = mock(Payment.class);
         when(mockPayment.getStatus()).thenReturn("approved");
         when(mockPayment.getExternalReference()).thenReturn("appointment|appt-1");
+        when(mockPayment.getTransactionAmount())
+                .thenReturn(transactionAmount == null ? null : new BigDecimal(transactionAmount));
+        return mockPayment;
+    }
+
+    private void receiveWebhookFor(Payment payment) {
+        try (MockedConstruction<PaymentClient> mocked = mockConstruction(PaymentClient.class,
+                (client, ctx) -> when(client.get(anyLong())).thenReturn(payment))) {
+            service.execute(Map.of("type", "payment", "data", Map.of("id", "99999")));
+        }
+    }
+
+    @Test
+    void execute_underpaidApprovedPayment_isNotMarkedPaid() {
+        when(appointmentRepository.findById("appt-1")).thenReturn(Optional.of(appointment));
+
+        receiveWebhookFor(approvedPayment("0.01"));
+
+        assertThat(appointment.getPaymentStatus()).isNotEqualTo(AppointmentPaymentStatus.PAID);
+        verify(appointmentRepository, never()).save(any());
+        verify(businessMetrics).recordPaymentFailed();
+        verify(eventPublisher, never()).publishPaymentSucceeded(any());
+    }
+
+    @Test
+    void execute_approvedPaymentWithoutAmount_isNotMarkedPaid() {
+        when(appointmentRepository.findById("appt-1")).thenReturn(Optional.of(appointment));
+
+        receiveWebhookFor(approvedPayment(null));
+
+        assertThat(appointment.getPaymentStatus()).isNotEqualTo(AppointmentPaymentStatus.PAID);
+        verify(eventPublisher, never()).publishPaymentSucceeded(any());
+    }
+
+    @Test
+    void execute_appointmentWithoutStoredPrice_isStillMarkedPaid() {
+        appointment.setPaymentAmount(null);
+        when(appointmentRepository.findById("appt-1")).thenReturn(Optional.of(appointment));
+
+        receiveWebhookFor(approvedPayment("180.00"));
+
+        assertThat(appointment.getPaymentStatus()).isEqualTo(AppointmentPaymentStatus.PAID);
+    }
+
+    @Test
+    void execute_approvedPayment_marksAppointmentPaid() throws Exception {
+        Payment mockPayment = approvedPayment("250.00");
         when(appointmentRepository.findById("appt-1")).thenReturn(Optional.of(appointment));
 
         try (MockedConstruction<PaymentClient> mocked = mockConstruction(PaymentClient.class,
