@@ -50,11 +50,11 @@ public class AppointmentNotificationAdapter implements AppointmentNotificationPo
                 appointment.getPatient().getId(),
                 patientName,
                 appointment.getPatient().getUser().getEmail(),
-                appointment.getPatient().getUser().getPhone(),
+                whatsappPhone(appointment.getPatient().getUser()),
                 appointment.getProfessional().getId(),
                 professionalName,
                 appointment.getProfessional().getUser().getEmail(),
-                appointment.getProfessional().getUser().getPhone(),
+                whatsappPhone(appointment.getProfessional().getUser()),
                 appointment.getScheduledAt(),
                 appointment.getModality(),
                 LocalDateTime.now().toString()
@@ -76,7 +76,7 @@ public class AppointmentNotificationAdapter implements AppointmentNotificationPo
                 appointment.getPatient().getId(),
                 appointment.getPatient().getUser().getName(),
                 appointment.getPatient().getUser().getEmail(),
-                appointment.getPatient().getUser().getPhone(),
+                whatsappPhone(appointment.getPatient().getUser()),
                 appointment.getProfessional().getId(),
                 professionalName,
                 appointment.getScheduledAt(),
@@ -105,11 +105,11 @@ public class AppointmentNotificationAdapter implements AppointmentNotificationPo
                 appointment.getPatient().getId(),
                 patientName,
                 appointment.getPatient().getUser().getEmail(),
-                appointment.getPatient().getUser().getPhone(),
+                whatsappPhone(appointment.getPatient().getUser()),
                 appointment.getProfessional().getId(),
                 professionalName,
                 appointment.getProfessional().getUser().getEmail(),
-                appointment.getProfessional().getUser().getPhone(),
+                whatsappPhone(appointment.getProfessional().getUser()),
                 appointment.getScheduledAt(),
                 appointment.getModality(),
                 appointment.getCancellationReason(),
@@ -128,5 +128,10 @@ public class AppointmentNotificationAdapter implements AppointmentNotificationPo
         } catch (Exception e) {
             log.error("[Notification] Failed to save in-app notification: {}", e.getMessage());
         }
+    }
+
+    // Phones travel on the events only to reach WhatsApp; users who opted out get none (issue #5).
+    private String whatsappPhone(User user) {
+        return user.isWhatsappNotificationsEnabled() ? user.getPhone() : null;
     }
 }

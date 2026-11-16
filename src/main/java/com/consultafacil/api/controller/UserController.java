@@ -1,15 +1,18 @@
 package com.consultafacil.api.controller;
 
+import com.consultafacil.api.dto.user.UpdateNotificationPreferencesDTO;
 import com.consultafacil.api.dto.user.UserResponseDTO;
 import com.consultafacil.application.port.in.user.DeleteUserUseCase;
 import com.consultafacil.application.port.in.user.GetAllUsersUseCase;
 import com.consultafacil.application.port.in.user.GetUserByIdUseCase;
+import com.consultafacil.application.port.in.user.UpdateNotificationPreferencesUseCase;
 import com.consultafacil.application.port.in.user.UploadAvatarUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import com.consultafacil.domain.enums.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
@@ -29,6 +32,7 @@ public class UserController {
     private final GetUserByIdUseCase getUserById;
     private final UploadAvatarUseCase uploadAvatar;
     private final DeleteUserUseCase deleteUser;
+    private final UpdateNotificationPreferencesUseCase updateNotificationPreferences;
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
@@ -47,6 +51,16 @@ public class UserController {
     @Operation(summary = "Get current user")
     public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(getUserById.execute(userDetails.getUserId()));
+    }
+
+    @PatchMapping("/me/notification-preferences")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@adminPolicy.canViewUserProfile(authentication)")
+    @Operation(summary = "Update my notification preferences (WhatsApp opt-out)")
+    public ResponseEntity<UserResponseDTO> updateMyNotificationPreferences(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody UpdateNotificationPreferencesDTO preferences) {
+        return ResponseEntity.ok(updateNotificationPreferences.execute(userDetails.getUserId(), preferences));
     }
 
     @GetMapping("/{userId}")

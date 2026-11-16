@@ -46,6 +46,10 @@ public class User {
 
     private String phone;
 
+    @Builder.Default
+    @Column(name = "whatsapp_notifications_enabled", nullable = false)
+    private boolean whatsappNotificationsEnabled = true;
+
     @Column(unique = true)
     private String cpf;
 
