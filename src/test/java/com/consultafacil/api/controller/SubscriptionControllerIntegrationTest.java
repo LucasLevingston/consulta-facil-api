@@ -9,6 +9,8 @@ import com.consultafacil.application.port.in.subscription.GetMySubscriptionUseCa
 import com.consultafacil.application.port.in.subscription.HandlePreapprovalWebhookUseCase;
 import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.SubscriptionStatus;
+import com.consultafacil.domain.repository.subscription.SubscriptionRepository;
+import com.consultafacil.domain.repository.user.UserRepository;
 import com.consultafacil.ConsultaFacilApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +56,12 @@ class SubscriptionControllerIntegrationTest {
 
     @MockBean
     private HandlePreapprovalWebhookUseCase handlePreapprovalWebhookUseCase;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
 
     private String userToken;
 
@@ -178,5 +186,23 @@ class SubscriptionControllerIntegrationTest {
                 .andExpect(status().isOk());
 
         org.mockito.Mockito.verify(handlePreapprovalWebhookUseCase).execute("pre-abc123");
+    }
+
+    @Test
+    void testForgedPaymentWebhookCannotActivateASubscription() throws Exception {
+        // The notification body is not signed by MercadoPago; a reference smuggled into it must
+        // never be trusted to activate a plan.
+        String userId = userRepository.findByEmail("subuser@example.com").orElseThrow().getId();
+        Map<String, Object> payload = Map.of(
+                "type", "payment",
+                "data", Map.of("id", "forged-1"),
+                "additional_info", Map.of("external_reference", userId + "|starter"));
+
+        mockMvc.perform(post("/subscriptions/webhook")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isOk());
+
+        org.assertj.core.api.Assertions.assertThat(subscriptionRepository.findByUserId(userId)).isEmpty();
     }
 }

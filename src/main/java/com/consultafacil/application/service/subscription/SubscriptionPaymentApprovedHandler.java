@@ -5,6 +5,7 @@ import com.consultafacil.domain.entity.Plan;
 import com.consultafacil.domain.entity.Subscription;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import com.consultafacil.domain.port.out.plan.PlanRepositoryPort;
+import com.consultafacil.domain.port.out.subscription.SubscriptionPaymentRepositoryPort;
 import com.consultafacil.domain.port.out.subscription.SubscriptionRepositoryPort;
 import com.consultafacil.domain.port.out.user.UserRepositoryPort;
 import com.mercadopago.client.payment.PaymentClient;
@@ -22,23 +23,29 @@ import java.util.Optional;
 public class SubscriptionPaymentApprovedHandler implements HandlePaymentApprovedUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepository;
+    private final SubscriptionPaymentRepositoryPort subscriptionPaymentRepository;
     private final UserRepositoryPort userRepository;
     private final PlanRepositoryPort planRepository;
     private final SubscriptionPaymentRecorder paymentRecorder;
     private final SubscriptionRenewalNotifier renewalNotifier;
 
     @Override
-    public void execute(String paymentId, String externalReference) {
-        String ref = externalReference;
-        if (ref == null) {
-            try {
-                Payment payment = new PaymentClient().get(Long.parseLong(paymentId));
-                if (!"approved".equals(payment.getStatus())) return;
-                ref = payment.getExternalReference();
-            } catch (Exception e) {
-                log.error("Erro ao buscar pagamento MP {}: {}", paymentId, e.getMessage());
-                return;
-            }
+    public void execute(String paymentId) {
+        // Webhook notifications are replayable and their body is not covered by MercadoPago's
+        // signature, so nothing from the payload is trusted: the payment is always fetched from
+        // MercadoPago, must be approved, and is applied at most once.
+        if (subscriptionPaymentRepository.existsByMpPaymentId(paymentId)) {
+            log.info("[Subscription] Payment {} already applied — ignoring duplicate notification", paymentId);
+            return;
+        }
+        String ref;
+        try {
+            Payment payment = new PaymentClient().get(Long.parseLong(paymentId));
+            if (!"approved".equals(payment.getStatus())) return;
+            ref = payment.getExternalReference();
+        } catch (Exception e) {
+            log.error("Erro ao buscar pagamento MP {}: {}", paymentId, e.getMessage());
+            return;
         }
         if (ref == null || !ref.contains("|")) return;
 
