@@ -48,6 +48,7 @@ class ProfessionalTopServicesCalculatorTest {
         assertThat(top.get(0).revenue()).isEqualByComparingTo("380.00");
         assertThat(top.get(1).count()).isEqualTo(1);
         assertThat(top.get(1).revenue()).isEqualByComparingTo("100.00");
+        assertThat(top).extracting(TopServiceDTO::id).containsExactly("s1", "s2");
     }
 
     @Test

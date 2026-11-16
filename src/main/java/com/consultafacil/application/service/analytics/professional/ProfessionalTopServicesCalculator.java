@@ -26,8 +26,8 @@ public class ProfessionalTopServicesCalculator {
             if (service == null || a.getStatus() == AppointmentStatus.CANCELED) continue;
             BigDecimal revenue = a.getPaymentStatus() == AppointmentPaymentStatus.PAID && a.getPaymentAmount() != null
                     ? a.getPaymentAmount() : BigDecimal.ZERO;
-            byService.merge(service.getId(), new TopServiceDTO(service.getName(), 1, revenue),
-                    (acc, one) -> new TopServiceDTO(acc.name(), acc.count() + 1, acc.revenue().add(one.revenue())));
+            byService.merge(service.getId(), new TopServiceDTO(service.getId(), service.getName(), 1, revenue),
+                    (acc, one) -> new TopServiceDTO(acc.id(), acc.name(), acc.count() + 1, acc.revenue().add(one.revenue())));
         }
         return byService.values().stream()
                 .sorted(Comparator.comparingLong(TopServiceDTO::count).reversed()
