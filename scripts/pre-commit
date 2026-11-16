@@ -1,5 +1,6 @@
 #!/bin/sh
 # Git pre-commit hook — instalado automaticamente por ./gradlew build
+# Só verificações rápidas (estrutura + compilação). Suíte completa roda no pre-push.
 # Para pular temporariamente: git commit --no-verify
 
 set -e
@@ -11,7 +12,7 @@ echo "╚═══════════════════════�
 echo ""
 
 # 0. Estrutura e tamanho dos arquivos
-echo "▶ [0/5] Verificando estrutura dos arquivos..."
+echo "▶ [0/1] Verificando estrutura dos arquivos..."
 MAX_LINES=300
 FOUND=0
 staged=$(git diff --cached --name-only --diff-filter=ACM)
@@ -90,28 +91,11 @@ echo "✓ Estrutura dos arquivos OK"
 echo ""
 
 # 1. Compilação
-echo "▶ [1/5] Compilando Java..."
+echo "▶ [1/1] Compilando Java..."
 ./gradlew compileJava compileTestJava --quiet
 echo "✓ Compilação sem erros"
 echo ""
 
-# 2. Testes
-echo "▶ [2/5] Executando testes..."
-./gradlew test --quiet
-echo "✓ Todos os testes passaram"
-echo ""
-
-# 3. Cobertura
-echo "▶ [3/5] Verificando cobertura (mínimo 30%)..."
-./gradlew jacocoTestCoverageVerification --quiet
-echo "✓ Cobertura dentro do limite"
-echo ""
-
-# 4. Build
-echo "▶ [4/5] Build final..."
-./gradlew build -x test --quiet
-echo "✓ Build concluído"
-echo ""
-
-echo "✅ Todas as verificações passaram. Commit liberado."
+echo "✅ Verificações rápidas passaram. Commit liberado."
+echo "   (testes, cobertura e build completos rodam no pre-push)"
 echo ""

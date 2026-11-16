@@ -159,11 +159,13 @@ jacocoTestCoverageVerification {
 	}
 }
 
-// ─── Git hook: instala pre-commit automaticamente ────────────────────────────
+// ─── Git hooks: instala pre-commit (rápido) e pre-push (suíte completa) ──────
 tasks.register('installGitHooks', Copy) {
-	description = 'Copia scripts/pre-commit para .git/hooks/'
+	description = 'Copia scripts/pre-commit e scripts/pre-push para .git/hooks/'
 	group       = 'setup'
-	from(new File(rootDir, 'scripts/pre-commit'))
+	from(new File(rootDir, 'scripts')) {
+		include 'pre-commit', 'pre-push'
+	}
 	into('.git/hooks')
 	fileMode 0755
 	doLast {
