@@ -31,6 +31,9 @@ public interface AppointmentRepositoryPort {
     List<Appointment> findByProfessionalIdAndStatusAndScheduledAtBetween(
             String professionalId, AppointmentStatus status, LocalDateTime start, LocalDateTime end);
 
+    List<Appointment> findByProfessionalIdAndScheduledAtBetween(
+            String professionalId, LocalDateTime start, LocalDateTime end);
+
     boolean existsByProfessionalIdAndScheduledAt(String professionalId, LocalDateTime scheduledAt);
 
     List<Appointment> findByProfessionalIdAndStatusInAndScheduledAtBetweenOrderByCheckedInAt(

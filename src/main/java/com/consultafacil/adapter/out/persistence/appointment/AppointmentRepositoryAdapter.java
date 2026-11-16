@@ -64,6 +64,12 @@ public class AppointmentRepositoryAdapter implements AppointmentRepositoryPort {
     }
 
     @Override
+    public List<Appointment> findByProfessionalIdAndScheduledAtBetween(
+            String professionalId, LocalDateTime start, LocalDateTime end) {
+        return appointmentRepository.findByProfessionalIdAndScheduledAtBetween(professionalId, start, end);
+    }
+
+    @Override
     public boolean existsByProfessionalIdAndScheduledAt(String professionalId, LocalDateTime scheduledAt) {
         return appointmentRepository.existsByProfessionalIdAndScheduledAt(professionalId, scheduledAt);
     }
