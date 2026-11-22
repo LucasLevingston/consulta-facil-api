@@ -4,12 +4,14 @@ import com.consultafacil.domain.port.out.EmailPort;
 import com.consultafacil.core.util.PiiMask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sesv2.SesV2Client;
 import software.amazon.awssdk.services.sesv2.model.*;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "aws.enabled", havingValue = "true")
 public class SesEmailAdapter implements EmailPort {
 
     private final SesV2Client sesClient;

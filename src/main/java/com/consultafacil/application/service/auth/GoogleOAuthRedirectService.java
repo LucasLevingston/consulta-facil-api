@@ -16,7 +16,7 @@ public class GoogleOAuthRedirectService implements GoogleOAuthRedirectUseCase {
 
     @Override
     public String buildAuthorizationUrl() {
-        return UriComponentsBuilder.fromHttpUrl(GOOGLE_AUTH_URL)
+        return UriComponentsBuilder.fromUriString(GOOGLE_AUTH_URL)
                 .queryParam("client_id", googleProps.getClientId())
                 .queryParam("redirect_uri", googleProps.getRedirectUri())
                 .queryParam("response_type", "code")

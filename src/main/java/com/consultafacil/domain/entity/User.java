@@ -50,6 +50,13 @@ public class User {
     @Column(name = "whatsapp_notifications_enabled", nullable = false)
     private boolean whatsappNotificationsEnabled = true;
 
+    /** Set when the account was anonymized at the holder's request (LGPD art. 18, VI). */
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "last_data_export_at")
+    private LocalDateTime lastDataExportAt;
+
     @Column(unique = true)
     private String cpf;
 

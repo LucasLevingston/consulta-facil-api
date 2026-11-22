@@ -21,7 +21,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     public CustomUserDetails loadUserById(String userId) {
+        // Tokens of anonymized accounts stop working immediately (subject is the user id).
         User user = userRepository.findById(userId)
+                .filter(u -> u.getDeletedAt() == null)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com ID: " + userId));
         return new CustomUserDetails(user);
     }

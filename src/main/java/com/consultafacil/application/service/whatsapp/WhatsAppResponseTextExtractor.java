@@ -1,6 +1,6 @@
 package com.consultafacil.application.service.whatsapp;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 
 @Component

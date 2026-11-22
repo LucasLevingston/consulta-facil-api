@@ -9,7 +9,7 @@ import com.consultafacil.domain.enums.AppointmentStatus;
 import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import com.consultafacil.domain.port.out.patient.PatientProfileRepositoryPort;
 import com.consultafacil.domain.port.out.professional.profile.ProfessionalProfileRepositoryPort;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

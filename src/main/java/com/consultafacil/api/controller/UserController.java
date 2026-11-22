@@ -1,8 +1,12 @@
 package com.consultafacil.api.controller;
 
+import com.consultafacil.api.dto.user.DeleteMyAccountDTO;
+import com.consultafacil.api.dto.user.PersonalDataExportDTO;
 import com.consultafacil.api.dto.user.UpdateNotificationPreferencesDTO;
 import com.consultafacil.api.dto.user.UserResponseDTO;
+import com.consultafacil.application.port.in.user.DeleteMyAccountUseCase;
 import com.consultafacil.application.port.in.user.DeleteUserUseCase;
+import com.consultafacil.application.port.in.user.ExportMyDataUseCase;
 import com.consultafacil.application.port.in.user.GetAllUsersUseCase;
 import com.consultafacil.application.port.in.user.GetUserByIdUseCase;
 import com.consultafacil.application.port.in.user.UpdateNotificationPreferencesUseCase;
@@ -15,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +38,8 @@ public class UserController {
     private final UploadAvatarUseCase uploadAvatar;
     private final DeleteUserUseCase deleteUser;
     private final UpdateNotificationPreferencesUseCase updateNotificationPreferences;
+    private final ExportMyDataUseCase exportMyData;
+    private final DeleteMyAccountUseCase deleteMyAccount;
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
@@ -61,6 +68,27 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateNotificationPreferencesDTO preferences) {
         return ResponseEntity.ok(updateNotificationPreferences.execute(userDetails.getUserId(), preferences));
+    }
+
+    @GetMapping("/me/export")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@adminPolicy.canViewUserProfile(authentication)")
+    @Operation(summary = "Download all my personal data as JSON (LGPD art. 18) — once per hour")
+    public ResponseEntity<PersonalDataExportDTO> exportMyData(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"meus-dados-consulta-facil.json\"")
+                .body(exportMyData.execute(userDetails.getUserId()));
+    }
+
+    @DeleteMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@adminPolicy.canViewUserProfile(authentication)")
+    @Operation(summary = "Delete my account: cancels upcoming appointments and anonymizes personal data (LGPD art. 18, VI)")
+    public ResponseEntity<Void> deleteMyAccount(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody DeleteMyAccountDTO request) {
+        deleteMyAccount.execute(userDetails.getUserId(), request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{userId}")

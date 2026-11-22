@@ -10,7 +10,7 @@ import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.enums.UserRole;
 import com.consultafacil.domain.repository.professional.profile.ProfessionalProfileRepository;
 import com.consultafacil.domain.repository.user.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
