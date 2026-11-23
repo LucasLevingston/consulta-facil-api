@@ -69,19 +69,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(TooManyRequestsException.class)
-    public ResponseEntity<ErrorResponse> handleTooManyRequests(
-            TooManyRequestsException ex,
-            WebRequest request) {
-        log.warn("Too many requests: {}", ex.getMessage());
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.TOO_MANY_REQUESTS,
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.TOO_MANY_REQUESTS);
-    }
-
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(
             UnauthorizedException ex,
