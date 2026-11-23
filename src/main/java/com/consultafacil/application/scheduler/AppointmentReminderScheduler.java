@@ -1,7 +1,9 @@
 package com.consultafacil.application.scheduler;
 
+import com.consultafacil.application.service.whatsapp.WhatsAppService;
 import com.consultafacil.domain.port.out.EmailPort;
 import com.consultafacil.domain.entity.Appointment;
+import com.consultafacil.domain.entity.User;
 import com.consultafacil.domain.enums.AppointmentStatus;
 import com.consultafacil.domain.port.out.appointment.AppointmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class AppointmentReminderScheduler {
 
     private final AppointmentRepositoryPort appointmentRepository;
     private final EmailPort emailService;
+    private final WhatsAppService whatsAppService;
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("HH:mm", Locale.forLanguageTag("pt-BR"));
@@ -49,9 +52,17 @@ public class AppointmentReminderScheduler {
                 String modality     = appt.getModality() != null ? appt.getModality().name() : "";
 
                 emailService.sendAppointmentReminder(patientEmail, patientName, profName, timeStr, modality);
+                sendWhatsAppReminder(appt.getPatient().getUser(), patientName, profName, timeStr);
             } catch (Exception e) {
                 log.error("[Reminder] Failed to send reminder for appointment {}: {}", appt.getId(), e.getMessage());
             }
         }
+    }
+
+    private void sendWhatsAppReminder(User patient, String patientName, String professionalName, String time) {
+        if (!patient.isWhatsappNotificationsEnabled()) return;
+        whatsAppService.sendMessage(patient.getPhone(),
+                "Olá " + patientName + "! ⏰ Lembrete: sua consulta com " + professionalName
+                        + " é amanhã às " + time + ".");
     }
 }

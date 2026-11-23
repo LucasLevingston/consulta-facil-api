@@ -24,6 +24,7 @@ public class UserResponseDTO {
     private LocalDate birthDate;
     private Gender gender;
     private String imageUrl;
+    private boolean whatsappNotificationsEnabled;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

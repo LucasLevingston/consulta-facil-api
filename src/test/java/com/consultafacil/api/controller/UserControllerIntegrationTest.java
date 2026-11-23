@@ -212,4 +212,39 @@ class UserControllerIntegrationTest {
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void testOptOutOfWhatsAppNotifications() throws Exception {
+        mockMvc.perform(get("/users/me").header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.whatsappNotificationsEnabled", is(true)));
+
+        mockMvc.perform(patch("/users/me/notification-preferences")
+                .header("Authorization", "Bearer " + userToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"whatsappNotificationsEnabled\": false}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userId)))
+                .andExpect(jsonPath("$.whatsappNotificationsEnabled", is(false)));
+
+        mockMvc.perform(get("/users/me").header("Authorization", "Bearer " + userToken))
+                .andExpect(jsonPath("$.whatsappNotificationsEnabled", is(false)));
+    }
+
+    @Test
+    void testNotificationPreferencesRequireTheFlag() throws Exception {
+        mockMvc.perform(patch("/users/me/notification-preferences")
+                .header("Authorization", "Bearer " + userToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testNotificationPreferencesUnauthorized() throws Exception {
+        mockMvc.perform(patch("/users/me/notification-preferences")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"whatsappNotificationsEnabled\": false}"))
+                .andExpect(status().isUnauthorized());
+    }
 }
