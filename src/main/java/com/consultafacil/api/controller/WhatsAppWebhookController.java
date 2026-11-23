@@ -54,11 +54,11 @@ public class WhatsAppWebhookController {
         String forwardedHost  = request.getHeader("X-Forwarded-Host");
 
         String scheme = (forwardedProto != null && !forwardedProto.isBlank())
-                ? forwardedProto
+                ? forwardedProto.split(",")[0].trim()
                 : request.getScheme();
 
         String host = (forwardedHost != null && !forwardedHost.isBlank())
-                ? forwardedHost
+                ? forwardedHost.split(",")[0].trim()
                 : request.getServerName() + (request.getServerPort() != 80 && request.getServerPort() != 443
                     ? ":" + request.getServerPort()
                     : "");
