@@ -26,8 +26,8 @@ public class AppointmentReminderScheduler {
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("HH:mm", Locale.forLanguageTag("pt-BR"));
 
-    // Every day at 08:00 BRT (UTC-3 = 11:00 UTC)
-    @Scheduled(cron = "0 0 11 * * *", zone = "UTC")
+    // Every day at 11:00 BRT (America/Sao_Paulo)
+    @Scheduled(cron = "0 0 11 * * *", zone = "America/Sao_Paulo")
     public void sendDailyReminders() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         LocalDateTime start = tomorrow.atStartOfDay();
