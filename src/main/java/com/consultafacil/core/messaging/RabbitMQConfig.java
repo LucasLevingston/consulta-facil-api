@@ -1,5 +1,6 @@
 package com.consultafacil.core.messaging;
 
+import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarables;
@@ -11,12 +12,11 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import static com.consultafacil.core.messaging.RabbitMQConstants.*;
 
@@ -25,7 +25,7 @@ public class RabbitMQConfig {
 
     @Bean
     public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+        return new JacksonJsonMessageConverter();
     }
 
     @Bean
@@ -48,9 +48,9 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public RetryOperationsInterceptor retryInterceptor() {
+    public MethodInterceptor retryInterceptor() {
         return RetryInterceptorBuilder.stateless()
-                .maxAttempts(3)
+                .maxRetries(3)
                 .backOffOptions(1000, 5.0, 25000)
                 .recoverer(new RejectAndDontRequeueRecoverer())
                 .build();

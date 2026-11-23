@@ -5,7 +5,7 @@ import com.consultafacil.domain.enums.Gender;
 import com.consultafacil.domain.enums.Specialty;
 import com.consultafacil.domain.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;

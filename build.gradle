@@ -1,8 +1,8 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.0'
+	id 'org.springframework.boot' version '4.1.3'
 	id 'io.spring.dependency-management' version '1.1.7'
-	id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
+	id 'org.springdoc.openapi-gradle-plugin' version '2.1.0'
 	id 'jacoco'
 }
 
@@ -21,7 +21,8 @@ repositories {
 
 dependencies {
 	// Spring Boot Starters
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'org.springframework.boot:spring-boot-starter-jackson'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -30,15 +31,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	// Rate limiting
-	implementation 'com.bucket4j:bucket4j-core:8.10.1'
+	implementation 'com.bucket4j:bucket4j_jdk17-core:8.21.0'
 
 	// Database
 	runtimeOnly 'org.postgresql:postgresql'
-	implementation 'org.flywaydb:flyway-core:10.0.1'
-	implementation 'org.flywaydb:flyway-database-postgresql:10.0.1'
+	implementation 'org.springframework.boot:spring-boot-starter-flyway'
 	
 	// OpenAPI
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.1'
 	
 	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
@@ -55,8 +55,8 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	
 	// MapStruct
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+	implementation 'org.mapstruct:mapstruct:1.6.3'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 	
 	// Dev tools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -74,14 +74,14 @@ dependencies {
 	implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
 
 	// Observability — Structured JSON logging (stdout → CloudWatch on ECS)
-	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+	implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
 
 	// Cache — Redis
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	// AWS SDK
-	implementation platform('software.amazon.awssdk:bom:2.21.0')
+	implementation platform('software.amazon.awssdk:bom:2.57.8')
 	implementation 'software.amazon.awssdk:s3'
 	implementation 'software.amazon.awssdk:sesv2'
 
@@ -95,19 +95,20 @@ dependencies {
 
 	// Tests
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.testcontainers:postgresql:1.19.7'
-	testImplementation 'org.testcontainers:rabbitmq:1.19.7'
+	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+	testImplementation 'org.testcontainers:testcontainers-postgresql'
+	testImplementation 'org.testcontainers:testcontainers-rabbitmq'
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
 }
 
 // ─── JaCoCo: cobertura de testes ─────────────────────────────────────────────
 jacoco {
-	toolVersion = '0.8.11'
+	toolVersion = '0.8.12'
 }
 
 tasks.named('test') {
@@ -167,7 +168,7 @@ tasks.register('installGitHooks', Copy) {
 		include 'pre-commit', 'pre-push'
 	}
 	into('.git/hooks')
-	fileMode 0755
+	filePermissions { unix(0755) }
 	doLast {
 		logger.lifecycle('✓ Git hooks instalados em .git/hooks/')
 	}
