@@ -4,6 +4,7 @@ import com.consultafacil.core.security.AuthRateLimitFilter;
 import com.consultafacil.core.security.CustomUserDetailsService;
 import com.consultafacil.core.security.JwtAuthenticationFilter;
 import com.consultafacil.core.security.JwtTokenProvider;
+import com.consultafacil.domain.port.out.auth.JwtBlacklistPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ public class SecurityConfiguration {
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRateLimitFilter authRateLimitFilter;
+    private final JwtBlacklistPort jwtBlacklistPort;
 
     @Value("${cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
@@ -46,7 +48,7 @@ public class SecurityConfiguration {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, jwtBlacklistPort);
     }
 
     @Bean
