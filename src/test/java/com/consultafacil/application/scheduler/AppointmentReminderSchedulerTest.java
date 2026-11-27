@@ -89,6 +89,19 @@ class AppointmentReminderSchedulerTest {
     }
 
     @Test
+    void skipsEmailForPatientsWhoOptedOutOfEmailNotifications() {
+        User patient = User.builder().id("u").name("João").email("joao@example.com").phone("+5511900000000")
+                .emailNotificationsEnabled(false).build();
+        when(appointmentRepository.findByStatusInAndScheduledAtBetweenOrderByCheckedInAt(any(), any(), any()))
+                .thenReturn(List.of(appointmentFor(patient, 9)));
+
+        scheduler.sendDailyReminders();
+
+        verify(emailPort, never()).sendAppointmentReminder(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(whatsAppService).sendMessage(anyString(), anyString());
+    }
+
+    @Test
     void sendsNothingWhenThereAreNoAppointmentsTomorrow() {
         when(appointmentRepository.findByStatusInAndScheduledAtBetweenOrderByCheckedInAt(any(), any(), any()))
                 .thenReturn(List.of());

@@ -34,7 +34,7 @@ class AppointmentWhatsAppConsumerTest {
         return new AppointmentCreatedEvent("evt-1", "appt-1", "p-1",
                 "João", "joao@email.com", "+5511999990000",
                 "prof-1", "Dra. Ana", "ana@email.com", "+5511888880000",
-                scheduledAt, AppointmentModality.IN_PERSON, "2026-06-01T10:00:00Z");
+                scheduledAt, AppointmentModality.IN_PERSON, true, "2026-06-01T10:00:00Z");
     }
 
     private AppointmentCanceledEvent canceledEvent() {
@@ -42,14 +42,14 @@ class AppointmentWhatsAppConsumerTest {
                 "João", "joao@email.com", "+5511999990000",
                 "prof-1", "Dra. Ana", "ana@email.com", "+5511888880000",
                 scheduledAt, AppointmentModality.IN_PERSON,
-                "Conflito de agenda", "2026-06-01T10:00:00Z");
+                "Conflito de agenda", true, "2026-06-01T10:00:00Z");
     }
 
     private AppointmentConfirmedEvent confirmedEvent() {
         return new AppointmentConfirmedEvent("evt-3", "appt-1", "p-1",
                 "João", "joao@email.com", "+5511999990000",
                 "prof-1", "Dra. Ana",
-                scheduledAt, AppointmentModality.IN_PERSON, "2026-06-01T10:00:00Z");
+                scheduledAt, AppointmentModality.IN_PERSON, true, "2026-06-01T10:00:00Z");
     }
 
     @Test

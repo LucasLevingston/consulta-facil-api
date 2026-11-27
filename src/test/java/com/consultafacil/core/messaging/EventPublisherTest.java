@@ -24,7 +24,7 @@ class EventPublisherTest {
 
     private AppointmentCreatedEvent createdEvent() {
         return new AppointmentCreatedEvent("e-1","a-1","p-1","João","j@e.com","+55",
-                "d-1","Dr.","dr@e.com","+55p",LocalDateTime.now(),AppointmentModality.IN_PERSON,"now");
+                "d-1","Dr.","dr@e.com","+55p",LocalDateTime.now(),AppointmentModality.IN_PERSON,true,"now");
     }
 
     private PaymentSucceededEvent paymentEvent() {
@@ -50,14 +50,14 @@ class EventPublisherTest {
 
     @Test void publishAppointmentCanceled_sendsToCorrectRoutingKey() {
         var event = new AppointmentCanceledEvent("e-1","a-1","p-1","João","j@e.com","+55",
-                "d-1","Dr.","dr@e.com","+55p",LocalDateTime.now(),AppointmentModality.IN_PERSON,"r","now");
+                "d-1","Dr.","dr@e.com","+55p",LocalDateTime.now(),AppointmentModality.IN_PERSON,"r",true,"now");
         publisher.publishAppointmentCanceled(event);
         verify(rabbitTemplate).convertAndSend(eq(RabbitMQConstants.EXCHANGE), eq(RabbitMQConstants.RK_APPOINTMENTS_CANCELED), any(Object.class));
     }
 
     @Test void publishAppointmentConfirmed_sendsToCorrectRoutingKey() {
         var event = new AppointmentConfirmedEvent("e-1","a-1","p-1","João","j@e.com","+55",
-                "d-1","Dr.",LocalDateTime.now(),AppointmentModality.IN_PERSON,"now");
+                "d-1","Dr.",LocalDateTime.now(),AppointmentModality.IN_PERSON,true,"now");
         publisher.publishAppointmentConfirmed(event);
         verify(rabbitTemplate).convertAndSend(eq(RabbitMQConstants.EXCHANGE), eq(RabbitMQConstants.RK_APPOINTMENTS_CONFIRMED), any(Object.class));
     }

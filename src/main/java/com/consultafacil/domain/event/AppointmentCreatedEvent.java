@@ -17,5 +17,6 @@ public record AppointmentCreatedEvent(
         String professionalPhone,
         LocalDateTime scheduledAt,
         AppointmentModality modality,
+        boolean emailNotificationsEnabled,
         String occurredAt
 ) {}

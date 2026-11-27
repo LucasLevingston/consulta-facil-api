@@ -29,6 +29,10 @@ public class AppointmentEmailConsumer {
 
     @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CREATED_EMAIL)
     public void onAppointmentCreated(AppointmentCreatedEvent event) {
+        if (!event.emailNotificationsEnabled()) {
+            log.info("[Email] Patient opted out of email notifications, skipping appointment={}", event.appointmentId());
+            return;
+        }
         log.info("[Email] appointments.created → to={} appointment={}", PiiMask.maskEmail(event.patientEmail()), event.appointmentId());
         try {
             emailPort.sendAppointmentConfirmation(
@@ -45,6 +49,10 @@ public class AppointmentEmailConsumer {
 
     @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CANCELED_EMAIL)
     public void onAppointmentCanceled(AppointmentCanceledEvent event) {
+        if (!event.emailNotificationsEnabled()) {
+            log.info("[Email] Patient opted out of email notifications, skipping appointment={}", event.appointmentId());
+            return;
+        }
         log.info("[Email] appointments.canceled → to={} appointment={}", PiiMask.maskEmail(event.patientEmail()), event.appointmentId());
         try {
             emailPort.sendAppointmentCancellation(
@@ -60,6 +68,10 @@ public class AppointmentEmailConsumer {
 
     @RabbitListener(queues = RabbitMQConstants.Q_APPOINTMENTS_CONFIRMED_EMAIL)
     public void onAppointmentConfirmed(AppointmentConfirmedEvent event) {
+        if (!event.emailNotificationsEnabled()) {
+            log.info("[Email] Patient opted out of email notifications, skipping appointment={}", event.appointmentId());
+            return;
+        }
         log.info("[Email] appointments.confirmed → to={} appointment={}", PiiMask.maskEmail(event.patientEmail()), event.appointmentId());
         try {
             emailPort.sendAppointmentConfirmedByProfessional(

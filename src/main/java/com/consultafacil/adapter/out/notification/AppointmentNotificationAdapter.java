@@ -57,6 +57,7 @@ public class AppointmentNotificationAdapter implements AppointmentNotificationPo
                 whatsappPhone(appointment.getProfessional().getUser()),
                 appointment.getScheduledAt(),
                 appointment.getModality(),
+                appointment.getPatient().getUser().isEmailNotificationsEnabled(),
                 LocalDateTime.now().toString()
         ));
     }
@@ -81,6 +82,7 @@ public class AppointmentNotificationAdapter implements AppointmentNotificationPo
                 professionalName,
                 appointment.getScheduledAt(),
                 appointment.getModality(),
+                appointment.getPatient().getUser().isEmailNotificationsEnabled(),
                 LocalDateTime.now().toString()
         ));
     }
@@ -113,6 +115,7 @@ public class AppointmentNotificationAdapter implements AppointmentNotificationPo
                 appointment.getScheduledAt(),
                 appointment.getModality(),
                 appointment.getCancellationReason(),
+                appointment.getPatient().getUser().isEmailNotificationsEnabled(),
                 LocalDateTime.now().toString()
         ));
     }

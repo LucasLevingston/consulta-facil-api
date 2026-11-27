@@ -50,6 +50,10 @@ public class User {
     @Column(name = "whatsapp_notifications_enabled", nullable = false)
     private boolean whatsappNotificationsEnabled = true;
 
+    @Builder.Default
+    @Column(name = "email_notifications_enabled", nullable = false)
+    private boolean emailNotificationsEnabled = true;
+
     /** Set when the account was anonymized at the holder's request (LGPD art. 18, VI). */
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

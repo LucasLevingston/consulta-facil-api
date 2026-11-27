@@ -23,6 +23,9 @@ public class UpdateNotificationPreferencesService implements UpdateNotificationP
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         user.setWhatsappNotificationsEnabled(preferences.getWhatsappNotificationsEnabled());
+        if (preferences.getEmailNotificationsEnabled() != null) {
+            user.setEmailNotificationsEnabled(preferences.getEmailNotificationsEnabled());
+        }
         return userMapper.toResponseDTO(userRepository.save(user));
     }
 }

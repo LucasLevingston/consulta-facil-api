@@ -19,6 +19,7 @@ public class UserMapper {
                 .gender(user.getGender())
                 .imageUrl(user.getImageUrl())
                 .whatsappNotificationsEnabled(user.isWhatsappNotificationsEnabled())
+                .emailNotificationsEnabled(user.isEmailNotificationsEnabled())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
