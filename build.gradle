@@ -145,7 +145,14 @@ jacocoTestCoverageVerification {
 			limit {
 				counter = 'LINE'
 				value   = 'COVEREDRATIO'
-				minimum = 0.30
+				minimum = 0.80
+			}
+		}
+		rule {
+			limit {
+				counter = 'INSTRUCTION'
+				value   = 'COVEREDRATIO'
+				minimum = 0.78
 			}
 		}
 	}
