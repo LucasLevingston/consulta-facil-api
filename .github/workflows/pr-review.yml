@@ -1,0 +1,82 @@
+name: PR Code Review (Claude)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master, main]
+
+jobs:
+  claude-review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          model: claude-sonnet-4-6
+          direct_prompt: |
+            Your task: review PR #${{ github.event.pull_request.number }} and post a structured comment with your findings.
+
+            Step 1 — get the diff:
+            Run: gh pr diff ${{ github.event.pull_request.number }}
+
+            Step 2 — review the diff for (priority order):
+
+            SECURITY
+            - Auth bypass, missing @PreAuthorize
+            - SQL injection, mass assignment (role field writable by user)
+            - Secrets hardcoded
+            - Missing input validation
+
+            CORRECTNESS
+            - Logic bugs, null handling, off-by-one
+            - Missing @Transactional or wrong scope
+            - Race conditions
+
+            ARCHITECTURE — hexagonal (Ports & Adapters) rules:
+            - domain/ must NOT import from api/, adapter/, core/, or Spring
+            - Every service must implement a port/in/ interface and declare @Transactional
+            - 1 service file = 1 operation (no god-service with multiple methods)
+            - Ownership checks via OwnershipValidator or *Policy — never inline in controllers
+            - Domain events published via EventPublisher AFTER persistence, not before
+            - New Flyway migrations: V{N}__snake_case.sql — never alter existing migrations
+
+            SPRING BOOT 4 COMPAT
+            - Tests must use @MockitoBean (org.springframework.test.context.bean.override.mockito.MockitoBean)
+            - NOT @MockBean (org.springframework.boot.test.mock.mockito.MockBean — removed in SB4)
+
+            TESTS
+            - New business logic must have tests
+            - Integration tests use Testcontainers, not mocked DB
+
+            Skip: build/, generated files, migration files not part of this PR, DTO fields.
+
+            Step 3 — post your review:
+            Run: gh pr comment ${{ github.event.pull_request.number }} --body "<your review>"
+
+            Format the body as:
+            ## 🤖 Code Review
+
+            ### 🔴 HIGH — block merge
+            <list findings with file:line, or "None">
+
+            ### 🟡 MEDIUM — should fix
+            <list findings with file:line, or "None">
+
+            ### 🟢 LOW / suggestions
+            <list findings, or "None">
+
+            ### ✅ Verdict
+            APPROVE / REQUEST CHANGES / COMMENT — one-line summary
+
+            If the diff has no issues at all, post: "✅ LGTM — no issues found."
