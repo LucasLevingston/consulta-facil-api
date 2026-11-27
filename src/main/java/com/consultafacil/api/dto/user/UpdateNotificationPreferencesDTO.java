@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class UpdateNotificationPreferencesDTO {
     @NotNull
     private Boolean whatsappNotificationsEnabled;
+    private Boolean emailNotificationsEnabled;
 }

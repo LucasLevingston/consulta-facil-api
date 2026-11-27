@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
  *
  * Uses a real RabbitMQ broker (Testcontainers) to verify the full
  * RabbitListener → consumer method → external port call flow.
- * External adapters (SES, Twilio) are replaced with @MockBean so no
+ * External adapters (SES, Twilio) are replaced with @MockitoBean so no
  * real messages are sent.
  *
  * The datasource is H2 (from the test-profile config) so PostgreSQL is
@@ -89,7 +89,7 @@ class ConsumerIntegrationTest {
                 "evt-1", "appt-1", "p-1",
                 "João", "joao@email.com", "+5511999990000",
                 "prof-1", "Dra. Ana", "ana@email.com", "+5511888880000",
-                SCHEDULED_AT, AppointmentModality.IN_PERSON, "2026-06-01T10:00:00Z");
+                SCHEDULED_AT, AppointmentModality.IN_PERSON, true, "2026-06-01T10:00:00Z");
     }
 
     private AppointmentCanceledEvent appointmentCanceledEvent() {
@@ -98,7 +98,7 @@ class ConsumerIntegrationTest {
                 "João", "joao@email.com", "+5511999990000",
                 "prof-1", "Dra. Ana", "ana@email.com", "+5511888880000",
                 SCHEDULED_AT, AppointmentModality.IN_PERSON,
-                "Conflito de agenda", "2026-06-01T10:00:00Z");
+                "Conflito de agenda", true, "2026-06-01T10:00:00Z");
     }
 
     private AppointmentConfirmedEvent appointmentConfirmedEvent() {
@@ -106,7 +106,7 @@ class ConsumerIntegrationTest {
                 "evt-3", "appt-1", "p-1",
                 "João", "joao@email.com", "+5511999990000",
                 "prof-1", "Dra. Ana",
-                SCHEDULED_AT, AppointmentModality.IN_PERSON, "2026-06-01T10:00:00Z");
+                SCHEDULED_AT, AppointmentModality.IN_PERSON, true, "2026-06-01T10:00:00Z");
     }
 
     private PaymentSucceededEvent paymentSucceededEvent() {

@@ -1,5 +1,6 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.core.audit.FinancialAuditListener;
 import com.consultafacil.domain.enums.WalletTransactionType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "wallet_transactions")
+@EntityListeners(FinancialAuditListener.class)
 @Data
 @Builder
 @NoArgsConstructor

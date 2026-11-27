@@ -15,5 +15,6 @@ public record AppointmentConfirmedEvent(
         String professionalName,
         LocalDateTime scheduledAt,
         AppointmentModality modality,
+        boolean emailNotificationsEnabled,
         String occurredAt
 ) {}

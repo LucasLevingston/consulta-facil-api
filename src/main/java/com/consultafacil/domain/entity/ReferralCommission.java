@@ -1,5 +1,6 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.core.audit.FinancialAuditListener;
 import com.consultafacil.domain.enums.CommissionStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "referral_commissions")
+@EntityListeners(FinancialAuditListener.class)
 @Data
 @Builder
 @NoArgsConstructor

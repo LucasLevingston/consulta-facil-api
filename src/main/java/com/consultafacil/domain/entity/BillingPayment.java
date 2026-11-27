@@ -1,5 +1,6 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.core.audit.FinancialAuditListener;
 import com.consultafacil.domain.enums.BillingPaymentStatus;
 import com.consultafacil.domain.enums.OwnerType;
 import com.consultafacil.domain.enums.PaymentType;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "billing_payments")
+@EntityListeners(FinancialAuditListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

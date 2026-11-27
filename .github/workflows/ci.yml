@@ -102,7 +102,7 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: test
 
-      - name: '[3/4] Verificar cobertura (mínimo 90%)'
+      - name: '[3/4] Verificar cobertura (mínimo 80% LINE / 78% INSTRUCTION)'
         run: ./gradlew jacocoTestCoverageVerification --no-daemon
 
       - name: '[4/4] Build'
