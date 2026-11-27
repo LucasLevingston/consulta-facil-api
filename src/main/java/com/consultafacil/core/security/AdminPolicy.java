@@ -80,4 +80,13 @@ public class AdminPolicy {
     public boolean canCalculateFees(Authentication auth) {
         return checker.is(auth, UserRole.PROFESSIONAL, UserRole.ADMIN);
     }
+
+    // ── Prescriptions ─────────────────────────────────────────────────────
+    public boolean canIssuePrescription(Authentication auth) {
+        return checker.is(auth, UserRole.PROFESSIONAL);
+    }
+
+    public boolean canViewPrescriptions(Authentication auth) {
+        return checker.isAuthenticated(auth);
+    }
 }
