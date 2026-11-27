@@ -18,5 +18,6 @@ public record AppointmentCanceledEvent(
         LocalDateTime scheduledAt,
         AppointmentModality modality,
         String cancellationReason,
+        boolean emailNotificationsEnabled,
         String occurredAt
 ) {}

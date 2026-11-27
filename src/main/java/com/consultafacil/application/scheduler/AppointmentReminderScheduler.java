@@ -51,8 +51,13 @@ public class AppointmentReminderScheduler {
                 String timeStr      = appt.getScheduledAt().format(FMT);
                 String modality     = appt.getModality() != null ? appt.getModality().name() : "";
 
-                emailService.sendAppointmentReminder(patientEmail, patientName, profName, timeStr, modality);
-                sendWhatsAppReminder(appt.getPatient().getUser(), patientName, profName, timeStr);
+                User patientUser = appt.getPatient().getUser();
+                if (!patientUser.isEmailNotificationsEnabled()) {
+                    log.debug("[Reminder] Email opted out for appointment {}", appt.getId());
+                } else {
+                    emailService.sendAppointmentReminder(patientEmail, patientName, profName, timeStr, modality);
+                }
+                sendWhatsAppReminder(patientUser, patientName, profName, timeStr);
             } catch (Exception e) {
                 log.error("[Reminder] Failed to send reminder for appointment {}: {}", appt.getId(), e.getMessage());
             }
