@@ -61,6 +61,12 @@ public class User {
     @Column(name = "last_data_export_at")
     private LocalDateTime lastDataExportAt;
 
+    @Column(name = "consent_given_at")
+    private LocalDateTime consentGivenAt;
+
+    @Column(name = "consent_version", length = 10)
+    private String consentVersion;
+
     @Column(unique = true)
     private String cpf;
 

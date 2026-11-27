@@ -195,9 +195,11 @@ class UserControllerIntegrationTest {
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
 
+        // After anonymization the record still exists (LGPD soft-delete) but personal data is wiped
         mockMvc.perform(get("/users/" + userId)
                 .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", equalTo("Usuário Removido")));
     }
 
     @Test

@@ -1,8 +1,11 @@
 package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.user.UpdateNotificationPreferencesDTO;
+import com.consultafacil.api.dto.user.UserDataExportDTO;
 import com.consultafacil.api.dto.user.UserResponseDTO;
+import com.consultafacil.application.port.in.user.AnonymizeUserUseCase;
 import com.consultafacil.application.port.in.user.DeleteUserUseCase;
+import com.consultafacil.application.port.in.user.ExportUserDataUseCase;
 import com.consultafacil.application.port.in.user.GetAllUsersUseCase;
 import com.consultafacil.application.port.in.user.GetUserByIdUseCase;
 import com.consultafacil.application.port.in.user.UpdateNotificationPreferencesUseCase;
@@ -33,6 +36,8 @@ public class UserController {
     private final UploadAvatarUseCase uploadAvatar;
     private final DeleteUserUseCase deleteUser;
     private final UpdateNotificationPreferencesUseCase updateNotificationPreferences;
+    private final AnonymizeUserUseCase anonymizeUser;
+    private final ExportUserDataUseCase exportUserData;
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
@@ -88,5 +93,25 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
         deleteUser.execute(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@adminPolicy.canViewUserProfile(authentication)")
+    @Operation(summary = "Anonymize own account (LGPD right to erasure)")
+    public ResponseEntity<Void> anonymizeMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        anonymizeUser.execute(userDetails.getUserId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me/data-export")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@adminPolicy.canViewUserProfile(authentication)")
+    @Operation(summary = "Export own personal data (LGPD right to portability)")
+    public ResponseEntity<UserDataExportDTO> exportMyData(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserDataExportDTO export = exportUserData.execute(userDetails.getUserId());
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"my-data.json\"")
+                .body(export);
     }
 }
