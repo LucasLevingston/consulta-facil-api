@@ -5,6 +5,8 @@ import com.consultafacil.domain.enums.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepositoryPort {
@@ -30,4 +32,6 @@ public interface UserRepositoryPort {
     Page<User> findAll(Pageable pageable);
 
     Page<User> findByRole(UserRole role, Pageable pageable);
+
+    List<User> findByCreatedAtBeforeAndDeletedAtIsNull(LocalDateTime cutoff);
 }

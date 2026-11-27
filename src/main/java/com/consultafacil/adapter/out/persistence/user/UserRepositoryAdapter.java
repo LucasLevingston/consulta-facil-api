@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -70,5 +72,10 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public Page<User> findByRole(UserRole role, Pageable pageable) {
         return userRepository.findByRole(role, pageable);
+    }
+
+    @Override
+    public List<User> findByCreatedAtBeforeAndDeletedAtIsNull(LocalDateTime cutoff) {
+        return userRepository.findByCreatedAtBeforeAndDeletedAtIsNull(cutoff);
     }
 }

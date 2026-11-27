@@ -2,6 +2,7 @@ package com.consultafacil.core.exception;
 
 import com.consultafacil.domain.exception.DomainException;
 import com.consultafacil.domain.exception.PaymentRequiredException;
+import com.consultafacil.domain.exception.RateLimitException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,19 @@ public class GlobalExceptionHandler {
         body.put("upgradeUrl", "/planos");
         body.put("path", request.getDescription(false).replace("uri=", ""));
         return ResponseEntity.status(402).body(body);
+    }
+
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimit(
+            RateLimitException ex,
+            WebRequest request) {
+        log.warn("Rate limit exceeded: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.TOO_MANY_REQUESTS,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(error, HttpStatus.TOO_MANY_REQUESTS);
     }
 
     @ExceptionHandler(DomainException.class)
