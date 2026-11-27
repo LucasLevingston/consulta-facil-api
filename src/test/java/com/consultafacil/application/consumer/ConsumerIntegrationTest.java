@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
  *
  * Uses a real RabbitMQ broker (Testcontainers) to verify the full
  * RabbitListener → consumer method → external port call flow.
- * External adapters (SES, Twilio) are replaced with @MockBean so no
+ * External adapters (SES, Twilio) are replaced with @MockitoBean so no
  * real messages are sent.
  *
  * The datasource is H2 (from the test-profile config) so PostgreSQL is
