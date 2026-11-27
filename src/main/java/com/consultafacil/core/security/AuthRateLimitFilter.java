@@ -54,18 +54,24 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
                         .build())
                 .build();
 
-        RedisClient redisClient = (RedisClient) lettuceConnectionFactory.getNativeClient();
-        var codec = RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE);
-
-        this.loginProxyManager = LettuceBasedProxyManager
-                .builderFor(redisClient.connect(codec))
-                .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(LOGIN_PERIOD))
-                .build();
-
-        this.forgotProxyManager = LettuceBasedProxyManager
-                .builderFor(redisClient.connect(codec))
-                .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(FORGOT_PERIOD))
-                .build();
+        LettuceBasedProxyManager<String> loginPm = null;
+        LettuceBasedProxyManager<String> forgotPm = null;
+        try {
+            RedisClient redisClient = (RedisClient) lettuceConnectionFactory.getNativeClient();
+            var codec = RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE);
+            loginPm = LettuceBasedProxyManager
+                    .builderFor(redisClient.connect(codec))
+                    .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(LOGIN_PERIOD))
+                    .build();
+            forgotPm = LettuceBasedProxyManager
+                    .builderFor(redisClient.connect(codec))
+                    .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(FORGOT_PERIOD))
+                    .build();
+        } catch (Exception e) {
+            log.warn("Rate limit Redis unavailable at startup, fail-open mode active: {}", e.getMessage());
+        }
+        this.loginProxyManager = loginPm;
+        this.forgotProxyManager = forgotPm;
     }
 
     @Override
@@ -97,6 +103,12 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
         }
 
         if (rateLimitKey == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        if (proxyManager == null) {
+            log.warn("Rate limit unavailable (fail open): ip={} path={}", ip, path);
             chain.doFilter(request, response);
             return;
         }
