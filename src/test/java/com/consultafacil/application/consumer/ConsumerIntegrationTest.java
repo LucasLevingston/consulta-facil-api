@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.RabbitMQContainer;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
  *
  * Uses a real RabbitMQ broker (Testcontainers) to verify the full
  * RabbitListener → consumer method → external port call flow.
- * External adapters (SES, Twilio) are replaced with @MockBean so no
+ * External adapters (SES, Twilio) are replaced with @MockitoBean so no
  * real messages are sent.
  *
  * The datasource is H2 (from the test-profile config) so PostgreSQL is
@@ -75,8 +75,8 @@ class ConsumerIntegrationTest {
     }
 
     // ── External adapters replaced with mocks ───────────────────────────────
-    @MockBean EmailPort emailPort;
-    @MockBean WhatsAppService whatsAppService;
+    @MockitoBean EmailPort emailPort;
+    @MockitoBean WhatsAppService whatsAppService;
 
     @Autowired RabbitTemplate rabbitTemplate;
 
