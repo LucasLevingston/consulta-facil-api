@@ -3,6 +3,7 @@ package com.consultafacil.application.service.professional.profile;
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
 import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
 import com.consultafacil.application.port.in.professional.profile.CreateProfessionalProfileUseCase;
+import com.consultafacil.application.port.in.subscription.InitiateProfessionalTrialUseCase;
 import com.consultafacil.core.exception.DuplicateResourceException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalProfile;
@@ -21,6 +22,7 @@ public class CreateProfessionalProfileService implements CreateProfessionalProfi
     private final ProfessionalProfileRepositoryPort professionalProfileRepository;
     private final UserRepositoryPort userRepository;
     private final ProfessionalProfileMapper mapper;
+    private final InitiateProfessionalTrialUseCase initiateProfessionalTrial;
 
     @Override
     @Transactional
@@ -40,6 +42,8 @@ public class CreateProfessionalProfileService implements CreateProfessionalProfi
                 .status(ProfessionalProfileStatus.PENDING_REVIEW)
                 .build();
 
-        return mapper.toResponseDTO(professionalProfileRepository.save(profile));
+        ProfessionalResponseDTO response = mapper.toResponseDTO(professionalProfileRepository.save(profile));
+        initiateProfessionalTrial.execute(userId);
+        return response;
     }
 }

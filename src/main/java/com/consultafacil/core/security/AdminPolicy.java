@@ -68,6 +68,11 @@ public class AdminPolicy {
         return checker.is(auth, UserRole.ADMIN);
     }
 
+    // ── Subscriptions ─────────────────────────────────────────────────────
+    public boolean canManageSubscription(Authentication auth) {
+        return checker.isAuthenticated(auth);
+    }
+
     // ── Analytics & Admin ─────────────────────────────────────────────────
     public boolean canViewAnalytics(Authentication auth) {
         return checker.is(auth, UserRole.ADMIN);

@@ -1,6 +1,7 @@
 package com.consultafacil.application.service.professional.profile;
 
 import com.consultafacil.api.dto.professional.CreateProfessionalDTO;
+import com.consultafacil.application.port.in.subscription.InitiateProfessionalTrialUseCase;
 import com.consultafacil.core.exception.DuplicateResourceException;
 import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.User;
@@ -31,6 +32,7 @@ class CreateProfessionalProfileServiceTest {
 
     @Mock ProfessionalProfileRepositoryPort professionalProfileRepository;
     @Mock UserRepositoryPort userRepository;
+    @Mock InitiateProfessionalTrialUseCase initiateProfessionalTrial;
 
     CreateProfessionalProfileService service;
     User user;
@@ -43,7 +45,8 @@ class CreateProfessionalProfileServiceTest {
         ProfessionalRatingCalculator ratingCalculator = new ProfessionalRatingCalculator();
         ProfessionalConsultationCountCalculator consultationCountCalculator = new ProfessionalConsultationCountCalculator();
         service = new CreateProfessionalProfileService(professionalProfileRepository, userRepository,
-                new ProfessionalProfileMapper(ratingCalculator, consultationCountCalculator));
+                new ProfessionalProfileMapper(ratingCalculator, consultationCountCalculator),
+                initiateProfessionalTrial);
 
         when(professionalProfileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
