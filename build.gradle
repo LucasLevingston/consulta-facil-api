@@ -32,6 +32,7 @@ dependencies {
 
 	// Rate limiting
 	implementation 'com.bucket4j:bucket4j_jdk17-core:8.21.0'
+	implementation 'com.bucket4j:bucket4j_jdk17-lettuce:8.21.0'
 
 	// Database
 	runtimeOnly 'org.postgresql:postgresql'
