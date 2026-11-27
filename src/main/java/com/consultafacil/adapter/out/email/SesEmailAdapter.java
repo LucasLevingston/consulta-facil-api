@@ -201,4 +201,17 @@ public class SesEmailAdapter implements EmailPort {
                 .formatted(name, planLabel, amount, nextBillingDate);
         sendEmail(to, "Assinatura renovada — Consulta Fácil", html, text);
     }
+
+    @Override
+    public void sendPrescriptionAvailable(String to, String patientName, String downloadUrl) {
+        String html = """
+                <h2>Sua receita médica está disponível</h2>
+                <p>Olá, %s!</p>
+                <p>Seu profissional de saúde emitiu uma receita médica digital para você.</p>
+                <p><a href="%s" style="display:inline-block;padding:10px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;">Baixar Receita</a></p>
+                <p style="font-size:0.85em;color:#6b7280;">O link de download pode expirar. Salve o arquivo para acesso futuro.</p>
+                """.formatted(patientName, downloadUrl);
+        String text = "Olá, %s! Sua receita médica está disponível para download: %s".formatted(patientName, downloadUrl);
+        sendEmail(to, "Receita médica disponível — Consulta Fácil", html, text);
+    }
 }

@@ -30,4 +30,6 @@ public interface EmailPort {
     void sendSubscriptionRenewalReminder(String to, String name, String planLabel, int daysLeft, String renewUrl);
 
     void sendSubscriptionRenewed(String to, String name, String planLabel, String amount, String nextBillingDate);
+
+    void sendPrescriptionAvailable(String to, String patientName, String downloadUrl);
 }

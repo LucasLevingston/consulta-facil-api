@@ -70,4 +70,9 @@ public class NoOpEmailAdapter implements EmailPort {
     public void sendSubscriptionRenewed(String to, String name, String planLabel, String amount, String nextBillingDate) {
         log.warn("[Email] AWS desabilitado — confirmação de renovação não enviada para {}", to);
     }
+
+    @Override
+    public void sendPrescriptionAvailable(String to, String patientName, String downloadUrl) {
+        log.warn("[Email] AWS desabilitado — receita digital não enviada para {}", to);
+    }
 }
