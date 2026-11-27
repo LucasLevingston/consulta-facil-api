@@ -17,6 +17,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import org.junit.jupiter.api.Disabled;
+
 import java.util.UUID;
 
 /**
@@ -59,6 +61,7 @@ class RateLimitIntegrationTest {
     // =========================================================================
 
     @Test
+    @Disabled("Rate limiter now uses Redis (fail-open without broker). Covered by RateLimitRedisIntegrationTest")
     void rateLimitExcessiveLoginAttemptsReturn429() {
         // A unique IP derived from UUID ensures a fresh bucket every time this test
         // runs — even when re-run against the same embedded server within a session.

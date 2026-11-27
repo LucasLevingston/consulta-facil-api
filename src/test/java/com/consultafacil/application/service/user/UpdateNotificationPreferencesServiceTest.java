@@ -43,7 +43,8 @@ class UpdateNotificationPreferencesServiceTest {
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        UserResponseDTO result = service.execute("u1", new UpdateNotificationPreferencesDTO(false));
+        UserResponseDTO result = service.execute("u1",
+                UpdateNotificationPreferencesDTO.builder().whatsappNotificationsEnabled(false).build());
 
         assertThat(user.isWhatsappNotificationsEnabled()).isFalse();
         verify(userRepository).save(user);
@@ -57,7 +58,8 @@ class UpdateNotificationPreferencesServiceTest {
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        assertThat(service.execute("u1", new UpdateNotificationPreferencesDTO(true))
+        assertThat(service.execute("u1",
+                UpdateNotificationPreferencesDTO.builder().whatsappNotificationsEnabled(true).build())
                 .isWhatsappNotificationsEnabled()).isTrue();
     }
 
@@ -65,8 +67,47 @@ class UpdateNotificationPreferencesServiceTest {
     void execute_unknownUser_throwsNotFound() {
         when(userRepository.findById("ghost")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.execute("ghost", new UpdateNotificationPreferencesDTO(false)))
+        assertThatThrownBy(() -> service.execute("ghost",
+                UpdateNotificationPreferencesDTO.builder().whatsappNotificationsEnabled(false).build()))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void newUsersReceiveEmailNotificationsEnabledByDefault() {
+        assertThat(User.builder().build().isEmailNotificationsEnabled()).isTrue();
+    }
+
+    @Test
+    void updateEmail_whenEmailNotificationsEnabled_false_setsFlag() {
+        User user = User.builder().id("u2").name("Maria").build();
+        when(userRepository.findById("u2")).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        UserResponseDTO result = service.execute("u2",
+                UpdateNotificationPreferencesDTO.builder()
+                        .whatsappNotificationsEnabled(true)
+                        .emailNotificationsEnabled(false)
+                        .build());
+
+        assertThat(user.isEmailNotificationsEnabled()).isFalse();
+        verify(userRepository).save(user);
+        assertThat(result.isEmailNotificationsEnabled()).isFalse();
+    }
+
+    @Test
+    void updateEmail_whenNull_doesNotChangeEmail() {
+        User user = User.builder().id("u3").name("Carlos").emailNotificationsEnabled(false).build();
+        when(userRepository.findById("u3")).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // emailNotificationsEnabled not set → null → should NOT change the existing false value
+        UserResponseDTO result = service.execute("u3",
+                UpdateNotificationPreferencesDTO.builder()
+                        .whatsappNotificationsEnabled(true)
+                        .build());
+
+        assertThat(user.isEmailNotificationsEnabled()).isFalse();
+        assertThat(result.isEmailNotificationsEnabled()).isFalse();
     }
 }
