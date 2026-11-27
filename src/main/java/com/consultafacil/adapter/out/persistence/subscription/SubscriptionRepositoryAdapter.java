@@ -50,4 +50,9 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepositoryPort
     public List<Subscription> findActiveExpiringBetween(LocalDateTime from, LocalDateTime to) {
         return subscriptionRepository.findActiveExpiringBetween(from, to);
     }
+
+    @Override
+    public List<Subscription> findExpiredTrialsBefore(LocalDateTime now) {
+        return subscriptionRepository.findExpiredTrialsBefore(now);
+    }
 }

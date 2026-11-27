@@ -1,6 +1,7 @@
 package com.consultafacil.core.exception;
 
 import com.consultafacil.domain.exception.DomainException;
+import com.consultafacil.domain.exception.PaymentRequiredException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,20 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(PaymentRequiredException.class)
+    public ResponseEntity<java.util.Map<String, Object>> handlePaymentRequired(
+            PaymentRequiredException ex,
+            WebRequest request) {
+        log.warn("Payment required: {}", ex.getMessage());
+        var body = new java.util.LinkedHashMap<String, Object>();
+        body.put("status", 402);
+        body.put("error", "Payment Required");
+        body.put("requiredPlan", ex.getRequiredPlan());
+        body.put("upgradeUrl", "/planos");
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+        return ResponseEntity.status(402).body(body);
     }
 
     @ExceptionHandler(DomainException.class)

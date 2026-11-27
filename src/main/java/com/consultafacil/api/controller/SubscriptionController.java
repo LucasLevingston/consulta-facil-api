@@ -2,11 +2,14 @@ package com.consultafacil.api.controller;
 
 import com.consultafacil.api.dto.subscription.CheckoutResponseDTO;
 import com.consultafacil.api.dto.subscription.CreateCheckoutDTO;
+import com.consultafacil.api.dto.subscription.SubscriptionPlanInfoDTO;
 import com.consultafacil.api.dto.subscription.SubscriptionResponseDTO;
+import com.consultafacil.application.port.in.subscription.CancelSubscriptionUseCase;
 import com.consultafacil.application.port.in.subscription.CreateCheckoutUseCase;
 import com.consultafacil.application.port.in.subscription.GetMySubscriptionUseCase;
 import com.consultafacil.application.port.in.subscription.HandlePaymentApprovedUseCase;
 import com.consultafacil.application.port.in.subscription.HandlePreapprovalWebhookUseCase;
+import com.consultafacil.application.port.in.subscription.ListSubscriptionPlansUseCase;
 import com.consultafacil.core.security.CustomUserDetails;
 import com.consultafacil.core.security.MercadoPagoWebhookValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -33,6 +37,8 @@ public class SubscriptionController {
     private final HandlePaymentApprovedUseCase handlePaymentApproved;
     private final HandlePreapprovalWebhookUseCase handlePreapprovalWebhook;
     private final MercadoPagoWebhookValidator webhookValidator;
+    private final ListSubscriptionPlansUseCase listPlans;
+    private final CancelSubscriptionUseCase cancelSubscription;
 
     @PostMapping("/checkout")
     @SecurityRequirement(name = "bearerAuth")
@@ -51,6 +57,21 @@ public class SubscriptionController {
         return getMySubscription.execute(userDetails.getUserId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/plans")
+    @Operation(summary = "List available subscription plans (public)")
+    public ResponseEntity<List<SubscriptionPlanInfoDTO>> listPlans() {
+        return ResponseEntity.ok(listPlans.execute());
+    }
+
+    @PostMapping("/cancel")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Cancel subscription at period end")
+    public ResponseEntity<Void> cancelSubscription(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        cancelSubscription.execute(userDetails.getUserId());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/webhook")

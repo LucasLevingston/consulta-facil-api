@@ -1,5 +1,6 @@
 package com.consultafacil.domain.entity;
 
+import com.consultafacil.domain.enums.SubscriptionPlan;
 import com.consultafacil.domain.enums.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,7 +33,19 @@ public class Subscription {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
+    private SubscriptionPlan plan = SubscriptionPlan.FREE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
     private SubscriptionStatus status = SubscriptionStatus.PENDING;
+
+    @Column(name = "trial_ends_at")
+    private LocalDateTime trialEndsAt;
+
+    @Column(name = "cancel_at_period_end", nullable = false)
+    @Builder.Default
+    private boolean cancelAtPeriodEnd = false;
 
     @Column(name = "mp_preference_id")
     private String mpPreferenceId;

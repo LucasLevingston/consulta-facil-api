@@ -21,4 +21,6 @@ public interface SubscriptionRepositoryPort {
     List<Subscription> findActiveExpiredBefore(LocalDateTime now);
 
     List<Subscription> findActiveExpiringBetween(LocalDateTime from, LocalDateTime to);
+
+    List<Subscription> findExpiredTrialsBefore(LocalDateTime now);
 }

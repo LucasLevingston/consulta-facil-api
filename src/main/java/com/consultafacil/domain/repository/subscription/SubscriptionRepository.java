@@ -24,4 +24,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Stri
     List<Subscription> findActiveExpiringBetween(
         @Param("from") LocalDateTime from,
         @Param("to") LocalDateTime to);
+
+    @Query("SELECT s FROM Subscription s WHERE s.trialEndsAt IS NOT NULL AND s.trialEndsAt < :now AND s.status = 'ACTIVE' AND s.mpPreapprovalId IS NULL")
+    List<Subscription> findExpiredTrialsBefore(@Param("now") LocalDateTime now);
 }
