@@ -76,6 +76,15 @@ public class CarePolicy {
         return checker.is(auth, UserRole.PATIENT);
     }
 
+    // ── Insurance ──────────────────────────────────────────────────────────
+    public boolean canManageOwnInsurance(Authentication auth) {
+        return checker.is(auth, UserRole.PATIENT);
+    }
+
+    public boolean canManageProfessionalInsurance(Authentication auth) {
+        return checker.is(auth, UserRole.PROFESSIONAL);
+    }
+
     // ── Professional Enrichment ───────────────────────────────────────────
     public boolean canManageOwnEducation(Authentication auth) {
         return checker.is(auth, UserRole.PROFESSIONAL);
