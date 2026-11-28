@@ -6,7 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Date;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JwtTokenProviderTest {
 
@@ -104,5 +108,76 @@ class JwtTokenProviderTest {
         var t2 = provider.generateToken(user("u-2", "b@email.com"));
 
         assertThat(t1).isNotEqualTo(t2);
+    }
+
+    // ── getExpiration ─────────────────────────────────────────────────────
+
+    @Test
+    void getExpiration_validToken_shouldReturnPresentOptional() {
+        var token = provider.generateToken(user("u-1", "test@email.com"));
+
+        Optional<Date> expiration = provider.getExpiration(token);
+
+        assertThat(expiration).isPresent();
+        assertThat(expiration.get()).isAfter(new Date());
+    }
+
+    @Test
+    void getExpiration_invalidToken_shouldReturnEmptyOptional() {
+        Optional<Date> expiration = provider.getExpiration("not.a.valid.jwt");
+
+        assertThat(expiration).isEmpty();
+    }
+
+    @Test
+    void getExpiration_tamperedToken_shouldReturnEmptyOptional() {
+        var token = provider.generateToken(user("u-1", "test@email.com"));
+
+        Optional<Date> expiration = provider.getExpiration(token + "x");
+
+        assertThat(expiration).isEmpty();
+    }
+
+    // ── validateSecret ────────────────────────────────────────────────────
+
+    @Test
+    void validateSecret_secretTooShort_throwsIllegalStateException() {
+        JwtTokenProvider shortSecretProvider = new JwtTokenProvider();
+        ReflectionTestUtils.setField(shortSecretProvider, "jwtSecret", "short");
+        ReflectionTestUtils.setField(shortSecretProvider, "jwtExpirationMs", 86400000L);
+
+        assertThatThrownBy(shortSecretProvider::validateSecret)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("jwt.secret must be at least 64 bytes");
+    }
+
+    @Test
+    void validateSecret_secretExactly64Bytes_doesNotThrow() {
+        JwtTokenProvider validSecretProvider = new JwtTokenProvider();
+        // exactly 64 chars (64 ASCII bytes)
+        ReflectionTestUtils.setField(validSecretProvider, "jwtSecret",
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        ReflectionTestUtils.setField(validSecretProvider, "jwtExpirationMs", 86400000L);
+
+        // Should not throw
+        validSecretProvider.validateSecret();
+    }
+
+    // ── generateToken preserves role claim ───────────────────────────────
+
+    @Test
+    void generateToken_professionalUser_tokenContainsRoleClaim() {
+        User professional = User.builder()
+                .id("pro-1")
+                .email("pro@email.com")
+                .name("Dr. Test")
+                .password("hashed")
+                .role(UserRole.PROFESSIONAL)
+                .build();
+
+        var token = provider.generateToken(professional);
+
+        assertThat(provider.validateToken(token)).isTrue();
+        assertThat(provider.getUserIdFromToken(token)).isEqualTo("pro-1");
     }
 }
