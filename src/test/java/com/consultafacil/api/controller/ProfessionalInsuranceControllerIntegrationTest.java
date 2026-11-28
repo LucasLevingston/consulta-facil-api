@@ -23,12 +23,13 @@ class ProfessionalInsuranceControllerIntegrationTest extends ProfessionalInsuran
 
     @Test
     void addInsurance_requiresAuth() throws Exception {
+        // /professionals/** is permitAll in security config; method security returns 403
         AddProfessionalInsuranceRequest req = new AddProfessionalInsuranceRequest(planId, null);
 
         mockMvc.perform(post("/professionals/me/insurance")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
