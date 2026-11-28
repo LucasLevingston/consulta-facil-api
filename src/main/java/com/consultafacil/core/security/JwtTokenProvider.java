@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -83,5 +84,21 @@ public class JwtTokenProvider {
 
     public Long getExpiresIn() {
         return jwtExpirationMs;
+    }
+
+    public Optional<Date> getExpiration(String token) {
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            Date exp = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration();
+            return Optional.ofNullable(exp);
+        } catch (Exception ex) {
+            log.warn("Could not read expiration from token: {}", ex.getMessage());
+            return Optional.empty();
+        }
     }
 }

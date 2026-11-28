@@ -118,8 +118,7 @@ jacoco {
 tasks.named('test') {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport
-	// Use system temp dir for binary results to avoid Windows file-lock conflicts from IDE indexers
-	binaryResultsDirectory.set(new File(System.getProperty("java.io.tmpdir"), "gradle-test-binary-consultafacil"))
+	binaryResultsDirectory.set(layout.buildDirectory.dir("tmp/test-binary-results"))
 }
 
 jacocoTestReport {

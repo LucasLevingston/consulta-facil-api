@@ -14,12 +14,14 @@ import com.consultafacil.application.port.in.auth.GoogleLoginUseCase;
 import com.consultafacil.application.port.in.auth.GoogleOAuthCallbackUseCase;
 import com.consultafacil.application.port.in.auth.GoogleOAuthRedirectUseCase;
 import com.consultafacil.application.port.in.auth.LoginUseCase;
+import com.consultafacil.application.port.in.auth.LogoutUseCase;
 import com.consultafacil.application.port.in.user.RegisterUserUseCase;
 import com.consultafacil.application.port.in.auth.RequestMagicLinkUseCase;
 import com.consultafacil.application.port.in.auth.ResetPasswordUseCase;
 import com.consultafacil.application.port.in.auth.RotateRefreshTokenUseCase;
 import com.consultafacil.application.port.in.auth.VerifyMagicLinkUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,7 @@ public class AuthController {
     private final GoogleOAuthRedirectUseCase googleOAuthRedirect;
     private final GoogleOAuthCallbackUseCase googleOAuthCallback;
     private final RotateRefreshTokenUseCase rotateRefreshToken;
+    private final LogoutUseCase logoutUseCase;
 
     @Value("${app.url:http://localhost:3000}")
     private String appUrl;
@@ -118,5 +121,13 @@ public class AuthController {
     @Operation(summary = "Refresh token", description = "Rotates a refresh token and issues new access + refresh tokens")
     public ResponseEntity<LoginResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
         return ResponseEntity.ok(rotateRefreshToken.execute(request.refreshToken()));
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Logout", description = "Invalidates the current JWT by adding it to the Redis blacklist")
+    public void logout(@RequestHeader("Authorization") String authHeader) {
+        logoutUseCase.execute(authHeader);
     }
 }

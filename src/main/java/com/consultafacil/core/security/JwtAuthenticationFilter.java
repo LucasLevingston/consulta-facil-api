@@ -1,5 +1,6 @@
 package com.consultafacil.core.security;
 
+import com.consultafacil.domain.port.out.auth.JwtBlacklistPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
     private final CustomUserDetailsService userDetailsService;
+    private final JwtBlacklistPort jwtBlacklistPort;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -28,10 +30,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+                if (jwtBlacklistPort.isBlacklisted(jwt)) {
+                    log.debug("Rejected blacklisted JWT");
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 String userId = tokenProvider.getUserIdFromToken(jwt);
                 CustomUserDetails userDetails = userDetailsService.loadUserById(userId);
 
-                UsernamePasswordAuthenticationToken authentication = 
+                UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
