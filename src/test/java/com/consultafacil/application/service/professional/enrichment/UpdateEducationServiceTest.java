@@ -5,6 +5,8 @@ import com.consultafacil.application.service.professional.profile.ProfessionalPr
 import com.consultafacil.application.service.professional.profile.ProfessionalProfileMapper;
 
 import com.consultafacil.api.dto.professional.ProfessionalEducationDTO;
+import com.consultafacil.api.dto.professional.ProfessionalResponseDTO;
+import com.consultafacil.core.exception.ResourceNotFoundException;
 import com.consultafacil.domain.entity.ProfessionalEducation;
 import com.consultafacil.domain.entity.ProfessionalProfile;
 import com.consultafacil.domain.entity.User;
@@ -21,8 +23,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +48,72 @@ class UpdateEducationServiceTest {
                 .education(new ArrayList<>())
                 .experience(new ArrayList<>())
                 .certificates(new ArrayList<>())
+                .clinicMemberships(new ArrayList<>())
                 .build();
+    }
+
+    @Test
+    void execute_profileNotFound_throwsResourceNotFoundException() {
+        when(profileByUserIdFinder.findOrThrow("missing"))
+                .thenThrow(new ResourceNotFoundException("Professional profile", "missing"));
+
+        ProfessionalEducationDTO dto = new ProfessionalEducationDTO(null, DegreeType.GRADUATION, "USP", null, 2010);
+        assertThatThrownBy(() -> service.execute("missing", "edu-1", dto))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void execute_educationNotFound_throwsResourceNotFoundException() {
+        ProfessionalProfile p = profile("prof-1", "user-1");
+        when(profileByUserIdFinder.findOrThrow("user-1")).thenReturn(p);
+        when(educationRepository.findById("missing")).thenReturn(Optional.empty());
+
+        ProfessionalEducationDTO dto = new ProfessionalEducationDTO(null, DegreeType.GRADUATION, "USP", null, 2010);
+        assertThatThrownBy(() -> service.execute("user-1", "missing", dto))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void execute_validOwner_updatesAllFields() {
+        ProfessionalProfile owner = profile("prof-1", "user-1");
+        ProfessionalEducation education = ProfessionalEducation.builder()
+                .id("edu-1").professionalProfile(owner)
+                .degree(DegreeType.GRADUATION).institution("UFMG")
+                .fieldOfStudy("Medicine").graduationYear(2010)
+                .build();
+
+        when(profileByUserIdFinder.findOrThrow("user-1")).thenReturn(owner);
+        when(educationRepository.findById("edu-1")).thenReturn(Optional.of(education));
+        when(profileByIdFinder.findOrThrow("prof-1")).thenReturn(owner);
+        ProfessionalResponseDTO responseDTO = ProfessionalResponseDTO.builder().id("prof-1").build();
+        when(mapper.toResponseDTO(owner)).thenReturn(responseDTO);
+
+        ProfessionalEducationDTO dto = new ProfessionalEducationDTO(null, DegreeType.MASTER, "Unicamp", "Cardiology", 2015);
+        service.execute("user-1", "edu-1", dto);
+
+        assertThat(education.getDegree()).isEqualTo(DegreeType.MASTER);
+        assertThat(education.getInstitution()).isEqualTo("Unicamp");
+        assertThat(education.getFieldOfStudy()).isEqualTo("Cardiology");
+        assertThat(education.getGraduationYear()).isEqualTo(2015);
+    }
+
+    @Test
+    void execute_validOwner_savesEducation() {
+        ProfessionalProfile owner = profile("prof-1", "user-1");
+        ProfessionalEducation education = ProfessionalEducation.builder()
+                .id("edu-1").professionalProfile(owner)
+                .degree(DegreeType.GRADUATION).institution("UFMG")
+                .build();
+
+        when(profileByUserIdFinder.findOrThrow("user-1")).thenReturn(owner);
+        when(educationRepository.findById("edu-1")).thenReturn(Optional.of(education));
+        when(profileByIdFinder.findOrThrow("prof-1")).thenReturn(owner);
+        when(mapper.toResponseDTO(any())).thenReturn(ProfessionalResponseDTO.builder().id("prof-1").build());
+
+        ProfessionalEducationDTO dto = new ProfessionalEducationDTO(null, DegreeType.MASTER, "Unicamp", null, 2015);
+        service.execute("user-1", "edu-1", dto);
+
+        verify(educationRepository).save(education);
     }
 
     @Test
