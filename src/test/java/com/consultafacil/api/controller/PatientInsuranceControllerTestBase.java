@@ -51,18 +51,18 @@ abstract class PatientInsuranceControllerTestBase {
     void setUp() throws Exception {
         // Register a patient user
         String patientUserId = registerUser(
-                "Patient Ins", "patient-ins@example.com", "patins1",
+                "Patient Ins", "patient-ins@example.com", "patins001",
                 "22233344455", "11999993333");
         // Patients are created with PATIENT role by default; ensure patient profile exists
         ensurePatientProfile(patientUserId);
-        patientToken = loginAndGetToken("patient-ins@example.com", "patins1");
+        patientToken = loginAndGetToken("patient-ins@example.com", "patins001");
 
         // Register an admin user (not a patient — no patient profile)
         String adminUserId = registerUser(
-                "Admin Ins", "admin-ins@example.com", "adminins1",
+                "Admin Ins", "admin-ins@example.com", "adminins001",
                 "66677788899", "11999994444");
         promoteTo(adminUserId, UserRole.ADMIN);
-        adminToken = loginAndGetToken("admin-ins@example.com", "adminins1");
+        adminToken = loginAndGetToken("admin-ins@example.com", "adminins001");
 
         // Seed an active insurance plan
         HealthInsurancePlan plan = planRepository.saveAndFlush(

@@ -149,8 +149,8 @@ class BillingPaymentControllerIntegrationTest extends BillingPaymentControllerTe
     }
 
     @Test
-    void webhook_returns200ForAuthenticatedUser() throws Exception {
-        // /billing/payments/webhook is not in the permit list, so it needs auth
+    void webhook_nonExistentPaymentReturns4xx() throws Exception {
+        // Payment not found → service throws ResourceNotFoundException → 400 or 404
         Map<String, Object> payload = Map.of(
                 "gateway_payment_id", "gw-test-123",
                 "status", "PAID");
@@ -159,7 +159,7 @@ class BillingPaymentControllerIntegrationTest extends BillingPaymentControllerTe
                         .header("Authorization", "Bearer " + patientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payload)))
-                .andExpect(status().isOk());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test

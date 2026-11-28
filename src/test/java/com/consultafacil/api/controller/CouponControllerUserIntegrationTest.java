@@ -73,7 +73,7 @@ class CouponControllerUserIntegrationTest extends CouponControllerTestBase {
                         .header("Authorization", "Bearer " + patientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test

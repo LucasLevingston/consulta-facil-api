@@ -73,8 +73,9 @@ class ProfessionalInsuranceControllerIntegrationTest extends ProfessionalInsuran
 
     @Test
     void listInsurance_requiresAuth() throws Exception {
+        // /professionals/** is permitAll in security config; method security returns 403
         mockMvc.perform(get("/professionals/me/insurance"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -102,8 +103,9 @@ class ProfessionalInsuranceControllerIntegrationTest extends ProfessionalInsuran
 
     @Test
     void removeInsurance_requiresAuth() throws Exception {
+        // /professionals/** is permitAll in security config; method security returns 403
         mockMvc.perform(delete("/professionals/me/insurance/" + planId))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
